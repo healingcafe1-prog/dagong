@@ -69,10 +69,23 @@ export const renderer = jsxRenderer(({ children }) => {
                   <i class="fas fa-users text-xl mb-1"></i>
                   <span class="text-sm">체험·교육</span>
                 </a>
-                <a href="/education/apply" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
-                  <i class="fas fa-graduation-cap text-xl mb-1"></i>
-                  <span class="text-sm">다도교육 신청</span>
-                </a>
+                <div class="relative group">
+                  <a href="/education/curriculum" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition">
+                    <i class="fas fa-graduation-cap text-xl mb-1"></i>
+                    <span class="text-sm">다도교육</span>
+                  </a>
+                  <div class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+                    <a href="/education/curriculum" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-book mr-2"></i>교육 커리큘럼
+                    </a>
+                    <a href="/education/apply" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-pencil-alt mr-2"></i>교육 신청
+                    </a>
+                    <a href="/education/status" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-list-check mr-2"></i>교육 현황
+                    </a>
+                  </div>
+                </div>
                 <a href="/events" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
                   <i class="fas fa-star text-xl mb-1"></i>
                   <span class="text-sm">이벤트</span>
@@ -119,7 +132,12 @@ export const renderer = jsxRenderer(({ children }) => {
               <a href="/products?type=gift_set" class="block py-2 text-gray-700 hover:text-tea-brown">선물세트</a>
               <a href="/regions" class="block py-2 text-gray-700 hover:text-tea-green">지역별 보기</a>
               <a href="/experiences" class="block py-2 text-gray-700 hover:text-tea-green">체험·교육</a>
-              <a href="/education/apply" class="block py-2 text-gray-700 hover:text-tea-green">다도교육 신청</a>
+              <div class="py-2">
+                <div class="font-medium text-gray-900 mb-1">다도교육</div>
+                <a href="/education/curriculum" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 커리큘럼</a>
+                <a href="/education/apply" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 신청</a>
+                <a href="/education/status" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 현황</a>
+              </div>
               <a href="/events" class="block py-2 text-gray-700 hover:text-tea-brown">이벤트</a>
             </div>
           </div>

@@ -223,6 +223,15 @@ else if (path === '/education/apply') {
 else if (path === '/education/status') {
   loadEducationStatusPage();
 }
+// 교육 커리큘럼 페이지
+else if (path === '/education/curriculum') {
+  loadEducationCurriculumPage();
+}
+// 교육 커리큘럼 상세 페이지
+else if (path.startsWith('/education/curriculum/')) {
+  const curriculumId = path.split('/')[3];
+  loadEducationCurriculumDetailPage(curriculumId);
+}
 // 생산자 관리 페이지
 else if (path.startsWith('/producer/manage/')) {
   const producerId = path.split('/')[3];
@@ -1868,6 +1877,325 @@ function loadLoginPage() {
       </div>
     </div>
   `;
+}
+
+// ===== 교육 커리큘럼 페이지 =====
+
+// 교육 커리큘럼 목록 페이지
+async function loadEducationCurriculumPage() {
+  const app = document.getElementById('app');
+  
+  try {
+    // 카테고리 및 커리큘럼 데이터 가져오기
+    const [categoriesRes, curriculumRes] = await Promise.all([
+      axios.get('/api/education/categories'),
+      axios.get('/api/education/curriculum')
+    ]);
+    
+    const categories = categoriesRes.data.categories;
+    const allCurriculum = curriculumRes.data.curriculum;
+    
+    // 차공부와 공예공부로 분류
+    const teaCurriculum = allCurriculum.filter(c => c.category_id === 2);
+    const craftCurriculum = allCurriculum.filter(c => c.category_id === 3);
+    
+    app.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-graduation-cap text-tea-green mr-3"></i>
+            다도교육 커리큘럼
+          </h1>
+          <p class="text-lg text-gray-600">
+            차와 공예에 대한 체계적인 교육 프로그램을 만나보세요
+          </p>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="flex justify-center mb-8 border-b border-gray-200">
+          <button onclick="showTab('tea')" id="teaTab" class="px-8 py-4 text-lg font-medium border-b-2 border-tea-green text-tea-green focus:outline-none">
+            <i class="fas fa-mug-hot mr-2"></i>
+            차공부
+          </button>
+          <button onclick="showTab('craft')" id="craftTab" class="px-8 py-4 text-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas fa-palette mr-2"></i>
+            공예공부
+          </button>
+        </div>
+
+        <!-- 차공부 탭 내용 -->
+        <div id="teaContent" class="tab-content">
+          <div class="mb-8 p-6 bg-tea-cream rounded-lg border-l-4 border-tea-green">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              <i class="fas fa-mug-hot text-tea-green mr-2"></i>
+              차공부
+            </h2>
+            <p class="text-gray-700">
+              차의 역사와 문화, 종류와 우리는 방법을 배웁니다
+            </p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${teaCurriculum.map((item, index) => `
+              <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="bg-tea-green/10 p-3 rounded-lg">
+                      <i class="fas fa-book-open text-2xl text-tea-green"></i>
+                    </div>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full ${
+                      item.difficulty === '입문' ? 'bg-green-100 text-green-800' :
+                      item.difficulty === '중급' ? 'bg-blue-100 text-blue-800' :
+                      'bg-purple-100 text-purple-800'
+                    }">
+                      ${item.difficulty}
+                    </span>
+                  </div>
+                  
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    ${item.title}
+                  </h3>
+                  
+                  <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                    ${item.description}
+                  </p>
+                  
+                  <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fas fa-clock mr-2"></i>
+                    <span>약 ${item.duration_minutes}분</span>
+                  </div>
+                  
+                  <a href="/education/curriculum/${item.id}" 
+                     class="block w-full text-center bg-tea-green text-white py-2 rounded-lg hover:bg-tea-green/90 transition-colors">
+                    자세히 보기
+                    <i class="fas fa-arrow-right ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 공예공부 탭 내용 -->
+        <div id="craftContent" class="tab-content hidden">
+          <div class="mb-8 p-6 bg-craft-blue/10 rounded-lg border-l-4 border-craft-blue">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              <i class="fas fa-palette text-craft-blue mr-2"></i>
+              공예공부
+            </h2>
+            <p class="text-gray-700">
+              한국 전통 공예의 역사와 제작 기법을 배웁니다
+            </p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${craftCurriculum.map((item, index) => `
+              <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="bg-craft-blue/10 p-3 rounded-lg">
+                      <i class="fas fa-hammer text-2xl text-craft-blue"></i>
+                    </div>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full ${
+                      item.difficulty === '입문' ? 'bg-green-100 text-green-800' :
+                      item.difficulty === '중급' ? 'bg-blue-100 text-blue-800' :
+                      'bg-purple-100 text-purple-800'
+                    }">
+                      ${item.difficulty}
+                    </span>
+                  </div>
+                  
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    ${item.title}
+                  </h3>
+                  
+                  <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                    ${item.description}
+                  </p>
+                  
+                  <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fas fa-clock mr-2"></i>
+                    <span>약 ${item.duration_minutes}분</span>
+                  </div>
+                  
+                  <a href="/education/curriculum/${item.id}" 
+                     class="block w-full text-center bg-craft-blue text-white py-2 rounded-lg hover:bg-craft-blue/90 transition-colors">
+                    자세히 보기
+                    <i class="fas fa-arrow-right ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- CTA 섹션 -->
+        <div class="mt-16 text-center p-8 bg-gradient-to-r from-tea-green to-craft-blue rounded-lg text-white">
+          <h2 class="text-3xl font-bold mb-4">다도교육 신청하기</h2>
+          <p class="text-lg mb-6 opacity-90">
+            기관 단체 교육을 원하시나요? 지금 바로 신청해보세요
+          </p>
+          <a href="/education/apply" 
+             class="inline-block bg-white text-tea-green font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+            <i class="fas fa-pencil-alt mr-2"></i>
+            교육 신청하기
+          </a>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('커리큘럼 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">페이지를 불러올 수 없습니다</h2>
+        <p class="text-gray-600 mb-6">잠시 후 다시 시도해주세요.</p>
+        <a href="/" class="text-tea-green hover:underline">홈으로 돌아가기</a>
+      </div>
+    `;
+  }
+}
+
+// 탭 전환 함수
+window.showTab = function(tab) {
+  const teaTab = document.getElementById('teaTab');
+  const craftTab = document.getElementById('craftTab');
+  const teaContent = document.getElementById('teaContent');
+  const craftContent = document.getElementById('craftContent');
+  
+  if (tab === 'tea') {
+    teaTab.classList.add('border-tea-green', 'text-tea-green');
+    teaTab.classList.remove('border-transparent', 'text-gray-500');
+    craftTab.classList.add('border-transparent', 'text-gray-500');
+    craftTab.classList.remove('border-craft-blue', 'text-craft-blue');
+    teaContent.classList.remove('hidden');
+    craftContent.classList.add('hidden');
+  } else {
+    craftTab.classList.add('border-craft-blue', 'text-craft-blue');
+    craftTab.classList.remove('border-transparent', 'text-gray-500');
+    teaTab.classList.add('border-transparent', 'text-gray-500');
+    teaTab.classList.remove('border-tea-green', 'text-tea-green');
+    craftContent.classList.remove('hidden');
+    teaContent.classList.add('hidden');
+  }
+}
+
+// 교육 커리큘럼 상세 페이지
+async function loadEducationCurriculumDetailPage(curriculumId) {
+  const app = document.getElementById('app');
+  
+  try {
+    const response = await axios.get(`/api/education/curriculum/${curriculumId}`);
+    const curriculum = response.data.curriculum;
+    
+    const isTeaCurriculum = curriculum.category_id === 2;
+    const themeColor = isTeaCurriculum ? 'tea-green' : 'craft-blue';
+    const themeIcon = isTeaCurriculum ? 'fa-mug-hot' : 'fa-palette';
+    
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 뒤로 가기 버튼 -->
+        <div class="mb-6">
+          <a href="/education/curriculum" class="inline-flex items-center text-gray-600 hover:text-${themeColor}">
+            <i class="fas fa-arrow-left mr-2"></i>
+            커리큘럼 목록으로
+          </a>
+        </div>
+
+        <!-- 헤더 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+          <div class="bg-gradient-to-r from-${themeColor} to-${themeColor}/80 text-white p-8">
+            <div class="flex items-center mb-4">
+              <div class="bg-white/20 p-4 rounded-lg mr-4">
+                <i class="fas ${themeIcon} text-4xl"></i>
+              </div>
+              <div>
+                <p class="text-sm opacity-90 mb-1">${curriculum.category_name}</p>
+                <h1 class="text-3xl font-bold">${curriculum.title}</h1>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 mt-6">
+              <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                <i class="fas fa-signal mr-2"></i>
+                ${curriculum.difficulty}
+              </span>
+              <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                <i class="fas fa-clock mr-2"></i>
+                약 ${curriculum.duration_minutes}분
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 내용 -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-${themeColor} pb-2">
+            <i class="fas fa-book-reader text-${themeColor} mr-2"></i>
+            과정 소개
+          </h2>
+          <p class="text-lg text-gray-700 mb-8 leading-relaxed">
+            ${curriculum.description}
+          </p>
+          
+          <h2 class="text-2xl font-bold text-gray-900 mb-4 border-b-2 border-${themeColor} pb-2">
+            <i class="fas fa-clipboard-list text-${themeColor} mr-2"></i>
+            학습 내용
+          </h2>
+          <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
+            ${curriculum.content}
+          </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <a href="/education/apply" 
+             class="block text-center bg-${themeColor} text-white py-4 rounded-lg hover:bg-${themeColor}/90 transition-colors font-semibold">
+            <i class="fas fa-pencil-alt mr-2"></i>
+            교육 신청하기
+          </a>
+          <a href="/education/curriculum" 
+             class="block text-center bg-gray-100 text-gray-700 py-4 rounded-lg hover:bg-gray-200 transition-colors font-semibold">
+            <i class="fas fa-list mr-2"></i>
+            다른 과정 보기
+          </a>
+        </div>
+
+        <!-- 관련 정보 -->
+        <div class="mt-8 p-6 bg-${themeColor}/10 rounded-lg">
+          <h3 class="text-lg font-bold text-gray-900 mb-3">
+            <i class="fas fa-info-circle text-${themeColor} mr-2"></i>
+            참고 사항
+          </h3>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex items-start">
+              <i class="fas fa-check text-${themeColor} mr-2 mt-1"></i>
+              <span>본 과정은 기관 단체 교육 신청 시 선택할 수 있습니다</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-${themeColor} mr-2 mt-1"></i>
+              <span>실제 교육 시간은 참가자 수와 현장 상황에 따라 조정될 수 있습니다</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-${themeColor} mr-2 mt-1"></i>
+              <span>교육 문의: 교육 신청 페이지를 통해 문의해주세요</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('커리큘럼 상세 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">페이지를 불러올 수 없습니다</h2>
+        <p class="text-gray-600 mb-6">요청하신 커리큘럼을 찾을 수 없습니다.</p>
+        <a href="/education/curriculum" class="text-tea-green hover:underline">커리큘럼 목록으로 돌아가기</a>
+      </div>
+    `;
+  }
 }
 
 // 페이지 로드 시 사용자 정보 가져오기

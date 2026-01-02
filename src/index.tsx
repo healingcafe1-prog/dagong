@@ -761,6 +761,72 @@ app.get('/api/education-statistics', async (c) => {
   })
 })
 
+// ===== 교육 커리큘럼 API =====
+
+// 교육 카테고리 목록 조회 (차공부, 공예공부)
+app.get('/api/education/categories', async (c) => {
+  const { results } = await c.env.DB.prepare(`
+    SELECT * FROM education_categories 
+    ORDER BY display_order ASC
+  `).all()
+  
+  return c.json({ categories: results })
+})
+
+// 교육 커리큘럼 목록 조회
+app.get('/api/education/curriculum', async (c) => {
+  const categoryId = c.req.query('category_id')
+  const difficulty = c.req.query('difficulty')
+  
+  let query = `
+    SELECT 
+      ec.*,
+      cat.name as category_name,
+      cat.icon as category_icon
+    FROM education_curriculum ec
+    LEFT JOIN education_categories cat ON ec.category_id = cat.id
+    WHERE 1=1
+  `
+  const params: any[] = []
+  
+  if (categoryId) {
+    query += ' AND ec.category_id = ?'
+    params.push(parseInt(categoryId))
+  }
+  
+  if (difficulty) {
+    query += ' AND ec.difficulty = ?'
+    params.push(difficulty)
+  }
+  
+  query += ' ORDER BY ec.category_id ASC, ec.display_order ASC'
+  
+  const { results } = await c.env.DB.prepare(query).bind(...params).all()
+  return c.json({ curriculum: results })
+})
+
+// 교육 커리큘럼 상세 조회
+app.get('/api/education/curriculum/:id', async (c) => {
+  const id = c.req.param('id')
+  
+  const curriculum = await c.env.DB.prepare(`
+    SELECT 
+      ec.*,
+      cat.name as category_name,
+      cat.description as category_description,
+      cat.icon as category_icon
+    FROM education_curriculum ec
+    LEFT JOIN education_categories cat ON ec.category_id = cat.id
+    WHERE ec.id = ?
+  `).bind(id).first()
+  
+  if (!curriculum) {
+    return c.json({ error: '커리큘럼을 찾을 수 없습니다' }, 404)
+  }
+  
+  return c.json({ curriculum })
+})
+
 // ===== 프론트엔드 페이지 라우트 =====
 
 // 홈 페이지
@@ -873,6 +939,24 @@ app.get('/education/apply', (c) => {
 
 // 교육 현황 페이지
 app.get('/education/status', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
+// 교육 커리큘럼 페이지
+app.get('/education/curriculum', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
+// 교육 커리큘럼 상세 페이지
+app.get('/education/curriculum/:id', (c) => {
   return c.render(
     <div id="app">
       <div class="loading">로딩 중...</div>
