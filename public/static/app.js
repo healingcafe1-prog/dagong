@@ -943,7 +943,7 @@ async function loadExperiencesPage() {
     
     const typeNames = {
       'tea_ceremony': '다도교육',
-      'tea_tasting': '차 시음',
+      'tea_experience': '차체험',
       'craft_workshop': '공예 체험',
       'farm_tour': '농장 투어',
       'workshop_visit': '공방 견학'
@@ -960,8 +960,8 @@ async function loadExperiencesPage() {
           <a href="/experiences?type=tea_ceremony" class="px-4 py-2 rounded-full ${type === 'tea_ceremony' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
             다도교육
           </a>
-          <a href="/experiences?type=tea_tasting" class="px-4 py-2 rounded-full ${type === 'tea_tasting' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
-            차 시음
+          <a href="/experiences?type=tea_experience" class="px-4 py-2 rounded-full ${type === 'tea_experience' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            차체험
           </a>
           <a href="/experiences?type=craft_workshop" class="px-4 py-2 rounded-full ${type === 'craft_workshop' ? 'bg-craft-blue text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
             공예 체험
@@ -978,7 +978,7 @@ async function loadExperiencesPage() {
           ${experiences.map(exp => `
             <a href="/experiences/${exp.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
               <div class="h-48 bg-gradient-to-br ${exp.experience_type.includes('tea') ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} flex items-center justify-center">
-                <i class="fas ${exp.experience_type === 'tea_ceremony' ? 'fa-yin-yang' : exp.experience_type === 'tea_tasting' ? 'fa-mug-hot' : exp.experience_type === 'craft_workshop' ? 'fa-palette' : exp.experience_type === 'farm_tour' ? 'fa-tractor' : 'fa-door-open'} text-white text-6xl"></i>
+                <i class="fas ${exp.experience_type === 'tea_ceremony' ? 'fa-yin-yang' : exp.experience_type === 'tea_experience' ? 'fa-mug-hot' : exp.experience_type === 'craft_workshop' ? 'fa-palette' : exp.experience_type === 'farm_tour' ? 'fa-tractor' : 'fa-door-open'} text-white text-6xl"></i>
               </div>
               <div class="p-6">
                 <div class="text-sm text-gray-500 mb-2">
@@ -1013,7 +1013,7 @@ async function loadExperienceDetailPage(experienceId) {
     
     const typeNames = {
       'tea_ceremony': '다도교육',
-      'tea_tasting': '차 시음',
+      'tea_experience': '차체험',
       'craft_workshop': '공예 체험',
       'farm_tour': '농장 투어',
       'workshop_visit': '공방 견학'
@@ -1025,7 +1025,7 @@ async function loadExperienceDetailPage(experienceId) {
           <div class="lg:col-span-2">
             <div class="bg-white rounded-lg overflow-hidden shadow-md mb-6">
               <div class="h-96 bg-gradient-to-br ${experience.experience_type.includes('tea') ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} flex items-center justify-center">
-                <i class="fas ${experience.experience_type === 'tea_ceremony' ? 'fa-yin-yang' : experience.experience_type === 'tea_tasting' ? 'fa-mug-hot' : experience.experience_type === 'craft_workshop' ? 'fa-palette' : experience.experience_type === 'farm_tour' ? 'fa-tractor' : 'fa-door-open'} text-white text-8xl"></i>
+                <i class="fas ${experience.experience_type === 'tea_ceremony' ? 'fa-yin-yang' : experience.experience_type === 'tea_experience' ? 'fa-mug-hot' : experience.experience_type === 'craft_workshop' ? 'fa-palette' : experience.experience_type === 'farm_tour' ? 'fa-tractor' : 'fa-door-open'} text-white text-8xl"></i>
               </div>
               <div class="p-8">
                 <div class="mb-4">
