@@ -30,6 +30,7 @@
 - ✅ 카테고리별 필터링
 - ✅ 상품 상세 페이지
 - ✅ **💰 할인가 표시 (정가 대비 30% 기본 할인)**
+- ✅ **🚚 배송비 표시 (3,000원 ~ 5,000원)**
 - ✅ **절약 금액 강조 표시**
 - ✅ 생산자 정보 표시
 - ✅ 선물세트 구성품 표시
@@ -43,6 +44,7 @@
 - ✅ **상품 등록 폼** (`/producer/:id/product/new`)
   - 상세 정보 입력 (이름, 카테고리, 설명)
   - **가격 자동 계산 (정가 입력 → 30% 할인가 자동 계산)**
+  - **배송비 설정 (3,000원 ~ 5,000원)**
   - 가격 미리보기 (할인율 실시간 표시)
   - 재고 및 상세 정보 (중량, 원산지, 타입)
   - 추천 상품 설정
@@ -227,6 +229,10 @@
   - 🆕 `original_price`: 정가
   - 🆕 `discount_rate`: 할인율 (기본 30%)
   - `price`: 할인가 (판매가)
+  - 🆕 `shipping_fee`: 배송비 (3,000 ~ 5,000원)
+  - 🆕 `commission_rate`: 수수료율 (9.9%)
+  - 🆕 `commission_amount`: 수수료 금액
+  - 🆕 `producer_revenue`: 생산자 실수익
 - **product_images**: 상품 이미지
 - **gift_set_items**: 선물세트 구성품
 - **events**: 이벤트 정보
@@ -241,6 +247,9 @@
   - 기관 유형, 담당자 정보, 일정, 상태 등
 - **system_settings** 🆕: 시스템 설정
   - `commission_rate`: 플랫폼 수수료율 (9.9%)
+  - `default_shipping_fee`: 기본 배송비 (3,000원)
+  - `shipping_fee_range_min`: 최소 배송비 (3,000원)
+  - `shipping_fee_range_max`: 최대 배송비 (5,000원)
 - **users** 🆕: 회원 정보
   - 이메일, 이름, 프로필 이미지
   - 소셜 로그인 제공자 정보 (google, naver, kakao)
@@ -252,8 +261,8 @@
 **차산지 (8개)**
 - 제주도, 하동, 김해, 광양, 보성, 강진, 장흥, 부안
 
-**공예산지 (6개)**
-- 경기 광주, 이천, 여주, 청주, 부안, 강진
+**공예산지 (7개)**
+- 경기 광주, 이천, 여주, 청주, 부안, 강진, 문경
 
 ### 저장 서비스
 - **Cloudflare D1**: SQLite 기반 관계형 데이터베이스 (로컬 개발 모드)
@@ -403,7 +412,8 @@ webapp/
 │   ├── 0002_education_applications.sql  # 교육 신청 테이블
 │   ├── 0003_add_pricing_fields.sql      # 🆕 할인가 필드 추가
 │   ├── 0004_add_commission_settings.sql # 🆕 수수료 시스템 (9.9%)
-│   └── 0005_add_user_system.sql         # 🆕 회원/세션 테이블
+│   ├── 0005_add_user_system.sql         # 🆕 회원/세션 테이블
+│   └── 0006_add_shipping_fee.sql        # 🆕 배송비 시스템 (3,000~5,000원)
 ├── seed.sql                # 초기 데이터
 ├── .dev.vars               # 🆕 OAuth 환경 변수 (로컬 개발, .gitignore)
 ├── .dev.vars.example       # 🆕 환경 변수 예시 파일
