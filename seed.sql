@@ -23,9 +23,11 @@ INSERT INTO regions (name, type, description, featured_image) VALUES
 INSERT INTO categories (name, parent_id, type, description) VALUES
 -- 차 카테고리
 ('녹차', NULL, 'tea', '신선하고 상쾌한 한국 전통 녹차'),
-('홍차', NULL, 'tea', '깊고 풍부한 향의 발효차'),
+('황차', NULL, 'tea', '은은한 향과 부드러운 맛의 황차'),
+('홍차', NULL, 'tea', '깊고 풍부한 향의 발효 홍차'),
 ('발효차', NULL, 'tea', '숙성된 맛과 향의 발효차'),
 ('말차', NULL, 'tea', '고급 녹차를 분말로 만든 말차'),
+('블렌딩차', NULL, 'tea', '여러 차를 조화롭게 블렌딩한 차'),
 ('허브차', NULL, 'tea', '건강과 힐링을 위한 허브 블렌딩 차'),
 
 -- 공예 카테고리
