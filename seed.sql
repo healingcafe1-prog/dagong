@@ -16,7 +16,8 @@ INSERT INTO regions (name, type, description, featured_image) VALUES
 ('여주', 'craft', '우아한 백자의 전통을 계승하는 도자기 마을', '/images/regions/yeoju.jpg'),
 ('청주', 'craft', '청화백자의 명성을 이어가는 공예의 도시', '/images/regions/cheongju.jpg'),
 ('부안', 'craft', '변산반도의 전통 옹기와 도자 공예의 고장', '/images/regions/buan-craft.jpg'),
-('강진', 'craft', '고려청자의 발상지, 천년 도자 예술의 본향', '/images/regions/gangjin-craft.jpg');
+('강진', 'craft', '고려청자의 발상지, 천년 도자 예술의 본향', '/images/regions/gangjin-craft.jpg'),
+('문경', 'craft', '전통 사기와 도자기의 명맥을 잇는 공예의 고장', '/images/regions/mungyeong.jpg');
 
 -- 카테고리 데이터
 INSERT INTO categories (name, parent_id, type, description) VALUES
@@ -53,7 +54,8 @@ INSERT INTO producers (name, region_id, producer_type, description, story, profi
 ('이천 백자공방', 10, 'craft', '세계적 수준의 백자를 만드는 명인의 공방', '대를 이어 백자만을 고집하며 작품을 만들고 있습니다', '/images/producers/icheon-pottery.jpg', 'icheon@example.com', '031-634-1234', '이천시 신둔면'),
 ('여주 도예촌', 11, 'craft', '현대적 감각의 다기를 제작하는 젊은 도예가들의 공방', '전통과 현대를 조화시킨 실용적인 다기를 만듭니다', '/images/producers/yeoju-pottery.jpg', 'yeoju@example.com', '031-884-1234', '여주시 점동면'),
 ('부안 옹기마을', 13, 'craft', '변산반도의 전통 옹기를 만드는 장인들의 협동 작업장', '300년 전통의 옹기 제작 기법을 이어가고 있습니다', '/images/producers/buan-pottery.jpg', 'buan@example.com', '063-582-1234', '부안군 보안면'),
-('강진 청자촌', 14, 'craft', '고려청자를 복원하고 현대적으로 재해석하는 명장', '천년 전통의 고려청자 기법을 계승하고 발전시키고 있습니다', '/images/producers/gangjin-celadon.jpg', 'gangjin-craft@example.com', '061-430-3755', '강진군 대구면');
+('강진 청자촌', 14, 'craft', '고려청자를 복원하고 현대적으로 재해석하는 명장', '천년 전통의 고려청자 기법을 계승하고 발전시키고 있습니다', '/images/producers/gangjin-celadon.jpg', 'gangjin-craft@example.com', '061-430-3755', '강진군 대구면'),
+('문경 사기장', 15, 'craft', '문경 전통 사기의 맥을 잇는 도예 명장', '400년 넘게 이어온 문경 사기의 전통을 현대에 계승하고 있습니다', '/images/producers/mungyeong-pottery.jpg', 'mungyeong@example.com', '054-571-1234', '문경시 가은읍');
 
 -- 상품 데이터 (차)
 INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
@@ -73,7 +75,9 @@ INSERT INTO products (name, category_id, producer_id, description, price, stock,
 ('목재 차판', 10, 7, '원목으로 만든 전통 차 우림판', 65000, 25, '/images/products/wooden-tea-tray.jpg', 'craft', '1.5kg', '여주', 0),
 ('부안 전통 옹기항아리', 7, 8, '숨쉬는 옹기의 특성을 살린 전통 항아리', 95000, 15, '/images/products/buan-onggi.jpg', 'craft', '3kg', '부안', 0),
 ('강진 고려청자 다완', 6, 9, '천년의 역사를 지닌 고려청자 찻잔', 180000, 8, '/images/products/gangjin-celadon-bowl.jpg', 'craft', '200g', '강진', 1),
-('부안 옹기 다관', 7, 8, '옹기로 만든 독특한 찻주전자', 75000, 12, '/images/products/buan-onggi-teapot.jpg', 'craft', '500g', '부안', 0);
+('부안 옹기 다관', 7, 8, '옹기로 만든 독특한 찻주전자', 75000, 12, '/images/products/buan-onggi-teapot.jpg', 'craft', '500g', '부안', 0),
+('문경 전통 사기 찻잔', 6, 10, '소박하면서도 단단한 문경 전통 사기 찻잔', 55000, 25, '/images/products/mungyeong-teacup.jpg', 'craft', '180g', '문경', 0),
+('문경 사기 다기세트', 8, 10, '문경 사기로 만든 실용적인 다기세트', 150000, 12, '/images/products/mungyeong-tea-set.jpg', 'craft', '1.8kg', '문경', 1);
 
 -- 선물세트 데이터
 INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
@@ -140,7 +144,10 @@ INSERT INTO attractions (region_id, name, attraction_type, description, address,
 -- 강진 (공예)
 (14, '강진 고려청자박물관', 'workshop', '고려청자의 역사와 제작 과정을 체험하는 박물관', '강진군 대구면', '061-430-3755', '09:00-18:00', '/images/attractions/gangjin-celadon-museum.jpg'),
 (14, '강진 청자촌', 'workshop', '실제 청자를 만드는 공방들이 모여있는 마을', '강진군 대구면', '061-432-0918', '10:00-18:00', '/images/attractions/gangjin-celadon-village.jpg'),
-(14, '강진만 생태공원', 'tourist_spot', '철새 관찰과 갯벌 체험이 가능한 생태공원', '강진군 강진읍', '061-430-3527', '상시 개방', '/images/attractions/gangjin-eco-park.jpg');
+(14, '강진만 생태공원', 'tourist_spot', '철새 관찰과 갯벌 체험이 가능한 생태공원', '강진군 강진읍', '061-430-3527', '상시 개방', '/images/attractions/gangjin-eco-park.jpg'),
+(15, '문경 도자기 전시관', 'workshop', '문경 사기의 역사와 전통 제작 기법을 전시하는 박물관', '문경시 가은읍', '054-550-6393', '09:00-18:00', '/images/attractions/mungyeong-pottery-museum.jpg'),
+(15, '문경새재 도립공원', 'tourist_spot', '조선시대 3대 관문과 아름다운 자연을 감상할 수 있는 명소', '문경시 문경읍', '054-571-0709', '상시 개방', '/images/attractions/mungyeongsaejae.jpg'),
+(15, '문경 전통찻집', 'restaurant', '전통 한옥에서 즐기는 차와 한정식', '문경시 가은읍', '054-571-1234', '11:00-20:00', '/images/attractions/mungyeong-teahouse.jpg');
 
 -- 체험 프로그램 데이터
 INSERT INTO experiences (title, region_id, producer_id, experience_type, description, duration, price, max_participants, main_image) VALUES
@@ -151,7 +158,8 @@ INSERT INTO experiences (title, region_id, producer_id, experience_type, descrip
 ('이천 백자공방 견학', 10, 6, 'workshop_visit', '명인의 작업실을 방문하여 백자 제작 과정을 관람', '1시간', 15000, 10, '/images/experiences/workshop-visit.jpg'),
 ('하동 야생차 수확 체험', 2, 2, 'farm_tour', '지리산 자락에서 직접 차잎을 따고 덖는 체험', '4시간', 50000, 15, '/images/experiences/tea-harvest.jpg'),
 ('부안 옹기 만들기 체험', 13, 8, 'craft_workshop', '전통 옹기를 직접 만들어보는 체험', '2.5시간', 40000, 12, '/images/experiences/buan-pottery.jpg'),
-('강진 청자 빚기 체험', 14, 9, 'craft_workshop', '고려청자 기법으로 청자를 만드는 특별한 체험', '3시간', 70000, 10, '/images/experiences/gangjin-celadon.jpg');
+('강진 청자 빚기 체험', 14, 9, 'craft_workshop', '고려청자 기법으로 청자를 만드는 특별한 체험', '3시간', 70000, 10, '/images/experiences/gangjin-celadon.jpg'),
+('문경 사기 체험', 15, 10, 'craft_workshop', '문경 전통 사기를 직접 만들어보는 도예 체험', '3시간', 55000, 10, '/images/experiences/mungyeong-pottery.jpg');
 
 -- 체험 일정 데이터
 INSERT INTO experience_schedules (experience_id, schedule_date, start_time, available_slots, booked_slots) VALUES
@@ -172,7 +180,10 @@ INSERT INTO experience_schedules (experience_id, schedule_date, start_time, avai
 (7, '2024-03-23', '10:00', 12, 0),
 (7, '2024-03-30', '14:00', 12, 0),
 (8, '2024-03-18', '13:00', 10, 0),
-(8, '2024-03-25', '13:00', 10, 0);
+(8, '2024-03-25', '13:00', 10, 0),
+(9, '2024-03-20', '14:00', 10, 0),
+(9, '2024-03-27', '14:00', 10, 0),
+(9, '2024-04-03', '14:00', 10, 0);
 
 -- 교육 신청 샘플 데이터
 INSERT INTO education_applications (organization_type, organization_name, contact_person, contact_phone, contact_email, address, participant_count, preferred_date, preferred_time, education_type, message, status, approved_date, education_start_date, education_end_date, instructor_name) VALUES
