@@ -388,6 +388,210 @@ app.get('/api/search', async (c) => {
   })
 })
 
+// ===== 생산자 관리 API =====
+
+// 생산자별 상품 목록 조회
+app.get('/api/producers/:id/products', async (c) => {
+  const producerId = c.req.param('id')
+  
+  const { results } = await c.env.DB.prepare(`
+    SELECT p.*, c.name as category_name, c.type as category_type
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.producer_id = ?
+    ORDER BY p.created_at DESC
+  `).bind(producerId).all()
+  
+  return c.json({ products: results })
+})
+
+// 생산자별 체험 목록 조회
+app.get('/api/producers/:id/experiences', async (c) => {
+  const producerId = c.req.param('id')
+  
+  const { results } = await c.env.DB.prepare(`
+    SELECT e.*, r.name as region_name
+    FROM experiences e
+    LEFT JOIN regions r ON e.region_id = r.id
+    WHERE e.producer_id = ?
+    ORDER BY e.created_at DESC
+  `).bind(producerId).all()
+  
+  return c.json({ experiences: results })
+})
+
+// 상품 등록
+app.post('/api/products', async (c) => {
+  const data = await c.req.json()
+  
+  const result = await c.env.DB.prepare(`
+    INSERT INTO products (
+      name, category_id, producer_id, description, 
+      original_price, price, discount_rate, stock_quantity, 
+      main_image, product_type, weight, origin, is_featured
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    data.name,
+    data.category_id,
+    data.producer_id,
+    data.description,
+    data.original_price,
+    data.price,
+    data.discount_rate || 30,
+    data.stock_quantity,
+    data.main_image || '/images/products/default.jpg',
+    data.product_type,
+    data.weight,
+    data.origin,
+    data.is_featured ? 1 : 0
+  ).run()
+  
+  return c.json({ 
+    success: true, 
+    product_id: result.meta.last_row_id 
+  })
+})
+
+// 상품 수정
+app.put('/api/products/:id', async (c) => {
+  const productId = c.req.param('id')
+  const data = await c.req.json()
+  
+  await c.env.DB.prepare(`
+    UPDATE products 
+    SET name = ?, category_id = ?, description = ?,
+        original_price = ?, price = ?, discount_rate = ?,
+        stock_quantity = ?, main_image = ?, weight = ?, origin = ?
+    WHERE id = ?
+  `).bind(
+    data.name,
+    data.category_id,
+    data.description,
+    data.original_price,
+    data.price,
+    data.discount_rate || 30,
+    data.stock_quantity,
+    data.main_image,
+    data.weight,
+    data.origin,
+    productId
+  ).run()
+  
+  return c.json({ success: true })
+})
+
+// 상품 삭제
+app.delete('/api/products/:id', async (c) => {
+  const productId = c.req.param('id')
+  
+  await c.env.DB.prepare(`
+    DELETE FROM products WHERE id = ?
+  `).bind(productId).run()
+  
+  return c.json({ success: true })
+})
+
+// 체험 등록
+app.post('/api/experiences', async (c) => {
+  const data = await c.req.json()
+  
+  const result = await c.env.DB.prepare(`
+    INSERT INTO experiences (
+      name, region_id, producer_id, type, description,
+      original_price, price, discount_rate, duration_hours,
+      max_participants, image_url
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    data.name,
+    data.region_id,
+    data.producer_id,
+    data.type,
+    data.description,
+    data.original_price,
+    data.price,
+    data.discount_rate || 30,
+    data.duration_hours,
+    data.max_participants,
+    data.image_url || '/images/experiences/default.jpg'
+  ).run()
+  
+  return c.json({ 
+    success: true, 
+    experience_id: result.meta.last_row_id 
+  })
+})
+
+// 체험 수정
+app.put('/api/experiences/:id', async (c) => {
+  const experienceId = c.req.param('id')
+  const data = await c.req.json()
+  
+  await c.env.DB.prepare(`
+    UPDATE experiences 
+    SET name = ?, type = ?, description = ?,
+        original_price = ?, price = ?, discount_rate = ?,
+        duration_hours = ?, max_participants = ?, image_url = ?
+    WHERE id = ?
+  `).bind(
+    data.name,
+    data.type,
+    data.description,
+    data.original_price,
+    data.price,
+    data.discount_rate || 30,
+    data.duration_hours,
+    data.max_participants,
+    data.image_url,
+    experienceId
+  ).run()
+  
+  return c.json({ success: true })
+})
+
+// 체험 삭제
+app.delete('/api/experiences/:id', async (c) => {
+  const experienceId = c.req.param('id')
+  
+  await c.env.DB.prepare(`
+    DELETE FROM experiences WHERE id = ?
+  `).bind(experienceId).run()
+  
+  return c.json({ success: true })
+})
+
+// 체험 일정 추가
+app.post('/api/experience-schedules', async (c) => {
+  const data = await c.req.json()
+  
+  const result = await c.env.DB.prepare(`
+    INSERT INTO experience_schedules (
+      experience_id, date, start_time, available_slots, booked_slots
+    ) VALUES (?, ?, ?, ?, ?)
+  `).bind(
+    data.experience_id,
+    data.date,
+    data.start_time,
+    data.available_slots,
+    data.booked_slots || 0
+  ).run()
+  
+  return c.json({ 
+    success: true, 
+    schedule_id: result.meta.last_row_id 
+  })
+})
+
+// 체험 일정 삭제
+app.delete('/api/experience-schedules/:id', async (c) => {
+  const scheduleId = c.req.param('id')
+  
+  await c.env.DB.prepare(`
+    DELETE FROM experience_schedules WHERE id = ?
+  `).bind(scheduleId).run()
+  
+  return c.json({ success: true })
+})
+
 // ===== 교육 신청 API =====
 
 // 교육 신청 목록 조회 API

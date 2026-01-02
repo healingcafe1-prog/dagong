@@ -5,6 +5,16 @@ function formatPrice(price) {
   return new Intl.NumberFormat('ko-KR').format(price) + '원';
 }
 
+// 할인율 계산
+function calculateDiscountRate(originalPrice, discountedPrice) {
+  return Math.round((1 - discountedPrice / originalPrice) * 100);
+}
+
+// 할인가 계산
+function calculateDiscountedPrice(originalPrice, discountRate) {
+  return Math.round(originalPrice * (1 - discountRate / 100));
+}
+
 // 이미지 에러 처리
 function handleImageError(img) {
   img.src = 'https://via.placeholder.com/400x300?text=No+Image';
@@ -208,6 +218,33 @@ else if (path === '/education/apply') {
 // 교육 현황 페이지
 else if (path === '/education/status') {
   loadEducationStatusPage();
+}
+// 생산자 관리 페이지
+else if (path.startsWith('/producer/manage/')) {
+  const producerId = path.split('/')[3];
+  loadProducerManagePage(producerId);
+}
+// 상품 등록/수정 페이지
+else if (path.startsWith('/producer/') && path.includes('/product/')) {
+  const parts = path.split('/');
+  const producerId = parts[2];
+  const productId = parts[4];
+  if (productId === 'new') {
+    loadProductFormPage(producerId, null);
+  } else {
+    loadProductFormPage(producerId, productId);
+  }
+}
+// 체험 등록/수정 페이지
+else if (path.startsWith('/producer/') && path.includes('/experience/')) {
+  const parts = path.split('/');
+  const producerId = parts[2];
+  const experienceId = parts[4];
+  if (experienceId === 'new') {
+    loadExperienceFormPage(producerId, null);
+  } else {
+    loadExperienceFormPage(producerId, experienceId);
+  }
 }
 
 // ===== 홈 페이지 =====
@@ -479,9 +516,26 @@ async function loadProductDetailPage(productId) {
                 <span>${product.region_name}</span>
               </div>
               <h1 class="text-3xl font-bold text-gray-800 mb-4">${product.name}</h1>
-              <div class="flex items-center space-x-4 mb-4">
-                <span class="text-3xl font-bold text-tea-green">${formatPrice(product.price)}</span>
-                ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+              <div class="mb-4">
+                ${product.original_price && product.discount_rate ? `
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="text-xl text-gray-400 line-through">${formatPrice(product.original_price)}</span>
+                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">${product.discount_rate}% 할인</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-4xl font-bold text-tea-green">${formatPrice(product.price)}</span>
+                    ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                  </div>
+                  <div class="mt-2 text-sm text-red-600 font-medium">
+                    <i class="fas fa-tag mr-1"></i>
+                    직거래 특별가! ${formatPrice(product.original_price - product.price)} 절약
+                  </div>
+                ` : `
+                  <div class="flex items-center space-x-4">
+                    <span class="text-3xl font-bold text-tea-green">${formatPrice(product.price)}</span>
+                    ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                  </div>
+                `}
               </div>
             </div>
             
@@ -998,7 +1052,21 @@ async function loadExperienceDetailPage(experienceId) {
           
           <div class="lg:col-span-1">
             <div class="bg-white rounded-lg p-6 shadow-md sticky top-24">
-              <div class="text-3xl font-bold text-tea-green mb-6">${formatPrice(experience.price)}</div>
+              ${experience.original_price && experience.discount_rate ? `
+                <div class="mb-6">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-lg text-gray-400 line-through">${formatPrice(experience.original_price)}</span>
+                    <span class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">${experience.discount_rate}%</span>
+                  </div>
+                  <div class="text-3xl font-bold text-craft-blue mb-1">${formatPrice(experience.price)}</div>
+                  <div class="text-sm text-red-600 font-medium">
+                    <i class="fas fa-tag mr-1"></i>
+                    ${formatPrice(experience.original_price - experience.price)} 절약
+                  </div>
+                </div>
+              ` : `
+                <div class="text-3xl font-bold text-tea-green mb-6">${formatPrice(experience.price)}</div>
+              `}
               
               ${schedules.length > 0 ? `
                 <div class="mb-6">
@@ -1481,5 +1549,180 @@ async function loadEducationStatusPage() {
   } catch (error) {
     console.error('교육 현황 로드 오류:', error);
     app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 생산자 관리 페이지 =====
+async function loadProducerManagePage(producerId) {
+  try {
+    const [producerRes, productsRes, experiencesRes] = await Promise.all([
+      axios.get(`/api/producers/${producerId}`),
+      axios.get(`/api/producers/${producerId}/products`),
+      axios.get(`/api/producers/${producerId}/experiences`)
+    ]);
+    
+    const producer = producerRes.data;
+    const products = productsRes.data.products;
+    const experiences = experiencesRes.data.experiences;
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <!-- 헤더 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-800 mb-2">${producer.name}</h1>
+              <p class="text-gray-600">${producer.description}</p>
+            </div>
+            <img src="${producer.profile_image}" alt="${producer.name}" 
+                 class="w-24 h-24 rounded-full object-cover" 
+                 onerror="this.src='https://via.placeholder.com/100'">
+          </div>
+        </div>
+        
+        <!-- 상품 관리 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+              <i class="fas fa-box text-tea-green mr-2"></i>
+              내 상품 관리
+            </h2>
+            <a href="/producer/${producerId}/product/new" 
+               class="bg-tea-green text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
+              <i class="fas fa-plus mr-2"></i>상품 등록
+            </a>
+          </div>
+          
+          ${products.length === 0 ? `
+            <div class="text-center py-12 text-gray-500">
+              <i class="fas fa-box-open text-6xl mb-4"></i>
+              <p>등록된 상품이 없습니다</p>
+            </div>
+          ` : `
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${products.map(product => `
+                <div class="border rounded-lg p-4 hover:shadow-md transition">
+                  <img src="${product.main_image}" alt="${product.name}" 
+                       class="w-full h-40 object-cover rounded-lg mb-3"
+                       onerror="this.src='https://via.placeholder.com/400x300'">
+                  <h3 class="font-bold text-gray-800 mb-2">${product.name}</h3>
+                  <div class="mb-3">
+                    ${product.original_price ? `
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400 line-through">${formatPrice(product.original_price)}</span>
+                        <span class="text-xs bg-red-500 text-white px-2 py-1 rounded">${product.discount_rate}%</span>
+                      </div>
+                      <div class="text-lg font-bold text-tea-green">${formatPrice(product.price)}</div>
+                    ` : `
+                      <div class="text-lg font-bold text-tea-green">${formatPrice(product.price)}</div>
+                    `}
+                  </div>
+                  <div class="flex gap-2">
+                    <a href="/producer/${producerId}/product/${product.id}" 
+                       class="flex-1 bg-blue-500 text-white py-2 px-4 rounded text-center hover:bg-blue-600">
+                      <i class="fas fa-edit"></i> 수정
+                    </a>
+                    <button onclick="deleteProduct(${product.id}, ${producerId})" 
+                            class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+        
+        <!-- 체험 관리 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+              <i class="fas fa-users text-craft-blue mr-2"></i>
+              내 체험 관리
+            </h2>
+            <a href="/producer/${producerId}/experience/new" 
+               class="bg-craft-blue text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition">
+              <i class="fas fa-plus mr-2"></i>체험 등록
+            </a>
+          </div>
+          
+          ${experiences.length === 0 ? `
+            <div class="text-center py-12 text-gray-500">
+              <i class="fas fa-calendar-alt text-6xl mb-4"></i>
+              <p>등록된 체험이 없습니다</p>
+            </div>
+          ` : `
+            <div class="space-y-4">
+              ${experiences.map(exp => `
+                <div class="border rounded-lg p-4 hover:shadow-md transition">
+                  <div class="flex gap-4">
+                    <img src="${exp.image_url}" alt="${exp.name}" 
+                         class="w-32 h-32 object-cover rounded-lg"
+                         onerror="this.src='https://via.placeholder.com/200'">
+                    <div class="flex-1">
+                      <h3 class="font-bold text-gray-800 mb-2">${exp.name}</h3>
+                      <p class="text-sm text-gray-600 mb-2">${exp.description}</p>
+                      <div class="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                        <span><i class="fas fa-clock mr-1"></i>${exp.duration_hours}시간</span>
+                        <span><i class="fas fa-users mr-1"></i>최대 ${exp.max_participants}명</span>
+                      </div>
+                      <div class="mb-2">
+                        ${exp.original_price ? `
+                          <span class="text-sm text-gray-400 line-through mr-2">${formatPrice(exp.original_price)}</span>
+                          <span class="text-xs bg-red-500 text-white px-2 py-1 rounded mr-2">${exp.discount_rate}%</span>
+                        ` : ''}
+                        <span class="text-lg font-bold text-craft-blue">${formatPrice(exp.price)}</span>
+                      </div>
+                      <div class="flex gap-2">
+                        <a href="/producer/${producerId}/experience/${exp.id}" 
+                           class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                          <i class="fas fa-edit"></i> 수정
+                        </a>
+                        <button onclick="deleteExperience(${exp.id}, ${producerId})" 
+                                class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
+                          <i class="fas fa-trash"></i> 삭제
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+    
+  } catch (error) {
+    console.error('생산자 관리 페이지 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// 상품 삭제
+async function deleteProduct(productId, producerId) {
+  if (!confirm('정말 이 상품을 삭제하시겠습니까?')) return;
+  
+  try {
+    await axios.delete(`/api/products/${productId}`);
+    alert('상품이 삭제되었습니다.');
+    window.location.href = `/producer/manage/${producerId}`;
+  } catch (error) {
+    console.error('상품 삭제 오류:', error);
+    alert('상품 삭제 중 오류가 발생했습니다.');
+  }
+}
+
+// 체험 삭제
+async function deleteExperience(experienceId, producerId) {
+  if (!confirm('정말 이 체험을 삭제하시겠습니까?')) return;
+  
+  try {
+    await axios.delete(`/api/experiences/${experienceId}`);
+    alert('체험이 삭제되었습니다.');
+    window.location.href = `/producer/manage/${producerId}`;
+  } catch (error) {
+    console.error('체험 삭제 오류:', error);
+    alert('체험 삭제 중 오류가 발생했습니다.');
   }
 }

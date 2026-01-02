@@ -168,6 +168,7 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* 앱 스크립트 */}
         <script src="/static/app.js"></script>
+        <script src="/static/producer-forms.js"></script>
       </body>
     </html>
   )
