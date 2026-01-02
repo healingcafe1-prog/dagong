@@ -156,7 +156,7 @@ INSERT INTO experiences (title, region_id, producer_id, experience_type, descrip
 ('전통 다도교육', 6, 4, 'tea_ceremony', '다산 선생의 차문화를 직접 배우는 다도 교실', '2시간', 30000, 15, '/images/experiences/tea-ceremony.jpg'),
 ('차밭 투어 & 차 만들기', 5, 3, 'farm_tour', '보성 녹차밭을 거닐고 직접 차를 만들어보는 체험', '3시간', 45000, 20, '/images/experiences/tea-farm-tour.jpg'),
 ('찻잔 만들기 원데이 클래스', 10, 6, 'craft_workshop', '물레를 돌려 나만의 찻잔을 만드는 도예 체험', '3시간', 60000, 8, '/images/experiences/pottery-class.jpg'),
-('제주 차 시음회', 1, 1, 'tea_tasting', '제주에서 자란 다양한 차를 맛보고 배우는 시간', '1.5시간', 25000, 12, '/images/experiences/tea-tasting.jpg'),
+('제주 차 체험', 1, 1, 'tea_experience', '제주에서 자란 다양한 차를 맛보고 배우는 시간', '1.5시간', 25000, 12, '/images/experiences/tea-experience.jpg'),
 ('이천 백자공방 견학', 10, 6, 'workshop_visit', '명인의 작업실을 방문하여 백자 제작 과정을 관람', '1시간', 15000, 10, '/images/experiences/workshop-visit.jpg'),
 ('하동 야생차 수확 체험', 2, 2, 'farm_tour', '지리산 자락에서 직접 차잎을 따고 덖는 체험', '4시간', 50000, 15, '/images/experiences/tea-harvest.jpg'),
 ('부안 옹기 만들기 체험', 13, 8, 'craft_workshop', '전통 옹기를 직접 만들어보는 체험', '2.5시간', 40000, 12, '/images/experiences/buan-pottery.jpg'),
@@ -196,7 +196,7 @@ INSERT INTO education_applications (organization_type, organization_name, contac
 ('government', '문화체육관광부', '최주무관', '044-456-7890', 'mcst@example.com', '세종특별자치시 도움6로 11', 15, '2024-04-01', '10:00', 'tea_ceremony', '공무원 문화 향유 프로그램', 'in_progress', '2024-03-01', '2024-04-01', '2024-04-15', '하동 야생차 농원'),
 
 -- 승인 대기 중
-('kindergarten', '푸른숲 어린이집', '정원장', '031-567-8901', 'greenforest@example.com', '경기도 성남시 분당구 판교로 456', 20, '2024-04-10', '11:00', 'tea_tasting', '차 시음 체험을 통한 미각 교육', 'pending', NULL, NULL, NULL, NULL),
+('kindergarten', '푸른숲 어린이집', '정원장', '031-567-8901', 'greenforest@example.com', '경기도 성남시 분당구 판교로 456', 20, '2024-04-10', '11:00', 'tea_experience', '차 체험을 통한 미각 교육', 'pending', NULL, NULL, NULL, NULL),
 ('school', '보성중학교', '박교사', '061-852-2345', 'boseong-mid@example.com', '전남 보성군 보성읍 녹차로 567', 35, '2024-04-15', '13:00', 'tea_ceremony', '지역 특산물인 녹차에 대한 이해 교육', 'pending', NULL, NULL, NULL, NULL),
 ('company', 'SK하이닉스', '김차장', '031-678-9012', 'sk@example.com', '경기도 이천시 부발읍 경충대로 678', 40, '2024-04-20', '14:00', 'craft_workshop', '찻잔 만들기 체험 (팀 빌딩 행사)', 'pending', NULL, NULL, NULL, NULL),
 
