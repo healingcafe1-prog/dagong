@@ -40,7 +40,7 @@ export const renderer = jsxRenderer(({ children }) => {
         {/* 네비게이션 바 */}
         <nav class="bg-white shadow-md sticky top-0 z-50">
           <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center justify-between h-20">
               {/* 로고 */}
               <a href="/" class="flex items-center space-x-2">
                 <i class="fas fa-leaf text-tea-green text-2xl"></i>
@@ -48,27 +48,34 @@ export const renderer = jsxRenderer(({ children }) => {
               </a>
               
               {/* 메인 메뉴 */}
-              <div class="hidden md:flex items-center space-x-6">
-                <a href="/products?type=tea" class="text-gray-700 hover:text-tea-green transition">
-                  <i class="fas fa-mug-hot mr-1"></i>차 직거래
+              <div class="hidden md:flex items-center space-x-8">
+                <a href="/products?type=tea" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                  <i class="fas fa-mug-hot text-xl mb-1"></i>
+                  <span class="text-sm">차 직거래</span>
                 </a>
-                <a href="/products?type=craft" class="text-gray-700 hover:text-craft-blue transition">
-                  <i class="fas fa-palette mr-1"></i>공예품
+                <a href="/products?type=craft" class="flex flex-col items-center text-gray-700 hover:text-craft-blue transition group">
+                  <i class="fas fa-palette text-xl mb-1"></i>
+                  <span class="text-sm">공예품</span>
                 </a>
-                <a href="/products?type=gift_set" class="text-gray-700 hover:text-tea-brown transition">
-                  <i class="fas fa-gift mr-1"></i>선물세트
+                <a href="/products?type=gift_set" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
+                  <i class="fas fa-gift text-xl mb-1"></i>
+                  <span class="text-sm">선물세트</span>
                 </a>
-                <a href="/regions" class="text-gray-700 hover:text-tea-green transition">
-                  <i class="fas fa-map-marked-alt mr-1"></i>지역별 보기
+                <a href="/regions" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                  <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+                  <span class="text-sm">지역별 보기</span>
                 </a>
-                <a href="/experiences" class="text-gray-700 hover:text-tea-green transition">
-                  <i class="fas fa-users mr-1"></i>체험·교육
+                <a href="/experiences" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                  <i class="fas fa-users text-xl mb-1"></i>
+                  <span class="text-sm">체험·교육</span>
                 </a>
-                <a href="/education/apply" class="text-gray-700 hover:text-tea-green transition">
-                  <i class="fas fa-graduation-cap mr-1"></i>다도교육 신청
+                <a href="/education/apply" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                  <i class="fas fa-graduation-cap text-xl mb-1"></i>
+                  <span class="text-sm">다도교육 신청</span>
                 </a>
-                <a href="/events" class="text-gray-700 hover:text-tea-brown transition">
-                  <i class="fas fa-star mr-1"></i>이벤트
+                <a href="/events" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
+                  <i class="fas fa-star text-xl mb-1"></i>
+                  <span class="text-sm">이벤트</span>
                 </a>
               </div>
               
