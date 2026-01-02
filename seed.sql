@@ -11,10 +11,12 @@ INSERT INTO regions (name, type, description, featured_image) VALUES
 
 -- 공예산지 지역 데이터
 INSERT INTO regions (name, type, description, featured_image) VALUES
-('경기 광주', 'craft', '500년 전통의 도자기 명가', '/images/regions/gwangju.jpg'),
+('경기 광주', 'craft', '500년 전통의 도자기 명가', '/images/regions/gwangju-craft.jpg'),
 ('이천', 'craft', '세계적으로 유명한 도자기 예술의 본고장', '/images/regions/icheon.jpg'),
 ('여주', 'craft', '우아한 백자의 전통을 계승하는 도자기 마을', '/images/regions/yeoju.jpg'),
-('청주', 'craft', '청화백자의 명성을 이어가는 공예의 도시', '/images/regions/cheongju.jpg');
+('청주', 'craft', '청화백자의 명성을 이어가는 공예의 도시', '/images/regions/cheongju.jpg'),
+('부안', 'craft', '변산반도의 전통 옹기와 도자 공예의 고장', '/images/regions/buan-craft.jpg'),
+('강진', 'craft', '고려청자의 발상지, 천년 도자 예술의 본향', '/images/regions/gangjin-craft.jpg');
 
 -- 카테고리 데이터
 INSERT INTO categories (name, parent_id, type, description) VALUES
@@ -49,7 +51,9 @@ INSERT INTO producers (name, region_id, producer_type, description, story, profi
 INSERT INTO producers (name, region_id, producer_type, description, story, profile_image, contact_email, contact_phone, address) VALUES
 ('광주 사기장', 9, 'craft', '500년 전통의 분청사기를 현대적으로 재해석합니다', '조선시대부터 내려온 도자기 제작 기법을 보존하고 있습니다', '/images/producers/gwangju-pottery.jpg', 'gwangju@example.com', '031-762-1234', '광주시 남한산성면'),
 ('이천 백자공방', 10, 'craft', '세계적 수준의 백자를 만드는 명인의 공방', '대를 이어 백자만을 고집하며 작품을 만들고 있습니다', '/images/producers/icheon-pottery.jpg', 'icheon@example.com', '031-634-1234', '이천시 신둔면'),
-('여주 도예촌', 11, 'craft', '현대적 감각의 다기를 제작하는 젊은 도예가들의 공방', '전통과 현대를 조화시킨 실용적인 다기를 만듭니다', '/images/producers/yeoju-pottery.jpg', 'yeoju@example.com', '031-884-1234', '여주시 점동면');
+('여주 도예촌', 11, 'craft', '현대적 감각의 다기를 제작하는 젊은 도예가들의 공방', '전통과 현대를 조화시킨 실용적인 다기를 만듭니다', '/images/producers/yeoju-pottery.jpg', 'yeoju@example.com', '031-884-1234', '여주시 점동면'),
+('부안 옹기마을', 13, 'craft', '변산반도의 전통 옹기를 만드는 장인들의 협동 작업장', '300년 전통의 옹기 제작 기법을 이어가고 있습니다', '/images/producers/buan-pottery.jpg', 'buan@example.com', '063-582-1234', '부안군 보안면'),
+('강진 청자촌', 14, 'craft', '고려청자를 복원하고 현대적으로 재해석하는 명장', '천년 전통의 고려청자 기법을 계승하고 발전시키고 있습니다', '/images/producers/gangjin-celadon.jpg', 'gangjin-craft@example.com', '061-430-3755', '강진군 대구면');
 
 -- 상품 데이터 (차)
 INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
@@ -66,7 +70,10 @@ INSERT INTO products (name, category_id, producer_id, description, price, stock,
 ('분청사기 다관', 7, 5, '소박한 아름다움의 분청사기 찻주전자', 120000, 15, '/images/products/buncheong-teapot.jpg', 'craft', '400g', '경기 광주', 1),
 ('청자 찻잔', 6, 7, '은은한 청록색이 아름다운 청자 찻잔', 45000, 30, '/images/products/celadon-teacup.jpg', 'craft', '150g', '여주', 0),
 ('프리미엄 다기세트', 8, 6, '찻잔, 다관, 찻받침이 포함된 완벽한 다기세트', 250000, 10, '/images/products/premium-tea-set.jpg', 'craft', '2kg', '이천', 1),
-('목재 차판', 10, 7, '원목으로 만든 전통 차 우림판', 65000, 25, '/images/products/wooden-tea-tray.jpg', 'craft', '1.5kg', '여주', 0);
+('목재 차판', 10, 7, '원목으로 만든 전통 차 우림판', 65000, 25, '/images/products/wooden-tea-tray.jpg', 'craft', '1.5kg', '여주', 0),
+('부안 전통 옹기항아리', 7, 8, '숨쉬는 옹기의 특성을 살린 전통 항아리', 95000, 15, '/images/products/buan-onggi.jpg', 'craft', '3kg', '부안', 0),
+('강진 고려청자 다완', 6, 9, '천년의 역사를 지닌 고려청자 찻잔', 180000, 8, '/images/products/gangjin-celadon-bowl.jpg', 'craft', '200g', '강진', 1),
+('부안 옹기 다관', 7, 8, '옹기로 만든 독특한 찻주전자', 75000, 12, '/images/products/buan-onggi-teapot.jpg', 'craft', '500g', '부안', 0);
 
 -- 선물세트 데이터
 INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
@@ -123,7 +130,17 @@ INSERT INTO attractions (region_id, name, attraction_type, description, address,
 
 -- 경기 광주
 (9, '남한산성', 'tourist_spot', '유네스코 세계문화유산 조선시대 산성', '광주시 남한산성면', '031-777-7500', '상시 개방', '/images/attractions/namhansanseong.jpg'),
-(9, '광주 도자기공방 거리', 'workshop', '전통 도자기 제작 공방들이 모여있는 거리', '광주시 남한산성면', '031-762-2109', '10:00-18:00', '/images/attractions/gwangju-workshop.jpg');
+(9, '광주 도자기공방 거리', 'workshop', '전통 도자기 제작 공방들이 모여있는 거리', '광주시 남한산성면', '031-762-2109', '10:00-18:00', '/images/attractions/gwangju-workshop.jpg'),
+
+-- 부안
+(13, '변산반도 국립공원', 'tourist_spot', '서해안의 아름다운 해안 절경과 산림이 어우러진 국립공원', '부안군 변산면', '063-582-7808', '상시 개방', '/images/attractions/byeonsan.jpg'),
+(13, '부안 옹기박물관', 'workshop', '전통 옹기 제작 과정을 체험할 수 있는 박물관', '부안군 보안면', '063-580-4463', '09:00-18:00', '/images/attractions/buan-pottery-museum.jpg'),
+(13, '부안 백합정식', 'restaurant', '서해안 백합으로 만든 백합정식 전문점', '부안군 변산면', '063-583-1234', '10:00-21:00', '/images/attractions/buan-clam.jpg'),
+
+-- 강진 (공예)
+(14, '강진 고려청자박물관', 'workshop', '고려청자의 역사와 제작 과정을 체험하는 박물관', '강진군 대구면', '061-430-3755', '09:00-18:00', '/images/attractions/gangjin-celadon-museum.jpg'),
+(14, '강진 청자촌', 'workshop', '실제 청자를 만드는 공방들이 모여있는 마을', '강진군 대구면', '061-432-0918', '10:00-18:00', '/images/attractions/gangjin-celadon-village.jpg'),
+(14, '강진만 생태공원', 'tourist_spot', '철새 관찰과 갯벌 체험이 가능한 생태공원', '강진군 강진읍', '061-430-3527', '상시 개방', '/images/attractions/gangjin-eco-park.jpg');
 
 -- 체험 프로그램 데이터
 INSERT INTO experiences (title, region_id, producer_id, experience_type, description, duration, price, max_participants, main_image) VALUES
@@ -132,7 +149,9 @@ INSERT INTO experiences (title, region_id, producer_id, experience_type, descrip
 ('찻잔 만들기 원데이 클래스', 10, 6, 'craft_workshop', '물레를 돌려 나만의 찻잔을 만드는 도예 체험', '3시간', 60000, 8, '/images/experiences/pottery-class.jpg'),
 ('제주 차 시음회', 1, 1, 'tea_tasting', '제주에서 자란 다양한 차를 맛보고 배우는 시간', '1.5시간', 25000, 12, '/images/experiences/tea-tasting.jpg'),
 ('이천 백자공방 견학', 10, 6, 'workshop_visit', '명인의 작업실을 방문하여 백자 제작 과정을 관람', '1시간', 15000, 10, '/images/experiences/workshop-visit.jpg'),
-('하동 야생차 수확 체험', 2, 2, 'farm_tour', '지리산 자락에서 직접 차잎을 따고 덖는 체험', '4시간', 50000, 15, '/images/experiences/tea-harvest.jpg');
+('하동 야생차 수확 체험', 2, 2, 'farm_tour', '지리산 자락에서 직접 차잎을 따고 덖는 체험', '4시간', 50000, 15, '/images/experiences/tea-harvest.jpg'),
+('부안 옹기 만들기 체험', 13, 8, 'craft_workshop', '전통 옹기를 직접 만들어보는 체험', '2.5시간', 40000, 12, '/images/experiences/buan-pottery.jpg'),
+('강진 청자 빚기 체험', 14, 9, 'craft_workshop', '고려청자 기법으로 청자를 만드는 특별한 체험', '3시간', 70000, 10, '/images/experiences/gangjin-celadon.jpg');
 
 -- 체험 일정 데이터
 INSERT INTO experience_schedules (experience_id, schedule_date, start_time, available_slots, booked_slots) VALUES
@@ -148,4 +167,9 @@ INSERT INTO experience_schedules (experience_id, schedule_date, start_time, avai
 (4, '2024-03-15', '15:00', 12, 0),
 (5, '2024-03-20', '11:00', 10, 0),
 (6, '2024-04-20', '10:00', 15, 0),
-(6, '2024-04-27', '10:00', 15, 0);
+(6, '2024-04-27', '10:00', 15, 0),
+(7, '2024-03-16', '10:00', 12, 0),
+(7, '2024-03-23', '10:00', 12, 0),
+(7, '2024-03-30', '14:00', 12, 0),
+(8, '2024-03-18', '13:00', 10, 0),
+(8, '2024-03-25', '13:00', 10, 0);
