@@ -550,12 +550,12 @@ async function loadProductDetailPage(productId) {
                   </div>
                 ` : ''}
                 <div>
-                  <div class="text-gray-500 mb-1">재고</div>
-                  <div class="font-medium">${product.stock > 0 ? '구매 가능' : '품절'}</div>
+                  <div class="text-gray-500 mb-1">배송비</div>
+                  <div class="font-medium">${formatPrice(product.shipping_fee || 3000)}</div>
                 </div>
                 <div>
-                  <div class="text-gray-500 mb-1">조회수</div>
-                  <div class="font-medium">${product.view_count || 0}회</div>
+                  <div class="text-gray-500 mb-1">재고</div>
+                  <div class="font-medium">${product.stock > 0 ? '구매 가능' : '품절'}</div>
                 </div>
               </div>
             </div>

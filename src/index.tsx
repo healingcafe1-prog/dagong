@@ -434,9 +434,9 @@ app.post('/api/products', async (c) => {
   const result = await c.env.DB.prepare(`
     INSERT INTO products (
       name, category_id, producer_id, description, 
-      original_price, price, discount_rate, stock_quantity, 
+      original_price, price, discount_rate, shipping_fee, stock_quantity, 
       main_image, product_type, weight, origin, is_featured
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     data.name,
     data.category_id,
@@ -445,6 +445,7 @@ app.post('/api/products', async (c) => {
     data.original_price,
     data.price,
     data.discount_rate || 30,
+    data.shipping_fee || 3000,
     data.stock_quantity,
     data.main_image || '/images/products/default.jpg',
     data.product_type,
@@ -467,7 +468,7 @@ app.put('/api/products/:id', async (c) => {
   await c.env.DB.prepare(`
     UPDATE products 
     SET name = ?, category_id = ?, description = ?,
-        original_price = ?, price = ?, discount_rate = ?,
+        original_price = ?, price = ?, discount_rate = ?, shipping_fee = ?,
         stock_quantity = ?, main_image = ?, weight = ?, origin = ?
     WHERE id = ?
   `).bind(
@@ -477,6 +478,7 @@ app.put('/api/products/:id', async (c) => {
     data.original_price,
     data.price,
     data.discount_rate || 30,
+    data.shipping_fee || 3000,
     data.stock_quantity,
     data.main_image,
     data.weight,

@@ -69,7 +69,7 @@ async function loadProductFormPage(producerId, productId) {
                 </p>
               </div>
               
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
                   <label class="block text-gray-700 font-bold mb-2">정가 *</label>
                   <input type="number" id="originalPrice" required min="0" step="1000"
@@ -94,6 +94,14 @@ async function loadProductFormPage(producerId, productId) {
                          class="w-full px-4 py-2 border rounded-lg bg-gray-100"
                          value="${product?.price || ''}">
                   <p class="text-xs text-gray-500 mt-1">자동 계산</p>
+                </div>
+                
+                <div>
+                  <label class="block text-gray-700 font-bold mb-2">배송비 *</label>
+                  <input type="number" id="shippingFee" required min="3000" max="5000" step="500"
+                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+                         placeholder="3000" value="${product?.shipping_fee || 3000}">
+                  <p class="text-xs text-gray-500 mt-1">3,000 ~ 5,000원</p>
                 </div>
               </div>
               
@@ -234,6 +242,7 @@ async function loadProductFormPage(producerId, productId) {
         original_price: parseInt(document.getElementById('originalPrice').value),
         price: parseInt(document.getElementById('price').value),
         discount_rate: parseInt(document.getElementById('discountRate').value),
+        shipping_fee: parseInt(document.getElementById('shippingFee').value),
         stock_quantity: parseInt(document.getElementById('stockQuantity').value),
         weight: document.getElementById('weight').value,
         origin: document.getElementById('origin').value,
