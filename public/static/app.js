@@ -258,14 +258,6 @@ async function loadHomePage() {
       axios.get('/api/regions?type=craft')
     ]);
     
-    // 차 산지 이름 목록
-    const teaRegionNames = teaRegions.data.regions.map(r => r.name);
-    
-    // 공예 산지에서 차 산지와 중복되지 않는 지역만 필터링
-    const uniqueCraftRegions = craftRegions.data.regions.filter(
-      region => !teaRegionNames.includes(region.name)
-    );
-    
     app.innerHTML = `
       <!-- 히어로 섹션 -->
       <section class="bg-gradient-to-r from-tea-green to-craft-blue text-white py-20">
@@ -376,7 +368,7 @@ async function loadHomePage() {
             공예 산지 둘러보기
           </h2>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            ${uniqueCraftRegions.map(region => `
+            ${craftRegions.data.regions.map(region => `
               <a href="/regions/${region.id}" class="text-center p-4 bg-gray-50 rounded-lg hover:shadow-md transition">
                 <div class="w-16 h-16 mx-auto mb-3 bg-craft-blue rounded-full flex items-center justify-center">
                   <i class="fas fa-palette text-white text-2xl"></i>
