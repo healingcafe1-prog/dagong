@@ -1,0 +1,1088 @@
+// ===== 유틸리티 함수 =====
+
+// 가격 포맷팅
+function formatPrice(price) {
+  return new Intl.NumberFormat('ko-KR').format(price) + '원';
+}
+
+// 이미지 에러 처리
+function handleImageError(img) {
+  img.src = 'https://via.placeholder.com/400x300?text=No+Image';
+}
+
+// 날짜 포맷팅
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ===== 네비게이션 =====
+
+// 모바일 메뉴 토글
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+
+if (mobileMenuBtn) {
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+}
+
+// 검색 모달
+const searchBtn = document.getElementById('searchBtn');
+const searchModal = document.getElementById('searchModal');
+const closeSearchBtn = document.getElementById('closeSearchBtn');
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+if (searchBtn) {
+  searchBtn.addEventListener('click', () => {
+    searchModal.classList.remove('hidden');
+    searchInput.focus();
+  });
+}
+
+if (closeSearchBtn) {
+  closeSearchBtn.addEventListener('click', () => {
+    searchModal.classList.add('hidden');
+    searchInput.value = '';
+    searchResults.innerHTML = '';
+  });
+}
+
+// 검색 모달 외부 클릭 시 닫기
+if (searchModal) {
+  searchModal.addEventListener('click', (e) => {
+    if (e.target === searchModal) {
+      searchModal.classList.add('hidden');
+      searchInput.value = '';
+      searchResults.innerHTML = '';
+    }
+  });
+}
+
+// 검색 기능
+let searchTimeout;
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length < 2) {
+      searchResults.innerHTML = '';
+      return;
+    }
+    
+    searchTimeout = setTimeout(async () => {
+      try {
+        const response = await axios.get(`/api/search?q=${encodeURIComponent(query)}`);
+        const { results } = response.data;
+        
+        let html = '';
+        
+        // 상품 결과
+        if (results.products && results.products.length > 0) {
+          html += '<div class="mb-4"><h4 class="font-bold text-gray-700 mb-2">상품</h4>';
+          results.products.forEach(product => {
+            html += `
+              <a href="/products/${product.id}" class="block p-3 hover:bg-gray-50 rounded">
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-box text-tea-green"></i>
+                  <div>
+                    <div class="font-medium">${product.name}</div>
+                    <div class="text-sm text-gray-500">${formatPrice(product.price)}</div>
+                  </div>
+                </div>
+              </a>
+            `;
+          });
+          html += '</div>';
+        }
+        
+        // 생산자 결과
+        if (results.producers && results.producers.length > 0) {
+          html += '<div class="mb-4"><h4 class="font-bold text-gray-700 mb-2">생산자</h4>';
+          results.producers.forEach(producer => {
+            html += `
+              <a href="/producers/${producer.id}" class="block p-3 hover:bg-gray-50 rounded">
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-user text-craft-blue"></i>
+                  <div>
+                    <div class="font-medium">${producer.name}</div>
+                    <div class="text-sm text-gray-500">${producer.description || ''}</div>
+                  </div>
+                </div>
+              </a>
+            `;
+          });
+          html += '</div>';
+        }
+        
+        // 지역 결과
+        if (results.regions && results.regions.length > 0) {
+          html += '<div><h4 class="font-bold text-gray-700 mb-2">지역</h4>';
+          results.regions.forEach(region => {
+            html += `
+              <a href="/regions/${region.id}" class="block p-3 hover:bg-gray-50 rounded">
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-map-marker-alt text-tea-brown"></i>
+                  <div>
+                    <div class="font-medium">${region.name}</div>
+                    <div class="text-sm text-gray-500">${region.description || ''}</div>
+                  </div>
+                </div>
+              </a>
+            `;
+          });
+          html += '</div>';
+        }
+        
+        if (html === '') {
+          html = '<div class="text-center text-gray-500 py-4">검색 결과가 없습니다.</div>';
+        }
+        
+        searchResults.innerHTML = html;
+      } catch (error) {
+        console.error('검색 오류:', error);
+        searchResults.innerHTML = '<div class="text-center text-red-500 py-4">검색 중 오류가 발생했습니다.</div>';
+      }
+    }, 300);
+  });
+}
+
+// ===== 페이지별 로직 =====
+
+const app = document.getElementById('app');
+const path = window.location.pathname;
+const searchParams = new URLSearchParams(window.location.search);
+
+// 홈 페이지
+if (path === '/') {
+  loadHomePage();
+}
+// 상품 목록 페이지
+else if (path === '/products') {
+  loadProductsPage();
+}
+// 상품 상세 페이지
+else if (path.startsWith('/products/')) {
+  const productId = path.split('/')[2];
+  loadProductDetailPage(productId);
+}
+// 지역 목록 페이지
+else if (path === '/regions') {
+  loadRegionsPage();
+}
+// 지역 상세 페이지
+else if (path.startsWith('/regions/')) {
+  const regionId = path.split('/')[2];
+  loadRegionDetailPage(regionId);
+}
+// 생산자 목록 페이지
+else if (path === '/producers') {
+  loadProducersPage();
+}
+// 생산자 상세 페이지
+else if (path.startsWith('/producers/')) {
+  const producerId = path.split('/')[2];
+  loadProducerDetailPage(producerId);
+}
+// 체험 목록 페이지
+else if (path === '/experiences') {
+  loadExperiencesPage();
+}
+// 체험 상세 페이지
+else if (path.startsWith('/experiences/')) {
+  const experienceId = path.split('/')[2];
+  loadExperienceDetailPage(experienceId);
+}
+// 이벤트 목록 페이지
+else if (path === '/events') {
+  loadEventsPage();
+}
+
+// ===== 홈 페이지 =====
+async function loadHomePage() {
+  try {
+    // 병렬로 데이터 가져오기
+    const [featuredProducts, events, teaRegions, craftRegions] = await Promise.all([
+      axios.get('/api/products?featured=true&limit=8'),
+      axios.get('/api/events'),
+      axios.get('/api/regions?type=tea'),
+      axios.get('/api/regions?type=craft')
+    ]);
+    
+    app.innerHTML = `
+      <!-- 히어로 섹션 -->
+      <section class="bg-gradient-to-r from-tea-green to-craft-blue text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+          <h1 class="text-4xl md:text-5xl font-bold mb-4">
+            <i class="fas fa-leaf mr-2"></i>
+            한국의 차와 공예, 직접 만나보세요
+          </h1>
+          <p class="text-xl mb-8">차산지와 공예산지를 직접 연결하는 신뢰의 플랫폼</p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a href="/products?type=tea" class="bg-white text-tea-green px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition">
+              차 둘러보기
+            </a>
+            <a href="/products?type=craft" class="bg-white text-craft-blue px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition">
+              공예품 보기
+            </a>
+            <a href="/experiences" class="border-2 border-white text-white px-8 py-3 rounded-full font-bold hover:bg-white hover:text-tea-green transition">
+              체험 예약하기
+            </a>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 이달의 이벤트 -->
+      ${events.data.events.length > 0 ? `
+        <section class="container mx-auto px-4 py-16">
+          <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+            <i class="fas fa-star text-tea-brown mr-3"></i>
+            이달의 이벤트
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            ${events.data.events.slice(0, 3).map(event => `
+              <a href="/events" class="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                <div class="h-48 bg-gradient-to-br from-tea-green to-craft-blue flex items-center justify-center">
+                  <i class="fas fa-gift text-white text-6xl"></i>
+                </div>
+                <div class="p-6">
+                  <div class="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm font-bold mb-3">
+                    ${event.discount_rate > 0 ? event.discount_rate + '% 할인' : '특별 이벤트'}
+                  </div>
+                  <h3 class="text-xl font-bold mb-2">${event.title}</h3>
+                  <p class="text-gray-600 text-sm mb-3">${event.description}</p>
+                  <div class="text-sm text-gray-500">
+                    ${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}
+                  </div>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        </section>
+      ` : ''}
+      
+      <!-- 추천 상품 -->
+      <section class="bg-white py-16">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+            <i class="fas fa-heart text-red-500 mr-3"></i>
+            추천 상품
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            ${featuredProducts.data.products.map(product => `
+              <a href="/products/${product.id}" class="block bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition">
+                <div class="h-64 bg-gray-200 flex items-center justify-center">
+                  <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : 'fa-palette'} text-gray-400 text-6xl"></i>
+                </div>
+                <div class="p-4">
+                  <div class="text-sm text-gray-500 mb-1">${product.region_name || ''}</div>
+                  <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                  <div class="flex items-center justify-between">
+                    <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                    ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
+                  </div>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+          <div class="text-center mt-8">
+            <a href="/products" class="inline-block bg-tea-green text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition">
+              모든 상품 보기
+            </a>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 차 산지 -->
+      <section class="container mx-auto px-4 py-16">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+          <i class="fas fa-map-marked-alt text-tea-green mr-3"></i>
+          차 산지 둘러보기
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+          ${teaRegions.data.regions.map(region => `
+            <a href="/regions/${region.id}" class="text-center p-4 bg-white rounded-lg hover:shadow-md transition">
+              <div class="w-16 h-16 mx-auto mb-3 bg-tea-green rounded-full flex items-center justify-center">
+                <i class="fas fa-leaf text-white text-2xl"></i>
+              </div>
+              <div class="font-bold text-gray-800">${region.name}</div>
+            </a>
+          `).join('')}
+        </div>
+      </section>
+      
+      <!-- 공예 산지 -->
+      <section class="bg-white py-16">
+        <div class="container mx-auto px-4">
+          <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+            <i class="fas fa-palette text-craft-blue mr-3"></i>
+            공예 산지 둘러보기
+          </h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            ${craftRegions.data.regions.map(region => `
+              <a href="/regions/${region.id}" class="text-center p-4 bg-gray-50 rounded-lg hover:shadow-md transition">
+                <div class="w-16 h-16 mx-auto mb-3 bg-craft-blue rounded-full flex items-center justify-center">
+                  <i class="fas fa-palette text-white text-2xl"></i>
+                </div>
+                <div class="font-bold text-gray-800">${region.name}</div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      </section>
+      
+      <!-- CTA 섹션 -->
+      <section class="bg-gradient-to-r from-tea-brown to-tea-green text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            전통 차문화를 체험해보세요
+          </h2>
+          <p class="text-xl mb-8">다도 교육, 공예 체험, 산지 투어까지</p>
+          <a href="/experiences" class="inline-block bg-white text-tea-green px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition">
+            체험 프로그램 보기
+          </a>
+        </div>
+      </section>
+    `;
+  } catch (error) {
+    console.error('홈 페이지 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 상품 목록 페이지 =====
+async function loadProductsPage() {
+  const type = searchParams.get('type');
+  const categoryId = searchParams.get('category_id');
+  
+  try {
+    let url = '/api/products?limit=20';
+    if (type) url += `&type=${type}`;
+    if (categoryId) url += `&category_id=${categoryId}`;
+    
+    const [productsRes, categoriesRes] = await Promise.all([
+      axios.get(url),
+      axios.get(`/api/categories${type ? `?type=${type}` : ''}`)
+    ]);
+    
+    const products = productsRes.data.products;
+    const categories = categoriesRes.data.categories;
+    
+    const typeNames = {
+      'tea': '차',
+      'craft': '공예품',
+      'gift_set': '선물세트'
+    };
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-4">
+            ${type ? typeNames[type] : '전체 상품'}
+          </h1>
+          
+          <!-- 카테고리 필터 -->
+          ${categories.length > 0 ? `
+            <div class="flex flex-wrap gap-2 mb-6">
+              <a href="/products${type ? `?type=${type}` : ''}" 
+                 class="px-4 py-2 rounded-full ${!categoryId ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+                전체
+              </a>
+              ${categories.map(cat => `
+                <a href="/products?type=${type}&category_id=${cat.id}" 
+                   class="px-4 py-2 rounded-full ${categoryId == cat.id ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+                  ${cat.name}
+                </a>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+        
+        <!-- 상품 목록 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          ${products.map(product => `
+            <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+              <div class="h-64 bg-gray-200 flex items-center justify-center">
+                <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
+              </div>
+              <div class="p-4">
+                <div class="text-sm text-gray-500 mb-1">${product.producer_name} · ${product.region_name || ''}</div>
+                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                <div class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description || ''}</div>
+                <div class="flex items-center justify-between">
+                  <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                  ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
+                </div>
+              </div>
+            </a>
+          `).join('')}
+        </div>
+        
+        ${products.length === 0 ? '<div class="text-center py-20 text-gray-500">상품이 없습니다.</div>' : ''}
+      </div>
+    `;
+  } catch (error) {
+    console.error('상품 목록 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 상품 상세 페이지 =====
+async function loadProductDetailPage(productId) {
+  try {
+    const response = await axios.get(`/api/products/${productId}`);
+    const { product, images, giftSetItems } = response.data;
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- 상품 이미지 -->
+          <div>
+            <div class="bg-gray-200 rounded-lg h-96 flex items-center justify-center mb-4">
+              <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-8xl"></i>
+            </div>
+            ${images && images.length > 0 ? `
+              <div class="grid grid-cols-4 gap-2">
+                ${images.map(img => `
+                  <div class="bg-gray-200 rounded h-20"></div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+          
+          <!-- 상품 정보 -->
+          <div>
+            <div class="mb-4">
+              <div class="text-sm text-gray-500 mb-2">
+                <a href="/producers/${product.producer_id}" class="hover:text-tea-green">${product.producer_name}</a>
+                <span class="mx-2">·</span>
+                <span>${product.region_name}</span>
+              </div>
+              <h1 class="text-3xl font-bold text-gray-800 mb-4">${product.name}</h1>
+              <div class="flex items-center space-x-4 mb-4">
+                <span class="text-3xl font-bold text-tea-green">${formatPrice(product.price)}</span>
+                ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+              </div>
+            </div>
+            
+            <div class="border-t border-b border-gray-200 py-4 mb-6">
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                ${product.weight ? `
+                  <div>
+                    <div class="text-gray-500 mb-1">중량/용량</div>
+                    <div class="font-medium">${product.weight}</div>
+                  </div>
+                ` : ''}
+                ${product.origin ? `
+                  <div>
+                    <div class="text-gray-500 mb-1">원산지</div>
+                    <div class="font-medium">${product.origin}</div>
+                  </div>
+                ` : ''}
+                <div>
+                  <div class="text-gray-500 mb-1">재고</div>
+                  <div class="font-medium">${product.stock > 0 ? '구매 가능' : '품절'}</div>
+                </div>
+                <div>
+                  <div class="text-gray-500 mb-1">조회수</div>
+                  <div class="font-medium">${product.view_count || 0}회</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h3 class="font-bold text-lg mb-3">상품 설명</h3>
+              <p class="text-gray-600 leading-relaxed">${product.description || '상품 설명이 없습니다.'}</p>
+            </div>
+            
+            ${giftSetItems && giftSetItems.length > 0 ? `
+              <div class="mb-6">
+                <h3 class="font-bold text-lg mb-3">선물세트 구성</h3>
+                <div class="space-y-2">
+                  ${giftSetItems.map(item => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                      <span>${item.name}</span>
+                      <span class="text-gray-500">x ${item.quantity}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="mb-6">
+              <h3 class="font-bold text-lg mb-3">생산자 정보</h3>
+              <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="font-medium mb-2">${product.producer_name}</div>
+                <p class="text-gray-600 text-sm">${product.producer_description || ''}</p>
+                <a href="/producers/${product.producer_id}" class="inline-block mt-3 text-tea-green hover:underline">
+                  생산자 페이지 보기 <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+              </div>
+            </div>
+            
+            <div class="flex gap-3">
+              <button class="flex-1 bg-tea-green text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition">
+                <i class="fas fa-shopping-cart mr-2"></i>
+                장바구니
+              </button>
+              <button class="flex-1 bg-tea-brown text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition">
+                <i class="fas fa-credit-card mr-2"></i>
+                구매하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('상품 상세 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">상품을 찾을 수 없습니다.</p></div>';
+  }
+}
+
+// ===== 지역 목록 페이지 =====
+async function loadRegionsPage() {
+  const type = searchParams.get('type');
+  
+  try {
+    let url = '/api/regions';
+    if (type) url += `?type=${type}`;
+    
+    const response = await axios.get(url);
+    const regions = response.data.regions;
+    
+    const typeNames = {
+      'tea': '차 산지',
+      'craft': '공예 산지'
+    };
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">
+          ${type ? typeNames[type] : '전체 지역'}
+        </h1>
+        
+        <div class="flex gap-4 mb-8">
+          <a href="/regions" class="px-4 py-2 rounded-full ${!type ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            전체
+          </a>
+          <a href="/regions?type=tea" class="px-4 py-2 rounded-full ${type === 'tea' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            차 산지
+          </a>
+          <a href="/regions?type=craft" class="px-4 py-2 rounded-full ${type === 'craft' ? 'bg-craft-blue text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            공예 산지
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          ${regions.map(region => `
+            <a href="/regions/${region.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+              <div class="h-48 bg-gradient-to-br ${region.type === 'tea' ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} flex items-center justify-center">
+                <i class="fas ${region.type === 'tea' ? 'fa-leaf' : 'fa-palette'} text-white text-6xl"></i>
+              </div>
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">${region.name}</h3>
+                <p class="text-gray-600 text-sm">${region.description || ''}</p>
+              </div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('지역 목록 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 지역 상세 페이지 =====
+async function loadRegionDetailPage(regionId) {
+  try {
+    const response = await axios.get(`/api/regions/${regionId}`);
+    const { region, producers, attractions } = response.data;
+    
+    // 관광지를 타입별로 분류
+    const touristSpots = attractions.filter(a => a.attraction_type === 'tourist_spot');
+    const restaurants = attractions.filter(a => a.attraction_type === 'restaurant');
+    const workshops = attractions.filter(a => a.attraction_type === 'workshop');
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <!-- 지역 헤더 -->
+        <div class="bg-gradient-to-r ${region.type === 'tea' ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} text-white rounded-lg p-12 mb-8">
+          <h1 class="text-4xl font-bold mb-4">
+            <i class="fas ${region.type === 'tea' ? 'fa-leaf' : 'fa-palette'} mr-3"></i>
+            ${region.name}
+          </h1>
+          <p class="text-xl">${region.description || ''}</p>
+        </div>
+        
+        <!-- 생산자 -->
+        ${producers.length > 0 ? `
+          <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+              <i class="fas fa-users mr-2"></i>
+              생산자
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${producers.map(producer => `
+                <a href="/producers/${producer.id}" class="block bg-white rounded-lg p-6 hover:shadow-lg transition">
+                  <div class="flex items-center space-x-4 mb-4">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-gray-400 text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="font-bold text-lg">${producer.name}</h3>
+                      <div class="text-sm text-gray-500">${producer.producer_type === 'tea' ? '차 생산' : '공예 제작'}</div>
+                    </div>
+                  </div>
+                  <p class="text-gray-600 text-sm">${producer.description || ''}</p>
+                </a>
+              `).join('')}
+            </div>
+          </section>
+        ` : ''}
+        
+        <!-- 관광 명소 -->
+        ${touristSpots.length > 0 ? `
+          <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+              <i class="fas fa-map-marked-alt mr-2"></i>
+              가볼만한 곳
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              ${touristSpots.map(spot => `
+                <div class="bg-white rounded-lg overflow-hidden shadow-md">
+                  <div class="h-48 bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-camera text-gray-400 text-6xl"></i>
+                  </div>
+                  <div class="p-6">
+                    <h3 class="font-bold text-lg mb-2">${spot.name}</h3>
+                    <p class="text-gray-600 text-sm mb-3">${spot.description || ''}</p>
+                    ${spot.address ? `<div class="text-sm text-gray-500 mb-1"><i class="fas fa-map-marker-alt mr-1"></i>${spot.address}</div>` : ''}
+                    ${spot.opening_hours ? `<div class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${spot.opening_hours}</div>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        ` : ''}
+        
+        <!-- 맛집 -->
+        ${restaurants.length > 0 ? `
+          <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+              <i class="fas fa-utensils mr-2"></i>
+              맛집
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              ${restaurants.map(restaurant => `
+                <div class="bg-white rounded-lg p-6 shadow-md">
+                  <h3 class="font-bold text-lg mb-2">${restaurant.name}</h3>
+                  <p class="text-gray-600 text-sm mb-3">${restaurant.description || ''}</p>
+                  ${restaurant.address ? `<div class="text-sm text-gray-500 mb-1"><i class="fas fa-map-marker-alt mr-1"></i>${restaurant.address}</div>` : ''}
+                  ${restaurant.phone ? `<div class="text-sm text-gray-500 mb-1"><i class="fas fa-phone mr-1"></i>${restaurant.phone}</div>` : ''}
+                  ${restaurant.opening_hours ? `<div class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${restaurant.opening_hours}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        ` : ''}
+        
+        <!-- 공방/체험 -->
+        ${workshops.length > 0 ? `
+          <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+              <i class="fas fa-hammer mr-2"></i>
+              공방 · 체험장
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              ${workshops.map(workshop => `
+                <div class="bg-white rounded-lg p-6 shadow-md">
+                  <h3 class="font-bold text-lg mb-2">${workshop.name}</h3>
+                  <p class="text-gray-600 text-sm mb-3">${workshop.description || ''}</p>
+                  ${workshop.address ? `<div class="text-sm text-gray-500 mb-1"><i class="fas fa-map-marker-alt mr-1"></i>${workshop.address}</div>` : ''}
+                  ${workshop.phone ? `<div class="text-sm text-gray-500 mb-1"><i class="fas fa-phone mr-1"></i>${workshop.phone}</div>` : ''}
+                  ${workshop.opening_hours ? `<div class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${workshop.opening_hours}</div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        ` : ''}
+      </div>
+    `;
+  } catch (error) {
+    console.error('지역 상세 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">지역을 찾을 수 없습니다.</p></div>';
+  }
+}
+
+// ===== 생산자 목록 페이지 =====
+async function loadProducersPage() {
+  const type = searchParams.get('type');
+  
+  try {
+    let url = '/api/producers';
+    if (type) url += `?type=${type}`;
+    
+    const response = await axios.get(url);
+    const producers = response.data.producers;
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">생산자</h1>
+        
+        <div class="flex gap-4 mb-8">
+          <a href="/producers" class="px-4 py-2 rounded-full ${!type ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            전체
+          </a>
+          <a href="/producers?type=tea" class="px-4 py-2 rounded-full ${type === 'tea' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            차 생산자
+          </a>
+          <a href="/producers?type=craft" class="px-4 py-2 rounded-full ${type === 'craft' ? 'bg-craft-blue text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            공예 작가
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${producers.map(producer => `
+            <a href="/producers/${producer.id}" class="block bg-white rounded-lg p-6 hover:shadow-lg transition">
+              <div class="flex items-center space-x-4 mb-4">
+                <div class="w-20 h-20 bg-gradient-to-br ${producer.producer_type === 'tea' ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} rounded-full flex items-center justify-center">
+                  <i class="fas fa-user text-white text-3xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-xl">${producer.name}</h3>
+                  <div class="text-sm text-gray-500">${producer.region_name}</div>
+                </div>
+              </div>
+              <p class="text-gray-600 text-sm">${producer.description || ''}</p>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('생산자 목록 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 생산자 상세 페이지 =====
+async function loadProducerDetailPage(producerId) {
+  try {
+    const response = await axios.get(`/api/producers/${producerId}`);
+    const { producer, products } = response.data;
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <!-- 생산자 프로필 -->
+        <div class="bg-white rounded-lg p-8 mb-8 shadow-md">
+          <div class="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
+            <div class="w-32 h-32 bg-gradient-to-br ${producer.producer_type === 'tea' ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} rounded-full flex items-center justify-center">
+              <i class="fas fa-user text-white text-5xl"></i>
+            </div>
+            <div class="flex-1">
+              <h1 class="text-3xl font-bold text-gray-800 mb-2">${producer.name}</h1>
+              <div class="text-gray-600 mb-4">
+                <i class="fas fa-map-marker-alt mr-2"></i>${producer.region_name}
+              </div>
+              <p class="text-gray-700 mb-4">${producer.description || ''}</p>
+              ${producer.story ? `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h3 class="font-bold mb-2">생산자 스토리</h3>
+                  <p class="text-gray-600 text-sm">${producer.story}</p>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          
+          ${producer.contact_email || producer.contact_phone || producer.address ? `
+            <div class="mt-6 pt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              ${producer.address ? `
+                <div>
+                  <div class="text-gray-500 mb-1">주소</div>
+                  <div class="font-medium">${producer.address}</div>
+                </div>
+              ` : ''}
+              ${producer.contact_phone ? `
+                <div>
+                  <div class="text-gray-500 mb-1">연락처</div>
+                  <div class="font-medium">${producer.contact_phone}</div>
+                </div>
+              ` : ''}
+              ${producer.contact_email ? `
+                <div>
+                  <div class="text-gray-500 mb-1">이메일</div>
+                  <div class="font-medium">${producer.contact_email}</div>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+        
+        <!-- 생산자의 상품 -->
+        ${products.length > 0 ? `
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">${producer.name}의 상품</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              ${products.map(product => `
+                <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+                  <div class="h-64 bg-gray-200 flex items-center justify-center">
+                    <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
+                  </div>
+                  <div class="p-4">
+                    <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                    <div class="flex items-center justify-between">
+                      <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                      ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
+                    </div>
+                  </div>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        ` : '<div class="text-center py-12 text-gray-500">등록된 상품이 없습니다.</div>'}
+      </div>
+    `;
+  } catch (error) {
+    console.error('생산자 상세 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">생산자를 찾을 수 없습니다.</p></div>';
+  }
+}
+
+// ===== 체험 목록 페이지 =====
+async function loadExperiencesPage() {
+  const type = searchParams.get('type');
+  
+  try {
+    let url = '/api/experiences';
+    if (type) url += `?type=${type}`;
+    
+    const response = await axios.get(url);
+    const experiences = response.data.experiences;
+    
+    const typeNames = {
+      'tea_ceremony': '다례 교육',
+      'tea_tasting': '차 시음',
+      'craft_workshop': '공예 체험',
+      'farm_tour': '농장 투어',
+      'workshop_visit': '공방 견학'
+    };
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">체험 & 교육 프로그램</h1>
+        
+        <div class="flex flex-wrap gap-2 mb-8">
+          <a href="/experiences" class="px-4 py-2 rounded-full ${!type ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            전체
+          </a>
+          <a href="/experiences?type=tea_ceremony" class="px-4 py-2 rounded-full ${type === 'tea_ceremony' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            다례 교육
+          </a>
+          <a href="/experiences?type=tea_tasting" class="px-4 py-2 rounded-full ${type === 'tea_tasting' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            차 시음
+          </a>
+          <a href="/experiences?type=craft_workshop" class="px-4 py-2 rounded-full ${type === 'craft_workshop' ? 'bg-craft-blue text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            공예 체험
+          </a>
+          <a href="/experiences?type=farm_tour" class="px-4 py-2 rounded-full ${type === 'farm_tour' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            농장 투어
+          </a>
+          <a href="/experiences?type=workshop_visit" class="px-4 py-2 rounded-full ${type === 'workshop_visit' ? 'bg-craft-blue text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            공방 견학
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${experiences.map(exp => `
+            <a href="/experiences/${exp.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+              <div class="h-48 bg-gradient-to-br ${exp.experience_type.includes('tea') ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} flex items-center justify-center">
+                <i class="fas ${exp.experience_type === 'tea_ceremony' ? 'fa-yin-yang' : exp.experience_type === 'tea_tasting' ? 'fa-mug-hot' : exp.experience_type === 'craft_workshop' ? 'fa-palette' : exp.experience_type === 'farm_tour' ? 'fa-tractor' : 'fa-door-open'} text-white text-6xl"></i>
+              </div>
+              <div class="p-6">
+                <div class="text-sm text-gray-500 mb-2">
+                  <span class="inline-block px-2 py-1 bg-gray-100 rounded text-xs font-medium">${typeNames[exp.experience_type]}</span>
+                  ${exp.region_name ? `<span class="ml-2">${exp.region_name}</span>` : ''}
+                </div>
+                <h3 class="font-bold text-xl mb-2">${exp.title}</h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">${exp.description || ''}</p>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500">
+                    <i class="fas fa-clock mr-1"></i>${exp.duration}
+                  </span>
+                  <span class="text-tea-green font-bold text-lg">${formatPrice(exp.price)}</span>
+                </div>
+              </div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('체험 목록 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 체험 상세 페이지 =====
+async function loadExperienceDetailPage(experienceId) {
+  try {
+    const response = await axios.get(`/api/experiences/${experienceId}`);
+    const { experience, schedules } = response.data;
+    
+    const typeNames = {
+      'tea_ceremony': '다례 교육',
+      'tea_tasting': '차 시음',
+      'craft_workshop': '공예 체험',
+      'farm_tour': '농장 투어',
+      'workshop_visit': '공방 견학'
+    };
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg overflow-hidden shadow-md mb-6">
+              <div class="h-96 bg-gradient-to-br ${experience.experience_type.includes('tea') ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} flex items-center justify-center">
+                <i class="fas ${experience.experience_type === 'tea_ceremony' ? 'fa-yin-yang' : experience.experience_type === 'tea_tasting' ? 'fa-mug-hot' : experience.experience_type === 'craft_workshop' ? 'fa-palette' : experience.experience_type === 'farm_tour' ? 'fa-tractor' : 'fa-door-open'} text-white text-8xl"></i>
+              </div>
+              <div class="p-8">
+                <div class="mb-4">
+                  <span class="inline-block px-3 py-1 bg-gray-100 rounded-full text-sm font-medium mr-2">${typeNames[experience.experience_type]}</span>
+                  ${experience.region_name ? `<span class="text-gray-600">${experience.region_name}</span>` : ''}
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">${experience.title}</h1>
+                <p class="text-gray-700 leading-relaxed mb-6">${experience.description || ''}</p>
+                
+                <div class="grid grid-cols-2 gap-4 py-6 border-t border-b border-gray-200">
+                  <div>
+                    <div class="text-gray-500 text-sm mb-1">소요 시간</div>
+                    <div class="font-bold text-lg">${experience.duration}</div>
+                  </div>
+                  <div>
+                    <div class="text-gray-500 text-sm mb-1">참가 인원</div>
+                    <div class="font-bold text-lg">최대 ${experience.max_participants}명</div>
+                  </div>
+                  ${experience.producer_name ? `
+                    <div class="col-span-2">
+                      <div class="text-gray-500 text-sm mb-1">진행</div>
+                      <div class="font-medium">${experience.producer_name}</div>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg p-6 shadow-md sticky top-24">
+              <div class="text-3xl font-bold text-tea-green mb-6">${formatPrice(experience.price)}</div>
+              
+              ${schedules.length > 0 ? `
+                <div class="mb-6">
+                  <h3 class="font-bold mb-3">예약 가능한 일정</h3>
+                  <div class="space-y-2 max-h-96 overflow-y-auto">
+                    ${schedules.map(schedule => `
+                      <button class="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-tea-green hover:bg-tea-cream transition">
+                        <div class="font-medium">${formatDate(schedule.schedule_date)}</div>
+                        <div class="text-sm text-gray-600 mt-1">
+                          ${schedule.start_time} 시작 · 잔여 ${schedule.available_slots - schedule.booked_slots}석
+                        </div>
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+                
+                <button class="w-full bg-tea-green text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition">
+                  <i class="fas fa-calendar-check mr-2"></i>
+                  예약하기
+                </button>
+              ` : `
+                <div class="text-center py-6 text-gray-500">
+                  <i class="fas fa-calendar-times text-4xl mb-3"></i>
+                  <div>현재 예약 가능한 일정이 없습니다</div>
+                </div>
+              `}
+              
+              <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="text-sm text-gray-600">
+                  <div class="flex items-start mb-2">
+                    <i class="fas fa-info-circle text-tea-green mt-1 mr-2"></i>
+                    <div>예약은 최소 3일 전까지 가능합니다</div>
+                  </div>
+                  <div class="flex items-start">
+                    <i class="fas fa-info-circle text-tea-green mt-1 mr-2"></i>
+                    <div>취소 및 환불 규정은 예약 후 안내됩니다</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('체험 상세 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">체험을 찾을 수 없습니다.</p></div>';
+  }
+}
+
+// ===== 이벤트 목록 페이지 =====
+async function loadEventsPage() {
+  try {
+    const response = await axios.get('/api/events');
+    const events = response.data.events;
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">
+          <i class="fas fa-star text-tea-brown mr-2"></i>
+          이달의 이벤트
+        </h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${events.map(event => `
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
+              <div class="h-64 bg-gradient-to-br from-tea-brown to-tea-green flex items-center justify-center">
+                <i class="fas ${event.event_type === 'discount' ? 'fa-percentage' : event.event_type === 'new_product' ? 'fa-gift' : event.event_type === 'season' ? 'fa-calendar-alt' : 'fa-flag'} text-white text-7xl"></i>
+              </div>
+              <div class="p-6">
+                <div class="mb-3">
+                  ${event.discount_rate > 0 ? `
+                    <span class="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm font-bold">
+                      ${event.discount_rate}% 할인
+                    </span>
+                  ` : `
+                    <span class="inline-block px-3 py-1 bg-tea-brown bg-opacity-20 text-tea-brown rounded-full text-sm font-bold">
+                      특별 이벤트
+                    </span>
+                  `}
+                </div>
+                <h3 class="text-xl font-bold mb-3">${event.title}</h3>
+                <p class="text-gray-600 text-sm mb-4">${event.description}</p>
+                <div class="text-sm text-gray-500 mb-4">
+                  <i class="fas fa-clock mr-1"></i>
+                  ${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}
+                </div>
+                <a href="/products" class="inline-block w-full text-center bg-tea-brown text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
+                  이벤트 상품 보기
+                </a>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        
+        ${events.length === 0 ? '<div class="text-center py-20 text-gray-500">진행 중인 이벤트가 없습니다.</div>' : ''}
+      </div>
+    `;
+  } catch (error) {
+    console.error('이벤트 목록 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
