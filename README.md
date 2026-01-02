@@ -15,7 +15,7 @@
 - **개발 서버**: https://3000-i1cjrhuxghhqe7nryfah2-18e660f9.sandbox.novita.ai
 - **API 엔드포인트**: https://3000-i1cjrhuxghhqe7nryfah2-18e660f9.sandbox.novita.ai/api
 
-## ✨ 현재 구현된 기능 (Phase 1.5 - 생산자 관리)
+## ✨ 현재 구현된 기능 (Phase 2 - 회원 시스템)
 
 ### 1. 홈 화면
 - ✅ 히어로 섹션 (메인 배너)
@@ -96,7 +96,33 @@
 - ✅ 실시간 검색 결과
 - ✅ 검색 모달 UI
 
-### 8. 네비게이션
+### 8. 회원 시스템 🆕
+- ✅ **소셜 로그인** (`/login`)
+  - 구글 로그인
+  - 네이버 로그인
+  - 카카오 로그인
+- ✅ **세션 관리**
+  - 자동 로그인 유지 (30일)
+  - 로그아웃 기능
+- ✅ **사용자 정보**
+  - 프로필 이미지
+  - 이름, 이메일
+  - 소셜 로그인 제공자 정보
+- ✅ **네비게이션 통합**
+  - 로그인 전: 로그인 버튼 표시
+  - 로그인 후: 사용자 아바타 & 드롭다운 메뉴
+
+### 9. 수수료 시스템 🆕
+- ✅ **플랫폼 수수료 9.9% 설정**
+- ✅ **생산자 수익 계산**
+  - 상품 등록 시 실시간 수수료 계산
+  - 체험 등록 시 실시간 수수료 계산
+- ✅ **가격 미리보기**
+  - 판매가
+  - 플랫폼 수수료
+  - 생산자 실수익
+
+### 10. 네비게이션
 - ✅ 반응형 네비게이션 바
 - ✅ 모바일 메뉴
 - ✅ 푸터 정보
@@ -182,6 +208,14 @@
 | **교육 신청 등록 🆕** | **POST** | `/api/education-applications` | Body: JSON | 교육 신청 |
 | **교육 신청 수정 🆕** | **PUT** | `/api/education-applications/:id` | Body: JSON | 교육 신청 정보 수정 |
 | **교육 통계 🆕** | **GET** | `/api/education-statistics` | - | 교육 신청 통계 |
+| **구글 로그인 🆕** | **GET** | `/auth/google` | - | Google OAuth 인증 시작 |
+| **구글 로그인 콜백 🆕** | **GET** | `/auth/google/callback` | code, state | Google OAuth 콜백 처리 |
+| **네이버 로그인 🆕** | **GET** | `/auth/naver` | - | Naver OAuth 인증 시작 |
+| **네이버 로그인 콜백 🆕** | **GET** | `/auth/naver/callback` | code, state | Naver OAuth 콜백 처리 |
+| **카카오 로그인 🆕** | **GET** | `/auth/kakao` | - | Kakao OAuth 인증 시작 |
+| **카카오 로그인 콜백 🆕** | **GET** | `/auth/kakao/callback` | code | Kakao OAuth 콜백 처리 |
+| **현재 사용자 정보 🆕** | **GET** | `/api/auth/me` | - | 로그인한 사용자 정보 |
+| **로그아웃 🆕** | **POST** | `/api/auth/logout` | - | 세션 삭제 및 로그아웃 |
 
 ## 🗄️ 데이터 모델
 
@@ -205,6 +239,14 @@
 - **experience_schedules**: 체험 일정
 - **education_applications** 🆕: 다도교육 신청 정보
   - 기관 유형, 담당자 정보, 일정, 상태 등
+- **system_settings** 🆕: 시스템 설정
+  - `commission_rate`: 플랫폼 수수료율 (9.9%)
+- **users** 🆕: 회원 정보
+  - 이메일, 이름, 프로필 이미지
+  - 소셜 로그인 제공자 정보 (google, naver, kakao)
+  - 역할 (user, producer, admin)
+- **user_sessions** 🆕: 사용자 세션
+  - 세션 토큰, 만료 시간
 
 ### 지역 데이터
 **차산지 (8개)**
@@ -224,6 +266,7 @@
 - **TypeScript**: 타입 안전성
 - **Cloudflare D1**: SQLite 데이터베이스
 - **Cloudflare Pages**: 글로벌 엣지 배포
+- **OAuth 2.0**: 소셜 로그인 인증 (Google, Naver, Kakao)
 
 ### 프론트엔드
 - **TailwindCSS**: 유틸리티 기반 CSS 프레임워크
@@ -241,13 +284,19 @@
 ### 개발 환경 시작
 
 ```bash
-# 데이터베이스 초기화 (처음 한 번만)
+# 1. 데이터베이스 초기화 (처음 한 번만)
 npm run db:reset
 
-# 프로젝트 빌드
+# 2. 소셜 로그인 환경변수 설정 (필수)
+# .dev.vars 파일 생성 후 OAuth 앱 키 입력
+# 자세한 내용은 OAUTH_SETUP_GUIDE.md 참조
+cp .dev.vars.example .dev.vars
+# .dev.vars 파일을 편집하여 실제 OAuth 키 입력
+
+# 3. 프로젝트 빌드
 npm run build
 
-# 개발 서버 시작 (PM2)
+# 4. 개발 서버 시작 (PM2)
 pm2 start ecosystem.config.cjs
 
 # 서버 상태 확인
@@ -256,6 +305,26 @@ pm2 list
 # 로그 확인
 pm2 logs webapp --nostream
 ```
+
+### 소셜 로그인 설정
+
+소셜 로그인 기능을 사용하려면 OAuth 앱을 등록해야 합니다:
+
+1. **[OAUTH_SETUP_GUIDE.md](./OAUTH_SETUP_GUIDE.md)** 파일을 참조하여 각 플랫폼에서 OAuth 앱 등록
+   - Google OAuth 2.0 클라이언트 ID 발급
+   - 네이버 개발자 센터에서 애플리케이션 등록
+   - 카카오 개발자 콘솔에서 앱 등록
+
+2. `.dev.vars` 파일에 발급받은 키 입력:
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_secret
+   NAVER_CLIENT_ID=your_naver_client_id
+   NAVER_CLIENT_SECRET=your_naver_secret
+   KAKAO_CLIENT_ID=your_kakao_rest_api_key
+   ```
+
+3. 로그인 페이지 접속: `http://localhost:3000/login`
 
 ### 주요 npm 스크립트
 
@@ -300,7 +369,7 @@ wrangler d1 execute webapp-production --local --command="SELECT * FROM products 
 ### 우선순위 1: 핵심 커머스 기능
 1. **장바구니 시스템**: 상품 담기, 수량 조절, 장바구니 페이지
 2. **주문/결제 시스템**: 주문서 작성, 배송지 입력, 결제 연동
-3. **회원 시스템**: 회원가입, 로그인, 마이페이지
+3. ✅ **회원 시스템**: ~~회원가입~~, ~~로그인~~, 마이페이지 (소셜 로그인 완료)
 
 ### 우선순위 2: 사용자 경험 향상
 1. **체험 예약 시스템**: 일정 선택, 예약 정보 입력, 예약 확인
@@ -330,14 +399,19 @@ webapp/
 │       ├── producer-forms.js  # 🆕 생산자 등록 폼
 │       └── style.css       # 커스텀 스타일
 ├── migrations/
-│   ├── 0001_initial_schema.sql      # 초기 데이터베이스 스키마
+│   ├── 0001_initial_schema.sql          # 초기 데이터베이스 스키마
 │   ├── 0002_education_applications.sql  # 교육 신청 테이블
-│   └── 0003_add_pricing_fields.sql  # 🆕 할인가 필드 추가
+│   ├── 0003_add_pricing_fields.sql      # 🆕 할인가 필드 추가
+│   ├── 0004_add_commission_settings.sql # 🆕 수수료 시스템 (9.9%)
+│   └── 0005_add_user_system.sql         # 🆕 회원/세션 테이블
 ├── seed.sql                # 초기 데이터
+├── .dev.vars               # 🆕 OAuth 환경 변수 (로컬 개발, .gitignore)
+├── .dev.vars.example       # 🆕 환경 변수 예시 파일
 ├── ecosystem.config.cjs    # PM2 설정
 ├── wrangler.jsonc          # Cloudflare 설정
 ├── vite.config.ts          # Vite 빌드 설정
 ├── package.json            # 프로젝트 의존성
+├── OAUTH_SETUP_GUIDE.md    # 🆕 소셜 로그인 설정 가이드
 └── README.md               # 프로젝트 문서
 ```
 
@@ -351,6 +425,8 @@ webapp/
 ## 📝 개발 상태
 
 - ✅ **Phase 1 (MVP)**: 완료 ← 기본 페이지 및 정보 표시
+- ✅ **Phase 1.5 (생산자 관리)**: 완료 ← 상품/체험 등록, 30% 할인 시스템
+- ✅ **Phase 2 (회원 시스템)**: 완료 ← 소셜 로그인, 세션 관리, 수수료 시스템
 - ✅ **Phase 1.5 (생산자 관리)**: 완료 ← 🆕 상품/체험 등록 및 할인가 시스템
 - 🚧 **Phase 2 (확장 기능)**: 계획 중 ← 결제, 회원, 예약 시스템
 - 📅 **Phase 3 (고급 기능)**: 미정 ← 고급 관리 및 분석
