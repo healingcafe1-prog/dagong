@@ -144,7 +144,7 @@ INSERT INTO attractions (region_id, name, attraction_type, description, address,
 
 -- 체험 프로그램 데이터
 INSERT INTO experiences (title, region_id, producer_id, experience_type, description, duration, price, max_participants, main_image) VALUES
-('전통 다례 체험', 6, 4, 'tea_ceremony', '다산 선생의 차문화를 직접 배우는 다례 교실', '2시간', 30000, 15, '/images/experiences/tea-ceremony.jpg'),
+('전통 다도교육', 6, 4, 'tea_ceremony', '다산 선생의 차문화를 직접 배우는 다도 교실', '2시간', 30000, 15, '/images/experiences/tea-ceremony.jpg'),
 ('차밭 투어 & 차 만들기', 5, 3, 'farm_tour', '보성 녹차밭을 거닐고 직접 차를 만들어보는 체험', '3시간', 45000, 20, '/images/experiences/tea-farm-tour.jpg'),
 ('찻잔 만들기 원데이 클래스', 10, 6, 'craft_workshop', '물레를 돌려 나만의 찻잔을 만드는 도예 체험', '3시간', 60000, 8, '/images/experiences/pottery-class.jpg'),
 ('제주 차 시음회', 1, 1, 'tea_tasting', '제주에서 자란 다양한 차를 맛보고 배우는 시간', '1.5시간', 25000, 12, '/images/experiences/tea-tasting.jpg'),
@@ -173,3 +173,22 @@ INSERT INTO experience_schedules (experience_id, schedule_date, start_time, avai
 (7, '2024-03-30', '14:00', 12, 0),
 (8, '2024-03-18', '13:00', 10, 0),
 (8, '2024-03-25', '13:00', 10, 0);
+
+-- 교육 신청 샘플 데이터
+INSERT INTO education_applications (organization_type, organization_name, contact_person, contact_phone, contact_email, address, participant_count, preferred_date, preferred_time, education_type, message, status, approved_date, education_start_date, education_end_date, instructor_name) VALUES
+-- 진행 중인 교육
+('kindergarten', '햇살 어린이집', '김미영', '02-123-4567', 'sunshine@example.com', '서울시 강남구 테헤란로 123', 25, '2024-03-15', '10:00', 'tea_ceremony', '5-7세 아이들을 위한 다도 체험 수업을 희망합니다.', 'in_progress', '2024-02-15', '2024-03-15', '2024-03-29', '강진 백운옥판차'),
+('school', '서울초등학교', '이선생', '02-234-5678', 'seoul-elem@example.com', '서울시 종로구 율곡로 234', 30, '2024-03-20', '14:00', 'tea_ceremony', '5학년 학생들 대상 전통 차 문화 교육', 'in_progress', '2024-02-20', '2024-03-20', '2024-04-03', '강진 백운옥판차'),
+('company', '한국문화재단', '박과장', '02-345-6789', 'culture@example.com', '서울시 중구 세종대로 345', 20, '2024-03-25', '15:00', 'tea_ceremony', '직원 힐링 프로그램으로 다도 교육을 진행하고 싶습니다.', 'in_progress', '2024-02-25', '2024-03-25', '2024-04-08', '제주 설록다원'),
+('government', '문화체육관광부', '최주무관', '044-456-7890', 'mcst@example.com', '세종특별자치시 도움6로 11', 15, '2024-04-01', '10:00', 'tea_ceremony', '공무원 문화 향유 프로그램', 'in_progress', '2024-03-01', '2024-04-01', '2024-04-15', '하동 야생차 농원'),
+
+-- 승인 대기 중
+('kindergarten', '푸른숲 어린이집', '정원장', '031-567-8901', 'greenforest@example.com', '경기도 성남시 분당구 판교로 456', 20, '2024-04-10', '11:00', 'tea_tasting', '차 시음 체험을 통한 미각 교육', 'pending', NULL, NULL, NULL, NULL),
+('school', '보성중학교', '박교사', '061-852-2345', 'boseong-mid@example.com', '전남 보성군 보성읍 녹차로 567', 35, '2024-04-15', '13:00', 'tea_ceremony', '지역 특산물인 녹차에 대한 이해 교육', 'pending', NULL, NULL, NULL, NULL),
+('company', 'SK하이닉스', '김차장', '031-678-9012', 'sk@example.com', '경기도 이천시 부발읍 경충대로 678', 40, '2024-04-20', '14:00', 'craft_workshop', '찻잔 만들기 체험 (팀 빌딩 행사)', 'pending', NULL, NULL, NULL, NULL),
+
+-- 완료된 교육
+('kindergarten', '사랑 어린이집', '홍원장', '02-789-0123', 'love@example.com', '서울시 송파구 올림픽로 789', 22, '2024-02-20', '10:00', 'tea_ceremony', '돌봄교육 프로그램의 일환', 'completed', '2024-01-20', '2024-02-20', '2024-03-05', '강진 백운옥판차'),
+('school', '하동초등학교', '윤선생', '055-880-3456', 'hadong-elem@example.com', '경남 하동군 화개면 섬진강대로 890', 28, '2024-02-25', '09:00', 'tea_ceremony', '지역 차문화 체험학습', 'completed', '2024-01-25', '2024-02-25', '2024-03-10', '하동 야생차 농원'),
+('company', '현대자동차', '신대리', '02-890-1234', 'hyundai@example.com', '서울시 서초구 헌릉로 901', 25, '2024-03-01', '15:00', 'tea_ceremony', '직원 복지 프로그램', 'completed', '2024-02-01', '2024-03-01', '2024-03-08', '제주 설록다원'),
+('government', '강진군청', '이주사', '061-430-4567', 'gangjin-gov@example.com', '전남 강진군 강진읍 군청로 012', 18, '2024-03-05', '14:00', 'tea_ceremony', '지역 문화 이해 교육', 'completed', '2024-02-05', '2024-03-05', '2024-03-12', '강진 백운옥판차');

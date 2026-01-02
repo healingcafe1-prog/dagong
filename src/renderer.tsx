@@ -64,6 +64,9 @@ export const renderer = jsxRenderer(({ children }) => {
                 <a href="/experiences" class="text-gray-700 hover:text-tea-green transition">
                   <i class="fas fa-users mr-1"></i>체험·교육
                 </a>
+                <a href="/education/apply" class="text-gray-700 hover:text-tea-green transition">
+                  <i class="fas fa-graduation-cap mr-1"></i>다도교육 신청
+                </a>
                 <a href="/events" class="text-gray-700 hover:text-tea-brown transition">
                   <i class="fas fa-star mr-1"></i>이벤트
                 </a>
@@ -87,6 +90,7 @@ export const renderer = jsxRenderer(({ children }) => {
               <a href="/products?type=gift_set" class="block py-2 text-gray-700 hover:text-tea-brown">선물세트</a>
               <a href="/regions" class="block py-2 text-gray-700 hover:text-tea-green">지역별 보기</a>
               <a href="/experiences" class="block py-2 text-gray-700 hover:text-tea-green">체험·교육</a>
+              <a href="/education/apply" class="block py-2 text-gray-700 hover:text-tea-green">다도교육 신청</a>
               <a href="/events" class="block py-2 text-gray-700 hover:text-tea-brown">이벤트</a>
             </div>
           </div>

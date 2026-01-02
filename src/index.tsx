@@ -388,6 +388,166 @@ app.get('/api/search', async (c) => {
   })
 })
 
+// ===== 교육 신청 API =====
+
+// 교육 신청 목록 조회 API
+app.get('/api/education-applications', async (c) => {
+  const status = c.req.query('status')
+  const orgType = c.req.query('org_type')
+  const limit = c.req.query('limit') || '50'
+  const offset = c.req.query('offset') || '0'
+  
+  let query = 'SELECT * FROM education_applications WHERE 1=1'
+  const params: any[] = []
+  
+  if (status) {
+    query += ' AND status = ?'
+    params.push(status)
+  }
+  
+  if (orgType) {
+    query += ' AND organization_type = ?'
+    params.push(orgType)
+  }
+  
+  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?'
+  params.push(parseInt(limit), parseInt(offset))
+  
+  const { results } = await c.env.DB.prepare(query).bind(...params).all()
+  return c.json({ applications: results })
+})
+
+// 특정 교육 신청 상세 조회 API
+app.get('/api/education-applications/:id', async (c) => {
+  const id = c.req.param('id')
+  
+  const application = await c.env.DB.prepare(
+    'SELECT * FROM education_applications WHERE id = ?'
+  ).bind(id).first()
+  
+  if (!application) {
+    return c.json({ error: '신청서를 찾을 수 없습니다' }, 404)
+  }
+  
+  return c.json({ application })
+})
+
+// 교육 신청 등록 API
+app.post('/api/education-applications', async (c) => {
+  const body = await c.req.json()
+  
+  const {
+    organization_type,
+    organization_name,
+    contact_person,
+    contact_phone,
+    contact_email,
+    address,
+    participant_count,
+    preferred_date,
+    preferred_time,
+    education_type,
+    message
+  } = body
+  
+  // 필수 필드 검증
+  if (!organization_type || !organization_name || !contact_person || 
+      !contact_phone || !address || !participant_count || !education_type) {
+    return c.json({ error: '필수 정보를 모두 입력해주세요' }, 400)
+  }
+  
+  const result = await c.env.DB.prepare(`
+    INSERT INTO education_applications (
+      organization_type, organization_name, contact_person, contact_phone, 
+      contact_email, address, participant_count, preferred_date, preferred_time,
+      education_type, message, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+  `).bind(
+    organization_type, organization_name, contact_person, contact_phone,
+    contact_email, address, participant_count, preferred_date, preferred_time,
+    education_type, message
+  ).run()
+  
+  return c.json({ 
+    success: true, 
+    id: result.meta.last_row_id,
+    message: '교육 신청이 접수되었습니다. 담당자 확인 후 연락드리겠습니다.'
+  })
+})
+
+// 교육 신청 상태 업데이트 API (관리자용)
+app.put('/api/education-applications/:id', async (c) => {
+  const id = c.req.param('id')
+  const body = await c.req.json()
+  
+  const {
+    status,
+    approved_date,
+    education_start_date,
+    education_end_date,
+    instructor_name,
+    notes
+  } = body
+  
+  await c.env.DB.prepare(`
+    UPDATE education_applications 
+    SET status = ?,
+        approved_date = ?,
+        education_start_date = ?,
+        education_end_date = ?,
+        instructor_name = ?,
+        notes = ?,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).bind(
+    status || 'pending',
+    approved_date,
+    education_start_date,
+    education_end_date,
+    instructor_name,
+    notes,
+    id
+  ).run()
+  
+  return c.json({ success: true, message: '신청 정보가 업데이트되었습니다.' })
+})
+
+// 교육 통계 API
+app.get('/api/education-statistics', async (c) => {
+  // 기관별 통계
+  const { results: orgStats } = await c.env.DB.prepare(`
+    SELECT 
+      organization_type,
+      COUNT(*) as count
+    FROM education_applications
+    GROUP BY organization_type
+  `).all()
+  
+  // 상태별 통계
+  const { results: statusStats } = await c.env.DB.prepare(`
+    SELECT 
+      status,
+      COUNT(*) as count
+    FROM education_applications
+    GROUP BY status
+  `).all()
+  
+  // 교육 타입별 통계
+  const { results: typeStats } = await c.env.DB.prepare(`
+    SELECT 
+      education_type,
+      COUNT(*) as count
+    FROM education_applications
+    GROUP BY education_type
+  `).all()
+  
+  return c.json({
+    organizationStats: orgStats,
+    statusStats: statusStats,
+    typeStats: typeStats
+  })
+})
+
 // ===== 프론트엔드 페이지 라우트 =====
 
 // 홈 페이지
@@ -482,6 +642,24 @@ app.get('/events', (c) => {
 
 // 검색 페이지
 app.get('/search', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
+// 교육 신청 페이지
+app.get('/education/apply', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
+// 교육 현황 페이지
+app.get('/education/status', (c) => {
   return c.render(
     <div id="app">
       <div class="loading">로딩 중...</div>

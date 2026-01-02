@@ -201,6 +201,14 @@ else if (path.startsWith('/experiences/')) {
 else if (path === '/events') {
   loadEventsPage();
 }
+// 교육 신청 페이지
+else if (path === '/education/apply') {
+  loadEducationApplicationPage();
+}
+// 교육 현황 페이지
+else if (path === '/education/status') {
+  loadEducationStatusPage();
+}
 
 // ===== 홈 페이지 =====
 async function loadHomePage() {
@@ -867,7 +875,7 @@ async function loadExperiencesPage() {
     const experiences = response.data.experiences;
     
     const typeNames = {
-      'tea_ceremony': '다례 교육',
+      'tea_ceremony': '다도교육',
       'tea_tasting': '차 시음',
       'craft_workshop': '공예 체험',
       'farm_tour': '농장 투어',
@@ -883,7 +891,7 @@ async function loadExperiencesPage() {
             전체
           </a>
           <a href="/experiences?type=tea_ceremony" class="px-4 py-2 rounded-full ${type === 'tea_ceremony' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
-            다례 교육
+            다도교육
           </a>
           <a href="/experiences?type=tea_tasting" class="px-4 py-2 rounded-full ${type === 'tea_tasting' ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
             차 시음
@@ -937,7 +945,7 @@ async function loadExperienceDetailPage(experienceId) {
     const { experience, schedules } = response.data;
     
     const typeNames = {
-      'tea_ceremony': '다례 교육',
+      'tea_ceremony': '다도교육',
       'tea_tasting': '차 시음',
       'craft_workshop': '공예 체험',
       'farm_tour': '농장 투어',
@@ -1083,6 +1091,387 @@ async function loadEventsPage() {
     `;
   } catch (error) {
     console.error('이벤트 목록 로드 오류:', error);
+    app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
+  }
+}
+
+// ===== 교육 신청 페이지 =====
+async function loadEducationApplicationPage() {
+  app.innerHTML = `
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+          <i class="fas fa-graduation-cap text-tea-green mr-2"></i>
+          다도교육 신청
+        </h1>
+        <p class="text-gray-600 mb-8">어린이집, 학교, 기업, 관공서를 대상으로 다도교육 프로그램을 운영합니다.</p>
+        
+        <form id="educationApplicationForm" class="bg-white rounded-lg shadow-md p-8">
+          <!-- 기관 유형 -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2">
+              기관 유형 <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-tea-green transition">
+                <input type="radio" name="organization_type" value="kindergarten" required class="mr-2">
+                <span>어린이집</span>
+              </label>
+              <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-tea-green transition">
+                <input type="radio" name="organization_type" value="school" required class="mr-2">
+                <span>학교</span>
+              </label>
+              <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-tea-green transition">
+                <input type="radio" name="organization_type" value="company" required class="mr-2">
+                <span>기업</span>
+              </label>
+              <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-tea-green transition">
+                <input type="radio" name="organization_type" value="government" required class="mr-2">
+                <span>관공서</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 기관명 -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2">
+              기관명 <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="organization_name" required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+              placeholder="예: 햇살 어린이집">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- 담당자명 -->
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">
+                담당자명 <span class="text-red-500">*</span>
+              </label>
+              <input type="text" name="contact_person" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+                placeholder="예: 김미영">
+            </div>
+            
+            <!-- 연락처 -->
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">
+                연락처 <span class="text-red-500">*</span>
+              </label>
+              <input type="tel" name="contact_phone" required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+                placeholder="예: 02-123-4567">
+            </div>
+          </div>
+          
+          <!-- 이메일 -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2">
+              이메일
+            </label>
+            <input type="email" name="contact_email"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+              placeholder="예: contact@example.com">
+          </div>
+          
+          <!-- 주소 -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2">
+              주소 <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="address" required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+              placeholder="예: 서울시 강남구 테헤란로 123">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- 참가 인원 -->
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">
+                참가 인원 <span class="text-red-500">*</span>
+              </label>
+              <input type="number" name="participant_count" required min="1"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+                placeholder="예: 25">
+            </div>
+            
+            <!-- 희망 날짜 -->
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">
+                희망 날짜
+              </label>
+              <input type="date" name="preferred_date"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green">
+            </div>
+            
+            <!-- 희망 시간 -->
+            <div>
+              <label class="block text-gray-700 font-bold mb-2">
+                희망 시간
+              </label>
+              <input type="time" name="preferred_time"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green">
+            </div>
+          </div>
+          
+          <!-- 교육 유형 -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2">
+              교육 유형 <span class="text-red-500">*</span>
+            </label>
+            <select name="education_type" required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green">
+              <option value="">선택하세요</option>
+              <option value="tea_ceremony">다도교육</option>
+              <option value="tea_tasting">차 시음</option>
+              <option value="craft_workshop">공예 체험</option>
+            </select>
+          </div>
+          
+          <!-- 문의 사항 -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-bold mb-2">
+              문의 사항
+            </label>
+            <textarea name="message" rows="4"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+              placeholder="교육에 대한 문의사항이나 특별한 요청사항을 적어주세요."></textarea>
+          </div>
+          
+          <div class="flex gap-4">
+            <button type="submit"
+              class="flex-1 bg-tea-green text-white px-8 py-4 rounded-lg font-bold hover:bg-opacity-90 transition">
+              <i class="fas fa-paper-plane mr-2"></i>
+              신청하기
+            </button>
+            <a href="/education/status"
+              class="flex-1 bg-gray-500 text-white px-8 py-4 rounded-lg font-bold hover:bg-opacity-90 transition text-center">
+              <i class="fas fa-list mr-2"></i>
+              진행현황 보기
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  // 폼 제출 처리
+  const form = document.getElementById('educationApplicationForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+    
+    try {
+      const response = await axios.post('/api/education-applications', data);
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        window.location.href = '/education/status';
+      }
+    } catch (error) {
+      console.error('신청 오류:', error);
+      alert('신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  });
+}
+
+// ===== 교육 현황 페이지 =====
+async function loadEducationStatusPage() {
+  try {
+    const [applicationsRes, statsRes] = await Promise.all([
+      axios.get('/api/education-applications?limit=100'),
+      axios.get('/api/education-statistics')
+    ]);
+    
+    const applications = applicationsRes.data.applications;
+    const stats = statsRes.data;
+    
+    // 기관 유형 이름 매핑
+    const orgTypeNames = {
+      'kindergarten': '어린이집',
+      'school': '학교',
+      'company': '기업',
+      'government': '관공서'
+    };
+    
+    // 상태 이름 매핑
+    const statusNames = {
+      'pending': '승인 대기',
+      'approved': '승인됨',
+      'in_progress': '진행 중',
+      'completed': '완료',
+      'cancelled': '취소됨'
+    };
+    
+    // 상태별 색상
+    const statusColors = {
+      'pending': 'bg-yellow-100 text-yellow-600',
+      'approved': 'bg-blue-100 text-blue-600',
+      'in_progress': 'bg-green-100 text-green-600',
+      'completed': 'bg-gray-100 text-gray-600',
+      'cancelled': 'bg-red-100 text-red-600'
+    };
+    
+    // 교육 타입 이름 매핑
+    const eduTypeNames = {
+      'tea_ceremony': '다도교육',
+      'tea_tasting': '차 시음',
+      'craft_workshop': '공예 체험'
+    };
+    
+    // 진행 중인 교육만 필터링
+    const inProgressApps = applications.filter(app => app.status === 'in_progress');
+    
+    app.innerHTML = `
+      <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-clipboard-list text-tea-green mr-2"></i>
+            다도교육 진행 현황
+          </h1>
+          <a href="/education/apply" class="bg-tea-green text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
+            <i class="fas fa-plus mr-2"></i>
+            교육 신청하기
+          </a>
+        </div>
+        
+        <!-- 통계 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-gray-500 text-sm mb-2">전체 신청</div>
+            <div class="text-3xl font-bold text-gray-800">${applications.length}</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-gray-500 text-sm mb-2">진행 중</div>
+            <div class="text-3xl font-bold text-green-600">${inProgressApps.length}</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-gray-500 text-sm mb-2">승인 대기</div>
+            <div class="text-3xl font-bold text-yellow-600">${applications.filter(a => a.status === 'pending').length}</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-gray-500 text-sm mb-2">완료</div>
+            <div class="text-3xl font-bold text-gray-600">${applications.filter(a => a.status === 'completed').length}</div>
+          </div>
+        </div>
+        
+        <!-- 진행 중인 교육 -->
+        ${inProgressApps.length > 0 ? `
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">
+              <i class="fas fa-chalkboard-teacher text-tea-green mr-2"></i>
+              현재 진행 중인 교육
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${inProgressApps.map(app => `
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                  <div class="flex justify-between items-start mb-3">
+                    <span class="inline-block px-3 py-1 ${statusColors[app.status]} rounded-full text-sm font-bold">
+                      진행 중
+                    </span>
+                    <span class="text-sm text-gray-500">${orgTypeNames[app.organization_type]}</span>
+                  </div>
+                  <h3 class="text-xl font-bold mb-2">${app.organization_name}</h3>
+                  <div class="space-y-2 text-sm text-gray-600 mb-4">
+                    <div><i class="fas fa-user mr-2"></i>${app.contact_person}</div>
+                    <div><i class="fas fa-users mr-2"></i>${app.participant_count}명</div>
+                    <div><i class="fas fa-book mr-2"></i>${eduTypeNames[app.education_type]}</div>
+                    ${app.education_start_date ? `
+                      <div><i class="fas fa-calendar mr-2"></i>${formatDate(app.education_start_date)} ~ ${formatDate(app.education_end_date)}</div>
+                    ` : ''}
+                    ${app.instructor_name ? `
+                      <div><i class="fas fa-chalkboard-teacher mr-2"></i>${app.instructor_name}</div>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        <!-- 전체 신청 목록 -->
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800 mb-4">전체 신청 목록</h2>
+          
+          <!-- 필터 -->
+          <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+            <div class="flex flex-wrap gap-2">
+              <button onclick="filterApplications('all')" class="px-4 py-2 rounded-full bg-tea-green text-white font-medium">
+                전체 (${applications.length})
+              </button>
+              <button onclick="filterApplications('pending')" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium">
+                승인 대기 (${applications.filter(a => a.status === 'pending').length})
+              </button>
+              <button onclick="filterApplications('in_progress')" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium">
+                진행 중 (${inProgressApps.length})
+              </button>
+              <button onclick="filterApplications('completed')" class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium">
+                완료 (${applications.filter(a => a.status === 'completed').length})
+              </button>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">기관</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">담당자</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">인원</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">교육</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">신청일</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" id="applicationsTableBody">
+                  ${applications.map(app => `
+                    <tr class="hover:bg-gray-50 application-row" data-status="${app.status}">
+                      <td class="px-6 py-4">
+                        <span class="inline-block px-2 py-1 ${statusColors[app.status]} rounded text-xs font-medium">
+                          ${statusNames[app.status]}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="font-medium">${app.organization_name}</div>
+                        <div class="text-sm text-gray-500">${orgTypeNames[app.organization_type]}</div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div>${app.contact_person}</div>
+                        <div class="text-sm text-gray-500">${app.contact_phone}</div>
+                      </td>
+                      <td class="px-6 py-4">${app.participant_count}명</td>
+                      <td class="px-6 py-4">${eduTypeNames[app.education_type]}</td>
+                      <td class="px-6 py-4 text-sm text-gray-500">${formatDate(app.created_at)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // 필터 함수를 전역으로 등록
+    window.filterApplications = (status) => {
+      const rows = document.querySelectorAll('.application-row');
+      rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    };
+    
+  } catch (error) {
+    console.error('교육 현황 로드 오류:', error);
     app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
   }
 }
