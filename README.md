@@ -129,6 +129,22 @@
 - ✅ 모바일 메뉴
 - ✅ 푸터 정보
 
+### 11. 교육 커리큘럼 🆕
+- ✅ **교육 카테고리**
+  - 차공부 (6과목): 차의 역사, 한국차의 역사, 6대 차류, 한국차의 종류, 차의 이로운 점, 6대 차류 우리는 방법
+  - 공예공부 (5과목): 공예의 역사, 한국공예의 시대별 변천사, 도자기의 제작 기법, 도자기의 활용법, 도자기의 이로운 점
+- ✅ **커리큘럼 페이지**
+  - 탭 네비게이션 (차공부/공예공부)
+  - 난이도별 분류 (입문/중급/고급)
+  - 과목별 카드 레이아웃
+  - 소요 시간 표시
+- ✅ **커리큘럼 상세 페이지**
+  - 과정 소개
+  - 학습 내용
+  - 교육 신청 연결
+- ✅ **체험 타입 변경**
+  - 차 시음 → 차체험 (tea_tasting → tea_experience)
+
 ## 💡 주요 특징
 
 ### 🏷️ 직거래 할인 시스템
@@ -174,8 +190,12 @@
 | 지역 상세 | `/regions/:id` | - |
 | 생산자 목록 | `/producers` | `?type=tea\|craft` |
 | 생산자 상세 | `/producers/:id` | - |
-| 체험 목록 | `/experiences` | `?type=tea_ceremony\|tea_tasting\|craft_workshop\|farm_tour\|workshop_visit` |
+| 체험 목록 | `/experiences` | `?type=tea_ceremony\|tea_experience\|craft_workshop\|farm_tour\|workshop_visit` |
 | 체험 상세 | `/experiences/:id` | - |
+| **교육 커리큘럼 목록 🆕** | **`/education/curriculum`** | - |
+| **교육 커리큘럼 상세 🆕** | **`/education/curriculum/:id`** | - |
+| 교육 신청 | `/education/apply` | - |
+| 교육 현황 | `/education/status` | - |
 | 이벤트 목록 | `/events` | - |
 | 검색 | `/search` | `?q={검색어}` |
 
@@ -197,7 +217,7 @@
 | 이벤트 목록 | GET | `/api/events` | - | 진행 중인 이벤트 |
 | 이벤트 상세 | GET | `/api/events/:id` | - | 이벤트 정보 + 이벤트 상품 |
 | 관광지 | GET | `/api/attractions` | `?region_id={id}&type=tourist_spot\|restaurant\|accommodation\|workshop` | 관광지/맛집 목록 |
-| 체험 목록 | GET | `/api/experiences` | `?type=tea_ceremony\|tea_tasting\|craft_workshop\|farm_tour\|workshop_visit&region_id={id}` | 체험 프로그램 목록 |
+| 체험 목록 | GET | `/api/experiences` | `?type=tea_ceremony\|tea_experience\|craft_workshop\|farm_tour\|workshop_visit&region_id={id}` | 체험 프로그램 목록 |
 | 체험 상세 | GET | `/api/experiences/:id` | - | 체험 정보 (할인 정보 포함) + 일정 |
 | **체험 등록 🆕** | **POST** | `/api/experiences` | Body: JSON | 새 체험 등록 |
 | **체험 수정 🆕** | **PUT** | `/api/experiences/:id` | Body: JSON | 체험 정보 수정 |
@@ -210,6 +230,9 @@
 | **교육 신청 등록 🆕** | **POST** | `/api/education-applications` | Body: JSON | 교육 신청 |
 | **교육 신청 수정 🆕** | **PUT** | `/api/education-applications/:id` | Body: JSON | 교육 신청 정보 수정 |
 | **교육 통계 🆕** | **GET** | `/api/education-statistics` | - | 교육 신청 통계 |
+| **교육 카테고리 🆕** | **GET** | `/api/education/categories` | - | 교육 카테고리 (차공부, 공예공부) |
+| **교육 커리큘럼 목록 🆕** | **GET** | `/api/education/curriculum` | `?category_id={id}&difficulty={level}` | 교육 커리큘럼 목록 |
+| **교육 커리큘럼 상세 🆕** | **GET** | `/api/education/curriculum/:id` | - | 교육 커리큘럼 상세 정보 |
 | **구글 로그인 🆕** | **GET** | `/auth/google` | - | Google OAuth 인증 시작 |
 | **구글 로그인 콜백 🆕** | **GET** | `/auth/google/callback` | code, state | Google OAuth 콜백 처리 |
 | **네이버 로그인 🆕** | **GET** | `/auth/naver` | - | Naver OAuth 인증 시작 |
@@ -246,6 +269,10 @@
 - **experience_schedules**: 체험 일정
 - **education_applications** 🆕: 다도교육 신청 정보
   - 기관 유형, 담당자 정보, 일정, 상태 등
+- **education_categories** 🆕: 교육 카테고리 (차공부, 공예공부)
+- **education_curriculum** 🆕: 교육 커리큘럼
+  - 차공부 6과목, 공예공부 5과목
+  - 난이도, 소요 시간, 학습 내용
 - **system_settings** 🆕: 시스템 설정
   - `commission_rate`: 플랫폼 수수료율 (9.9%)
   - `default_shipping_fee`: 기본 배송비 (3,000원)
@@ -414,7 +441,10 @@ webapp/
 │   ├── 0003_add_pricing_fields.sql      # 🆕 할인가 필드 추가
 │   ├── 0004_add_commission_settings.sql # 🆕 수수료 시스템 (9.9%)
 │   ├── 0005_add_user_system.sql         # 🆕 회원/세션 테이블
-│   └── 0006_add_shipping_fee.sql        # 🆕 배송비 시스템 (3,000~5,000원)
+│   ├── 0006_add_shipping_fee.sql        # 🆕 배송비 시스템 (3,000~5,000원)
+│   ├── 0007_add_education_curriculum.sql # 🆕 교육 커리큘럼 시스템
+│   ├── 0008_update_experience_types.sql # 🆕 체험 타입 변경 (tea_tasting→tea_experience)
+│   └── 0009_update_education_types.sql  # 🆕 교육 신청 타입 업데이트
 ├── seed.sql                # 초기 데이터
 ├── .dev.vars               # 🆕 OAuth 환경 변수 (로컬 개발, .gitignore)
 ├── .dev.vars.example       # 🆕 환경 변수 예시 파일
