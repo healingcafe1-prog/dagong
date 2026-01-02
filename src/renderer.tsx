@@ -79,11 +79,33 @@ export const renderer = jsxRenderer(({ children }) => {
                 </a>
               </div>
               
-              {/* 검색 & 모바일 메뉴 */}
+              {/* 검색, 로그인 & 모바일 메뉴 */}
               <div class="flex items-center space-x-4">
                 <button id="searchBtn" class="text-gray-700 hover:text-tea-green">
                   <i class="fas fa-search text-xl"></i>
                 </button>
+                
+                {/* 로그인/사용자 메뉴 */}
+                <div id="userMenu" class="hidden md:block">
+                  <a href="/login" id="loginBtn" class="text-gray-700 hover:text-tea-green">
+                    <i class="fas fa-user text-xl"></i>
+                  </a>
+                  <div id="userDropdown" class="hidden relative">
+                    <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-tea-green">
+                      <img id="userAvatar" src="" alt="프로필" class="w-8 h-8 rounded-full" />
+                      <span id="userName"></span>
+                    </button>
+                    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                      <a href="/mypage" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                        <i class="fas fa-user mr-2"></i>마이페이지
+                      </a>
+                      <button id="logoutBtn" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                        <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
                 <button id="mobileMenuBtn" class="md:hidden text-gray-700">
                   <i class="fas fa-bars text-xl"></i>
                 </button>

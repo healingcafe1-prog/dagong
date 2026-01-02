@@ -1,0 +1,34 @@
+# OAuth 설정 환경 변수 (개발용)
+# 실제 값은 .dev.vars 파일에 입력하세요 (.gitignore에 포함됨)
+
+# Google OAuth
+# 발급 방법: https://console.cloud.google.com/apis/credentials
+# 1. 새 프로젝트 생성 또는 기존 프로젝트 선택
+# 2. '사용자 인증 정보' > 'OAuth 2.0 클라이언트 ID' 생성
+# 3. 애플리케이션 유형: 웹 애플리케이션
+# 4. 승인된 리디렉션 URI: http://localhost:3000/auth/google/callback
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+
+# Naver OAuth
+# 발급 방법: https://developers.naver.com/apps/#/register
+# 1. '애플리케이션 등록' 클릭
+# 2. 애플리케이션 이름 입력
+# 3. 사용 API: 네이버 로그인
+# 4. 제공 정보 선택: 이메일, 닉네임, 프로필 이미지
+# 5. 서비스 URL: http://localhost:3000
+# 6. Callback URL: http://localhost:3000/auth/naver/callback
+NAVER_CLIENT_ID=your_naver_client_id_here
+NAVER_CLIENT_SECRET=your_naver_client_secret_here
+
+# Kakao OAuth
+# 발급 방법: https://developers.kakao.com/console/app
+# 1. '애플리케이션 추가하기' 클릭
+# 2. 앱 이름, 사업자명 입력
+# 3. '플랫폼 설정' > 'Web' 추가
+# 4. 사이트 도메인: http://localhost:3000
+# 5. '제품 설정' > '카카오 로그인' 활성화
+# 6. Redirect URI 등록: http://localhost:3000/auth/kakao/callback
+# 7. 동의항목: 이메일, 닉네임, 프로필 이미지 설정
+KAKAO_CLIENT_ID=your_kakao_client_id_here
+KAKAO_CLIENT_SECRET=your_kakao_client_secret_here

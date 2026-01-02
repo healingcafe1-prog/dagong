@@ -98,12 +98,24 @@ async function loadProductFormPage(producerId, productId) {
               </div>
               
               <div id="pricePreview" class="bg-green-50 border border-green-200 rounded-lg p-4 hidden">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <span class="text-gray-600 line-through text-lg" id="previewOriginal"></span>
-                    <span class="ml-3 bg-red-500 text-white px-3 py-1 rounded text-sm font-bold" id="previewDiscount"></span>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-gray-600 line-through text-lg" id="previewOriginal"></span>
+                      <span class="ml-3 bg-red-500 text-white px-3 py-1 rounded text-sm font-bold" id="previewDiscount"></span>
+                    </div>
+                    <div class="text-2xl font-bold text-tea-green" id="previewPrice"></div>
                   </div>
-                  <div class="text-2xl font-bold text-tea-green" id="previewPrice"></div>
+                  <div class="pt-2 border-t border-green-300">
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">플랫폼 수수료 (9.9%)</span>
+                      <span class="text-gray-800" id="previewCommission"></span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold mt-1">
+                      <span class="text-gray-800">생산자 수익</span>
+                      <span class="text-tea-green" id="previewRevenue"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -185,9 +197,13 @@ async function loadProductFormPage(producerId, productId) {
     window.calculatePrice = function() {
       const originalPrice = parseInt(document.getElementById('originalPrice').value) || 0;
       const discountRate = parseInt(document.getElementById('discountRate').value) || 0;
+      const commissionRate = 9.9; // 플랫폼 수수료율
       
       if (originalPrice > 0) {
         const price = Math.round(originalPrice * (1 - discountRate / 100));
+        const commissionAmount = Math.round(price * (commissionRate / 100));
+        const producerRevenue = price - commissionAmount;
+        
         document.getElementById('price').value = price;
         
         // 미리보기 업데이트
@@ -196,6 +212,8 @@ async function loadProductFormPage(producerId, productId) {
         document.getElementById('previewOriginal').textContent = formatPrice(originalPrice);
         document.getElementById('previewDiscount').textContent = discountRate + '% 할인';
         document.getElementById('previewPrice').textContent = formatPrice(price);
+        document.getElementById('previewCommission').textContent = formatPrice(commissionAmount);
+        document.getElementById('previewRevenue').textContent = formatPrice(producerRevenue);
       }
     };
     
@@ -354,12 +372,24 @@ async function loadExperienceFormPage(producerId, experienceId) {
               </div>
               
               <div id="pricePreviewExp" class="bg-green-50 border border-green-200 rounded-lg p-4 hidden">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <span class="text-gray-600 line-through text-lg" id="previewOriginalExp"></span>
-                    <span class="ml-3 bg-red-500 text-white px-3 py-1 rounded text-sm font-bold" id="previewDiscountExp"></span>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-gray-600 line-through text-lg" id="previewOriginalExp"></span>
+                      <span class="ml-3 bg-red-500 text-white px-3 py-1 rounded text-sm font-bold" id="previewDiscountExp"></span>
+                    </div>
+                    <div class="text-2xl font-bold text-craft-blue" id="previewPriceExp"></div>
                   </div>
-                  <div class="text-2xl font-bold text-craft-blue" id="previewPriceExp"></div>
+                  <div class="pt-2 border-t border-green-300">
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600">플랫폼 수수료 (9.9%)</span>
+                      <span class="text-gray-800" id="previewCommissionExp"></span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold mt-1">
+                      <span class="text-gray-800">생산자 수익</span>
+                      <span class="text-craft-blue" id="previewRevenueExp"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -418,9 +448,13 @@ async function loadExperienceFormPage(producerId, experienceId) {
     window.calculateExperiencePrice = function() {
       const originalPrice = parseInt(document.getElementById('originalPriceExp').value) || 0;
       const discountRate = parseInt(document.getElementById('discountRateExp').value) || 0;
+      const commissionRate = 9.9; // 플랫폼 수수료율
       
       if (originalPrice > 0) {
         const price = Math.round(originalPrice * (1 - discountRate / 100));
+        const commissionAmount = Math.round(price * (commissionRate / 100));
+        const producerRevenue = price - commissionAmount;
+        
         document.getElementById('priceExp').value = price;
         
         // 미리보기 업데이트
@@ -429,6 +463,8 @@ async function loadExperienceFormPage(producerId, experienceId) {
         document.getElementById('previewOriginalExp').textContent = formatPrice(originalPrice);
         document.getElementById('previewDiscountExp').textContent = discountRate + '% 할인';
         document.getElementById('previewPriceExp').textContent = formatPrice(price);
+        document.getElementById('previewCommissionExp').textContent = formatPrice(commissionAmount);
+        document.getElementById('previewRevenueExp').textContent = formatPrice(producerRevenue);
       }
     };
     
