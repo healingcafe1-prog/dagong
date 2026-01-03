@@ -138,22 +138,36 @@ export const renderer = jsxRenderer(({ children }) => {
                 </button>
                 
                 {/* 언어 선택 */}
-                <div class="relative group hidden md:block">
-                  <button class="flex items-center text-gray-700 hover:text-tea-green">
+                <div class="relative hidden md:block">
+                  <button id="langBtn" class="flex items-center space-x-1 text-gray-700 hover:text-tea-green transition">
                     <i class="fas fa-globe text-xl"></i>
+                    <span id="currentLang" class="text-sm font-medium">KO</span>
+                    <i class="fas fa-chevron-down text-xs"></i>
                   </button>
-                  <div class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block z-50">
-                    <button onclick="window.i18n.setLanguage('ko')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
-                      <span class="mr-2">🇰🇷</span> 한국어
+                  <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                    <button onclick="window.i18n.setLanguage('ko')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                      <span class="flex items-center">
+                        <span class="mr-2">🇰🇷</span> 한국어
+                      </span>
+                      <span class="text-xs text-gray-500">KO</span>
                     </button>
-                    <button onclick="window.i18n.setLanguage('en')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
-                      <span class="mr-2">🇺🇸</span> English
+                    <button onclick="window.i18n.setLanguage('en')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                      <span class="flex items-center">
+                        <span class="mr-2">🇺🇸</span> English
+                      </span>
+                      <span class="text-xs text-gray-500">EN</span>
                     </button>
-                    <button onclick="window.i18n.setLanguage('zh')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
-                      <span class="mr-2">🇨🇳</span> 中文
+                    <button onclick="window.i18n.setLanguage('zh')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                      <span class="flex items-center">
+                        <span class="mr-2">🇨🇳</span> 中文
+                      </span>
+                      <span class="text-xs text-gray-500">ZH</span>
                     </button>
-                    <button onclick="window.i18n.setLanguage('ja')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
-                      <span class="mr-2">🇯🇵</span> 日本語
+                    <button onclick="window.i18n.setLanguage('ja')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                      <span class="flex items-center">
+                        <span class="mr-2">🇯🇵</span> 日本語
+                      </span>
+                      <span class="text-xs text-gray-500">JA</span>
                     </button>
                   </div>
                 </div>
@@ -200,6 +214,26 @@ export const renderer = jsxRenderer(({ children }) => {
                 <a href="/education/status" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 현황</a>
               </div>
               <a href="/events" class="block py-2 text-gray-700 hover:text-tea-brown">이벤트</a>
+              
+              {/* 모바일 언어 선택 */}
+              <div class="py-2 border-t border-gray-200 mt-2">
+                <div class="font-medium text-gray-900 mb-2 flex items-center">
+                  <i class="fas fa-globe mr-2"></i>
+                  언어 선택
+                </div>
+                <button onclick="window.i18n.setLanguage('ko')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                  <span class="mr-2">🇰🇷</span> 한국어 (Korean)
+                </button>
+                <button onclick="window.i18n.setLanguage('en')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                  <span class="mr-2">🇺🇸</span> English
+                </button>
+                <button onclick="window.i18n.setLanguage('zh')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                  <span class="mr-2">🇨🇳</span> 中文 (Chinese)
+                </button>
+                <button onclick="window.i18n.setLanguage('ja')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                  <span class="mr-2">🇯🇵</span> 日本語 (Japanese)
+                </button>
+              </div>
             </div>
           </div>
         </nav>

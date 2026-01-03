@@ -38,6 +38,43 @@ if (mobileMenuBtn) {
   });
 }
 
+// 언어 선택 드롭다운
+const langBtn = document.getElementById('langBtn');
+const langDropdown = document.getElementById('langDropdown');
+const currentLang = document.getElementById('currentLang');
+
+if (langBtn && langDropdown) {
+  // 언어 버튼 클릭
+  langBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langDropdown.classList.toggle('hidden');
+  });
+  
+  // 외부 클릭 시 드롭다운 닫기
+  document.addEventListener('click', (e) => {
+    if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+      langDropdown.classList.add('hidden');
+    }
+  });
+  
+  // 현재 언어 표시 업데이트
+  const updateCurrentLangDisplay = () => {
+    const lang = localStorage.getItem('language') || 'ko';
+    const langMap = {
+      'ko': 'KO',
+      'en': 'EN',
+      'zh': 'ZH',
+      'ja': 'JA'
+    };
+    if (currentLang) {
+      currentLang.textContent = langMap[lang] || 'KO';
+    }
+  };
+  
+  // 페이지 로드 시 현재 언어 표시
+  updateCurrentLangDisplay();
+}
+
 // 검색 모달
 const searchBtn = document.getElementById('searchBtn');
 const searchModal = document.getElementById('searchModal');
