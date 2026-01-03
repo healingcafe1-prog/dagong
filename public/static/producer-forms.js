@@ -64,7 +64,7 @@ async function loadProductFormPage(producerId, productId) {
               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <p class="text-sm text-blue-800">
                   <i class="fas fa-info-circle mr-2"></i>
-                  <strong>직거래 할인 안내:</strong> 기본 30% 할인이 적용됩니다. 
+                  <strong>직거래 할인 안내:</strong> 할인율은 10%~50% 사이에서 설정할 수 있습니다. 
                   정가를 입력하면 할인가가 자동으로 계산됩니다.
                 </p>
               </div>
@@ -81,11 +81,11 @@ async function loadProductFormPage(producerId, productId) {
                 
                 <div>
                   <label class="block text-gray-700 font-bold mb-2">할인율 *</label>
-                  <input type="number" id="discountRate" required min="0" max="100"
+                  <input type="number" id="discountRate" required min="10" max="50" step="5"
                          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
                          placeholder="30" value="${product?.discount_rate || 30}"
                          onchange="calculatePrice()">
-                  <p class="text-xs text-gray-500 mt-1">%</p>
+                  <p class="text-xs text-gray-500 mt-1">10% ~ 50% (5% 단위)</p>
                 </div>
                 
                 <div>
@@ -204,8 +204,19 @@ async function loadProductFormPage(producerId, productId) {
     // 가격 계산 함수
     window.calculatePrice = function() {
       const originalPrice = parseInt(document.getElementById('originalPrice').value) || 0;
-      const discountRate = parseInt(document.getElementById('discountRate').value) || 0;
+      let discountRate = parseInt(document.getElementById('discountRate').value) || 0;
       const commissionRate = 9.9; // 플랫폼 수수료율
+      
+      // 할인율 유효성 검사 (10% ~ 50%)
+      if (discountRate < 10) {
+        discountRate = 10;
+        document.getElementById('discountRate').value = 10;
+        alert('할인율은 최소 10%부터 설정 가능합니다.');
+      } else if (discountRate > 50) {
+        discountRate = 50;
+        document.getElementById('discountRate').value = 50;
+        alert('할인율은 최대 50%까지 설정 가능합니다.');
+      }
       
       if (originalPrice > 0) {
         const price = Math.round(originalPrice * (1 - discountRate / 100));
@@ -351,7 +362,7 @@ async function loadExperienceFormPage(producerId, experienceId) {
               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <p class="text-sm text-blue-800">
                   <i class="fas fa-info-circle mr-2"></i>
-                  <strong>직거래 할인 안내:</strong> 기본 30% 할인이 적용됩니다.
+                  <strong>직거래 할인 안내:</strong> 할인율은 10%~50% 사이에서 설정할 수 있습니다.
                 </p>
               </div>
               
@@ -366,10 +377,11 @@ async function loadExperienceFormPage(producerId, experienceId) {
                 
                 <div>
                   <label class="block text-gray-700 font-bold mb-2">할인율 *</label>
-                  <input type="number" id="discountRateExp" required min="0" max="100"
+                  <input type="number" id="discountRateExp" required min="10" max="50" step="5"
                          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-craft-blue"
                          placeholder="30" value="${experience?.discount_rate || 30}"
                          onchange="calculateExperiencePrice()">
+                  <p class="text-xs text-gray-500 mt-1">10% ~ 50% (5% 단위)</p>
                 </div>
                 
                 <div>
@@ -456,8 +468,19 @@ async function loadExperienceFormPage(producerId, experienceId) {
     // 가격 계산 함수
     window.calculateExperiencePrice = function() {
       const originalPrice = parseInt(document.getElementById('originalPriceExp').value) || 0;
-      const discountRate = parseInt(document.getElementById('discountRateExp').value) || 0;
+      let discountRate = parseInt(document.getElementById('discountRateExp').value) || 0;
       const commissionRate = 9.9; // 플랫폼 수수료율
+      
+      // 할인율 유효성 검사 (10% ~ 50%)
+      if (discountRate < 10) {
+        discountRate = 10;
+        document.getElementById('discountRateExp').value = 10;
+        alert('할인율은 최소 10%부터 설정 가능합니다.');
+      } else if (discountRate > 50) {
+        discountRate = 50;
+        document.getElementById('discountRateExp').value = 50;
+        alert('할인율은 최대 50%까지 설정 가능합니다.');
+      }
       
       if (originalPrice > 0) {
         const price = Math.round(originalPrice * (1 - discountRate / 100));
