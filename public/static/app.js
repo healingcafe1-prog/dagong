@@ -28,118 +28,127 @@ function formatDate(dateString) {
 
 // ===== 네비게이션 =====
 
-// 모바일 메뉴 토글
-const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-const mobileMenu = document.getElementById('mobileMenu');
-
-if (mobileMenuBtn) {
-  mobileMenuBtn.addEventListener('click', () => {
-    mobileMenu.classList.toggle('hidden');
-  });
-}
-
-// 모바일 언어 선택 버튼
+// DOM이 준비된 후 실행
 document.addEventListener('DOMContentLoaded', () => {
+  // 모바일 메뉴 토글
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+
+  // 모바일 언어 선택 버튼
   const mobileLangButtons = document.querySelectorAll('button[data-lang-mobile]');
   mobileLangButtons.forEach(button => {
     button.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const lang = button.getAttribute('data-lang-mobile');
+      console.log('Mobile language button clicked:', lang);
       if (window.i18n && window.i18n.setLanguage) {
         window.i18n.setLanguage(lang);
+      } else {
+        console.error('i18n not available');
       }
     });
   });
-});
 
-// 언어 선택 드롭다운
-const langBtn = document.getElementById('langBtn');
-const langDropdown = document.getElementById('langDropdown');
-const currentLang = document.getElementById('currentLang');
+  // 언어 선택 드롭다운
+  const langBtn = document.getElementById('langBtn');
+  const langDropdown = document.getElementById('langDropdown');
+  const currentLang = document.getElementById('currentLang');
 
-if (langBtn && langDropdown) {
-  // 언어 버튼 클릭
-  langBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    langDropdown.classList.toggle('hidden');
-  });
-  
-  // 외부 클릭 시 드롭다운 닫기
-  document.addEventListener('click', (e) => {
-    if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
-      langDropdown.classList.add('hidden');
-    }
-  });
-  
-  // 언어 선택 버튼들에 이벤트 리스너 추가
-  const langButtons = langDropdown.querySelectorAll('button[data-lang]');
-  langButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      e.preventDefault();
+  if (langBtn && langDropdown) {
+    // 언어 버튼 클릭
+    langBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const lang = button.getAttribute('data-lang');
-      if (window.i18n && window.i18n.setLanguage) {
-        window.i18n.setLanguage(lang);
+      langDropdown.classList.toggle('hidden');
+    });
+    
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+      if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+        langDropdown.classList.add('hidden');
       }
     });
-  });
-  
-  // 현재 언어 표시 업데이트
-  const updateCurrentLangDisplay = () => {
-    const lang = localStorage.getItem('language') || 'ko';
-    const langMap = {
-      'ko': 'KO',
-      'en': 'EN',
-      'zh': 'ZH',
-      'ja': 'JA'
+    
+    // 언어 선택 버튼들에 이벤트 리스너 추가
+    const langButtons = langDropdown.querySelectorAll('button[data-lang]');
+    console.log('Found language buttons:', langButtons.length);
+    
+    langButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const lang = button.getAttribute('data-lang');
+        console.log('Desktop language button clicked:', lang);
+        
+        if (window.i18n && window.i18n.setLanguage) {
+          window.i18n.setLanguage(lang);
+        } else {
+          console.error('i18n not available');
+        }
+      });
+    });
+    
+    // 현재 언어 표시 업데이트
+    const updateCurrentLangDisplay = () => {
+      const lang = localStorage.getItem('language') || 'ko';
+      const langMap = {
+        'ko': 'KO',
+        'en': 'EN',
+        'zh': 'ZH',
+        'ja': 'JA'
+      };
+      if (currentLang) {
+        currentLang.textContent = langMap[lang] || 'KO';
+      }
     };
-    if (currentLang) {
-      currentLang.textContent = langMap[lang] || 'KO';
-    }
-  };
-  
-  // 페이지 로드 시 현재 언어 표시
-  updateCurrentLangDisplay();
-}
+    
+    // 페이지 로드 시 현재 언어 표시
+    updateCurrentLangDisplay();
+  }
 
-// 검색 모달
-const searchBtn = document.getElementById('searchBtn');
-const searchModal = document.getElementById('searchModal');
-const closeSearchBtn = document.getElementById('closeSearchBtn');
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
+  // 검색 모달
+  const searchBtn = document.getElementById('searchBtn');
+  const searchModal = document.getElementById('searchModal');
+  const closeSearchBtn = document.getElementById('closeSearchBtn');
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
 
-if (searchBtn) {
-  searchBtn.addEventListener('click', () => {
-    searchModal.classList.remove('hidden');
-    searchInput.focus();
-  });
-}
+  if (searchBtn && searchModal && searchInput) {
+    searchBtn.addEventListener('click', () => {
+      searchModal.classList.remove('hidden');
+      searchInput.focus();
+    });
+  }
 
-if (closeSearchBtn) {
-  closeSearchBtn.addEventListener('click', () => {
-    searchModal.classList.add('hidden');
-    searchInput.value = '';
-    searchResults.innerHTML = '';
-  });
-}
-
-// 검색 모달 외부 클릭 시 닫기
-if (searchModal) {
-  searchModal.addEventListener('click', (e) => {
-    if (e.target === searchModal) {
+  if (closeSearchBtn && searchModal && searchInput && searchResults) {
+    closeSearchBtn.addEventListener('click', () => {
       searchModal.classList.add('hidden');
       searchInput.value = '';
       searchResults.innerHTML = '';
-    }
-  });
-}
+    });
+  }
 
-// 검색 기능
-let searchTimeout;
-if (searchInput) {
-  searchInput.addEventListener('input', (e) => {
+  // 검색 모달 외부 클릭 시 닫기
+  if (searchModal && searchInput && searchResults) {
+    searchModal.addEventListener('click', (e) => {
+      if (e.target === searchModal) {
+        searchModal.classList.add('hidden');
+        searchInput.value = '';
+        searchResults.innerHTML = '';
+      }
+    });
+  }
+
+  // 검색 기능
+  let searchTimeout;
+  if (searchInput && searchResults) {
+    searchInput.addEventListener('input', (e) => {
     const query = e.target.value.trim();
     
     clearTimeout(searchTimeout);
@@ -223,8 +232,9 @@ if (searchInput) {
         searchResults.innerHTML = '<div class="text-center text-red-500 py-4">검색 중 오류가 발생했습니다.</div>';
       }
     }, 300);
-  });
-}
+    });
+  }
+});
 
 // ===== 페이지별 로직 =====
 
