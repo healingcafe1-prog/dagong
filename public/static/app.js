@@ -1970,6 +1970,27 @@ async function loadEducationCurriculumPage() {
     const categories = categoriesRes.data.categories;
     const allCurriculum = curriculumRes.data.curriculum;
     
+    // 난이도 변환 함수
+    const getDifficultyLabel = (difficulty) => {
+      const map = {
+        'beginner': '입문',
+        'intermediate': '중급',
+        'advanced': '심화'
+      };
+      return map[difficulty] || difficulty;
+    };
+    
+    // 난이도 색상 함수
+    const getDifficultyColor = (difficulty) => {
+      if (difficulty === 'beginner' || difficulty === '입문') {
+        return 'bg-green-100 text-green-800';
+      } else if (difficulty === 'intermediate' || difficulty === '중급') {
+        return 'bg-blue-100 text-blue-800';
+      } else {
+        return 'bg-purple-100 text-purple-800';
+      }
+    };
+    
     // 차공부, 공예공부, 다도교육으로 분류
     const teaCurriculum = allCurriculum.filter(c => c.category_id === 2);
     const craftCurriculum = allCurriculum.filter(c => c.category_id === 3);
@@ -2024,12 +2045,8 @@ async function loadEducationCurriculumPage() {
                     <div class="bg-tea-green/10 p-3 rounded-lg">
                       <i class="fas fa-book-open text-2xl text-tea-green"></i>
                     </div>
-                    <span class="px-3 py-1 text-sm font-medium rounded-full ${
-                      item.difficulty === '입문' ? 'bg-green-100 text-green-800' :
-                      item.difficulty === '중급' ? 'bg-blue-100 text-blue-800' :
-                      'bg-purple-100 text-purple-800'
-                    }">
-                      ${item.difficulty}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full ${getDifficultyColor(item.difficulty)}">
+                      ${getDifficultyLabel(item.difficulty)}
                     </span>
                   </div>
                   
@@ -2077,12 +2094,8 @@ async function loadEducationCurriculumPage() {
                     <div class="bg-craft-blue/10 p-3 rounded-lg">
                       <i class="fas fa-hammer text-2xl text-craft-blue"></i>
                     </div>
-                    <span class="px-3 py-1 text-sm font-medium rounded-full ${
-                      item.difficulty === '입문' ? 'bg-green-100 text-green-800' :
-                      item.difficulty === '중급' ? 'bg-blue-100 text-blue-800' :
-                      'bg-purple-100 text-purple-800'
-                    }">
-                      ${item.difficulty}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full ${getDifficultyColor(item.difficulty)}">
+                      ${getDifficultyLabel(item.difficulty)}
                     </span>
                   </div>
                   
@@ -2130,12 +2143,8 @@ async function loadEducationCurriculumPage() {
                     <div class="bg-purple-100 p-3 rounded-lg">
                       <i class="fas fa-om text-2xl text-purple-500"></i>
                     </div>
-                    <span class="px-3 py-1 text-sm font-medium rounded-full ${
-                      item.difficulty === '입문' ? 'bg-green-100 text-green-800' :
-                      item.difficulty === '중급' ? 'bg-blue-100 text-blue-800' :
-                      'bg-purple-100 text-purple-800'
-                    }">
-                      ${item.difficulty}
+                    <span class="px-3 py-1 text-sm font-medium rounded-full ${getDifficultyColor(item.difficulty)}">
+                      ${getDifficultyLabel(item.difficulty)}
                     </span>
                   </div>
                   
