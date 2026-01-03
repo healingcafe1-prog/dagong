@@ -5,9 +5,30 @@ export const renderer = jsxRenderer(({ children }) => {
     <html lang="ko">
       <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>차茶공예 - 한국 차산지와 공예산지 직거래 플랫폼</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+        <title>한국 차 공예 - 한국 차산지와 공예산지 직거래 플랫폼</title>
         <meta name="description" content="한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼. 지역 문화관광과 다도 체험까지." />
+        
+        {/* PWA 설정 */}
+        <meta name="theme-color" content="#7c9473" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="한국 차 공예" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png" />
+        
+        {/* SEO */}
+        <meta name="keywords" content="한국차, 전통차, 공예품, 직거래, 차산지, 공예산지, 다도, 지역특산품, Korean tea, Korean craft" />
+        <meta name="author" content="한국 차 공예" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="한국 차 공예 - 한국 차산지와 공예산지 직거래 플랫폼" />
+        <meta property="og:description" content="한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼" />
+        <meta property="og:image" content="/static/icons/icon-512x512.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="한국 차 공예" />
+        <meta name="twitter:description" content="한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼" />
+        <meta name="twitter:image" content="/static/icons/icon-512x512.png" />
         
         {/* TailwindCSS */}
         <script src="https://cdn.tailwindcss.com"></script>
@@ -17,6 +38,20 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* Custom CSS */}
         <link href="/static/style.css" rel="stylesheet" />
+        
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#7c9473" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="한국 차 공예" />
+        <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512x512.png" />
+        
+        {/* i18n 다국어 지원 */}
+        <script src="/static/i18n.js"></script>
         
         {/* Tailwind 커스텀 설정 */}
         <script dangerouslySetInnerHTML={{
@@ -44,7 +79,7 @@ export const renderer = jsxRenderer(({ children }) => {
               {/* 로고 */}
               <a href="/" class="flex items-center space-x-2">
                 <i class="fas fa-leaf text-tea-green text-2xl"></i>
-                <span class="text-xl font-bold text-gray-800">차茶공예</span>
+                <span class="text-xl font-bold text-gray-800" id="siteName">한국 차 공예</span>
               </a>
               
               {/* 메인 메뉴 */}
@@ -96,11 +131,32 @@ export const renderer = jsxRenderer(({ children }) => {
                 </a>
               </div>
               
-              {/* 검색, 로그인 & 모바일 메뉴 */}
+              {/* 검색, 언어선택, 로그인 & 모바일 메뉴 */}
               <div class="flex items-center space-x-4">
                 <button id="searchBtn" class="text-gray-700 hover:text-tea-green">
                   <i class="fas fa-search text-xl"></i>
                 </button>
+                
+                {/* 언어 선택 */}
+                <div class="relative group hidden md:block">
+                  <button class="flex items-center text-gray-700 hover:text-tea-green">
+                    <i class="fas fa-globe text-xl"></i>
+                  </button>
+                  <div class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block z-50">
+                    <button onclick="window.i18n.setLanguage('ko')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                      <span class="mr-2">🇰🇷</span> 한국어
+                    </button>
+                    <button onclick="window.i18n.setLanguage('en')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                      <span class="mr-2">🇺🇸</span> English
+                    </button>
+                    <button onclick="window.i18n.setLanguage('zh')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                      <span class="mr-2">🇨🇳</span> 中文
+                    </button>
+                    <button onclick="window.i18n.setLanguage('ja')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center">
+                      <span class="mr-2">🇯🇵</span> 日本語
+                    </button>
+                  </div>
+                </div>
                 
                 {/* 로그인/사용자 메뉴 */}
                 <div id="userMenu" class="hidden md:block">
@@ -221,6 +277,23 @@ export const renderer = jsxRenderer(({ children }) => {
         {/* 앱 스크립트 */}
         <script src="/static/app.js"></script>
         <script src="/static/producer-forms.js"></script>
+        
+        {/* Service Worker 등록 */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                  .then((registration) => {
+                    console.log('ServiceWorker registration successful:', registration.scope);
+                  })
+                  .catch((err) => {
+                    console.log('ServiceWorker registration failed:', err);
+                  });
+              });
+            }
+          `
+        }} />
       </body>
     </html>
   )

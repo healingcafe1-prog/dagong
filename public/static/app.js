@@ -2200,3 +2200,42 @@ async function loadEducationCurriculumDetailPage(curriculumId) {
 
 // 페이지 로드 시 사용자 정보 가져오기
 fetchCurrentUser();
+
+// ===== 다국어 적용 =====
+function applyTranslations() {
+  // i18n이 로드되지 않았으면 기본 한국어 사용
+  if (!window.i18n) return;
+  
+  const t = window.i18n.t;
+  
+  // 사이트 제목
+  const siteName = document.getElementById('siteName');
+  if (siteName) siteName.textContent = t('siteName');
+  
+  // 페이지 타이틀
+  document.title = `${t('siteName')} - ${t('siteDescription')}`;
+  
+  // 메타 설명
+  const metaDescription = document.querySelector('meta[name="description"]');
+  if (metaDescription) metaDescription.content = t('siteDescription');
+}
+
+// 페이지 로드 완료 시 번역 적용
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', applyTranslations);
+} else {
+  applyTranslations();
+}
+
+// ===== PWA Service Worker 등록 =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('✅ Service Worker 등록 성공:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('❌ Service Worker 등록 실패:', error);
+      });
+  });
+}
