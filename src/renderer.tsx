@@ -36,6 +36,11 @@ export const renderer = jsxRenderer(({ children }) => {
         {/* Font Awesome Icons */}
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
         
+        {/* Google Fonts - Noto Serif KR */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet" />
+        
         {/* Custom CSS */}
         <link href="/static/style.css" rel="stylesheet" />
         
@@ -77,9 +82,13 @@ export const renderer = jsxRenderer(({ children }) => {
           <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-20">
               {/* 로고 */}
-              <a href="/" class="flex items-center space-x-2">
-                <i class="fas fa-leaf text-tea-green text-2xl"></i>
-                <span class="text-xl font-bold text-gray-800" id="siteName">한국 차 공예</span>
+              <a href="/" class="flex items-center space-x-3 group">
+                <i class="fas fa-leaf text-tea-green text-2xl group-hover:rotate-12 transition-transform duration-300"></i>
+                <div class="flex items-center">
+                  <span class="text-xl font-bold text-gray-800">한국 차</span>
+                  <span class="logo-hanja text-lg mx-1">茶</span>
+                  <span class="text-xl font-bold text-gray-800">공예</span>
+                </div>
               </a>
               
               {/* 메인 메뉴 */}
