@@ -38,6 +38,21 @@ if (mobileMenuBtn) {
   });
 }
 
+// 모바일 언어 선택 버튼
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileLangButtons = document.querySelectorAll('button[data-lang-mobile]');
+  mobileLangButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const lang = button.getAttribute('data-lang-mobile');
+      if (window.i18n && window.i18n.setLanguage) {
+        window.i18n.setLanguage(lang);
+      }
+    });
+  });
+});
+
 // 언어 선택 드롭다운
 const langBtn = document.getElementById('langBtn');
 const langDropdown = document.getElementById('langDropdown');
@@ -55,6 +70,19 @@ if (langBtn && langDropdown) {
     if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
       langDropdown.classList.add('hidden');
     }
+  });
+  
+  // 언어 선택 버튼들에 이벤트 리스너 추가
+  const langButtons = langDropdown.querySelectorAll('button[data-lang]');
+  langButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const lang = button.getAttribute('data-lang');
+      if (window.i18n && window.i18n.setLanguage) {
+        window.i18n.setLanguage(lang);
+      }
+    });
   });
   
   // 현재 언어 표시 업데이트

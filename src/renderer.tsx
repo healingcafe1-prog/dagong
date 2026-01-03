@@ -145,25 +145,25 @@ export const renderer = jsxRenderer(({ children }) => {
                     <i class="fas fa-chevron-down text-xs"></i>
                   </button>
                   <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                    <button onclick="window.i18n.setLanguage('ko')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <button data-lang="ko" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
                       <span class="flex items-center">
                         <span class="mr-2">🇰🇷</span> 한국어
                       </span>
                       <span class="text-xs text-gray-500">KO</span>
                     </button>
-                    <button onclick="window.i18n.setLanguage('en')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <button data-lang="en" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
                       <span class="flex items-center">
                         <span class="mr-2">🇺🇸</span> English
                       </span>
                       <span class="text-xs text-gray-500">EN</span>
                     </button>
-                    <button onclick="window.i18n.setLanguage('zh')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <button data-lang="zh" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
                       <span class="flex items-center">
                         <span class="mr-2">🇨🇳</span> 中文
                       </span>
                       <span class="text-xs text-gray-500">ZH</span>
                     </button>
-                    <button onclick="window.i18n.setLanguage('ja')" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <button data-lang="ja" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
                       <span class="flex items-center">
                         <span class="mr-2">🇯🇵</span> 日本語
                       </span>
@@ -221,16 +221,16 @@ export const renderer = jsxRenderer(({ children }) => {
                   <i class="fas fa-globe mr-2"></i>
                   언어 선택
                 </div>
-                <button onclick="window.i18n.setLanguage('ko')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <button data-lang-mobile="ko" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
                   <span class="mr-2">🇰🇷</span> 한국어 (Korean)
                 </button>
-                <button onclick="window.i18n.setLanguage('en')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <button data-lang-mobile="en" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
                   <span class="mr-2">🇺🇸</span> English
                 </button>
-                <button onclick="window.i18n.setLanguage('zh')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <button data-lang-mobile="zh" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
                   <span class="mr-2">🇨🇳</span> 中文 (Chinese)
                 </button>
-                <button onclick="window.i18n.setLanguage('ja')" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <button data-lang-mobile="ja" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
                   <span class="mr-2">🇯🇵</span> 日本語 (Japanese)
                 </button>
               </div>
