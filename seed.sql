@@ -41,7 +41,14 @@ INSERT INTO categories (name, parent_id, type, description) VALUES
 ('명절 선물세트', NULL, 'gift', '명절을 위한 특별한 선물'),
 ('프리미엄 선물세트', NULL, 'gift', '고급스러운 차와 공예품 조합'),
 ('입문자 선물세트', NULL, 'gift', '차문화를 시작하는 분들을 위한 세트'),
-('기업 선물세트', NULL, 'gift', '비즈니스 선물을 위한 세트');
+('기업 선물세트', NULL, 'gift', '비즈니스 선물을 위한 세트'),
+
+-- 지역 특산품 카테고리
+('농산물', NULL, 'local', '신선한 지역 농산물'),
+('가공식품', NULL, 'local', '전통 방식으로 만든 가공식품'),
+('수산물', NULL, 'local', '신선한 지역 수산물'),
+('축산물', NULL, 'local', '건강하게 키운 축산물'),
+('기타 특산품', NULL, 'local', '지역의 독특한 특산품');
 
 -- 생산자 데이터 (차)
 INSERT INTO producers (name, region_id, producer_type, description, story, profile_image, contact_email, contact_phone, address) VALUES
@@ -59,8 +66,16 @@ INSERT INTO producers (name, region_id, producer_type, description, story, profi
 ('강진 청자촌', 14, 'craft', '고려청자를 복원하고 현대적으로 재해석하는 명장', '천년 전통의 고려청자 기법을 계승하고 발전시키고 있습니다', '/images/producers/gangjin-celadon.jpg', 'gangjin-craft@example.com', '061-430-3755', '강진군 대구면'),
 ('문경 사기장', 15, 'craft', '문경 전통 사기의 맥을 잇는 도예 명장', '400년 넘게 이어온 문경 사기의 전통을 현대에 계승하고 있습니다', '/images/producers/mungyeong-pottery.jpg', 'mungyeong@example.com', '054-571-1234', '문경시 가은읍');
 
+-- 생산자 데이터 (지역 농민)
+INSERT INTO producers (name, region_id, producer_type, description, story, profile_image, contact_email, contact_phone, address) VALUES
+('제주 한라산 감귤농장', 1, 'local', '제주 청정 자연에서 자란 달콤한 감귤을 재배합니다', '3대째 이어온 감귤 농사로 품질 좋은 감귤만을 생산합니다', '/images/producers/jeju-citrus.jpg', 'citrus@example.com', '064-756-1234', '제주시 애월읍'),
+('하동 섬진강 재첩마을', 2, 'local', '맑은 섬진강에서 자란 싱싱한 재첩을 생산합니다', '청정 섬진강의 재첩으로 건강을 전합니다', '/images/producers/hadong-jaechup.jpg', 'jaechup@example.com', '055-880-5678', '하동군 하동읍'),
+('보성 녹차쌀 농가', 5, 'local', '녹차를 먹여 키운 친환경 녹차쌀을 재배합니다', '녹차밭 주변에서 재배한 향긋한 쌀입니다', '/images/producers/boseong-rice.jpg', 'rice@example.com', '061-852-5678', '보성군 회천면'),
+('강진 한우목장', 6, 'local', '청정 지역에서 정성껏 키운 한우를 생산합니다', '좋은 사료와 깨끗한 환경에서 건강하게 키운 한우', '/images/producers/gangjin-beef.jpg', 'beef@example.com', '061-432-5678', '강진군 칠량면'),
+('부안 천일염 생산', 8, 'local', '변산반도 갯벌에서 만든 천일염을 생산합니다', '미네랄이 풍부한 청정 갯벌 천일염', '/images/producers/buan-salt.jpg', 'salt@example.com', '063-582-5678', '부안군 진서면');
+
 -- 상품 데이터 (차)
-INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
+INSERT INTO products (name, category_id, producer_id, description, price, stock_quantity, main_image, product_type, weight, origin, is_featured) VALUES
 ('제주 유기농 첫물차', 1, 1, '봄에 첫 수확한 어린 찻잎으로 만든 프리미엄 녹차', 35000, 50, '/images/products/jeju-first-tea.jpg', 'tea', '50g', '제주도', 1),
 ('하동 야생 녹차', 1, 2, '지리산 자락의 야생 차나무에서 채취한 귀한 녹차', 45000, 30, '/images/products/hadong-wild-tea.jpg', 'tea', '40g', '하동', 1),
 ('보성 우전차', 1, 3, '곡우 전에 딴 어린 잎으로 만든 최상급 녹차', 28000, 100, '/images/products/boseong-ujeon.jpg', 'tea', '50g', '보성', 0),
@@ -69,7 +84,7 @@ INSERT INTO products (name, category_id, producer_id, description, price, stock,
 ('보성 말차', 4, 3, '고급 녹차를 분말로 만든 프리미엄 말차', 42000, 35, '/images/products/boseong-matcha.jpg', 'tea', '30g', '보성', 0);
 
 -- 상품 데이터 (공예)
-INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
+INSERT INTO products (name, category_id, producer_id, description, price, stock_quantity, main_image, product_type, weight, origin, is_featured) VALUES
 ('백자 찻잔 세트', 6, 6, '순백의 아름다움이 돋보이는 전통 백자 찻잔 5개 세트', 85000, 20, '/images/products/white-teacup-set.jpg', 'craft', '500g', '이천', 1),
 ('분청사기 다관', 7, 5, '소박한 아름다움의 분청사기 찻주전자', 120000, 15, '/images/products/buncheong-teapot.jpg', 'craft', '400g', '경기 광주', 1),
 ('청자 찻잔', 6, 7, '은은한 청록색이 아름다운 청자 찻잔', 45000, 30, '/images/products/celadon-teacup.jpg', 'craft', '150g', '여주', 0),
@@ -82,7 +97,7 @@ INSERT INTO products (name, category_id, producer_id, description, price, stock,
 ('문경 사기 다기세트', 8, 10, '문경 사기로 만든 실용적인 다기세트', 150000, 12, '/images/products/mungyeong-tea-set.jpg', 'craft', '1.8kg', '문경', 1);
 
 -- 선물세트 데이터
-INSERT INTO products (name, category_id, producer_id, description, price, stock, main_image, product_type, weight, origin, is_featured) VALUES
+INSERT INTO products (name, category_id, producer_id, description, price, stock_quantity, main_image, product_type, weight, origin, is_featured) VALUES
 ('프리미엄 차茶 선물세트', 12, 1, '최상급 녹차와 백자 찻잔이 어우러진 명품 선물세트', 180000, 30, '/images/products/premium-gift-set.jpg', 'gift_set', '1kg', '제주도/이천', 1),
 ('전통 다례 입문 세트', 13, 2, '차 입문자를 위한 녹차와 다기 기본 세트', 95000, 50, '/images/products/starter-tea-set.jpg', 'gift_set', '800g', '하동/여주', 0),
 ('명절 감사 선물세트', 11, 3, '추석, 설날을 위한 전통차 모음 선물세트', 120000, 40, '/images/products/holiday-gift-set.jpg', 'gift_set', '600g', '보성', 0);
@@ -96,6 +111,26 @@ INSERT INTO gift_set_items (gift_set_id, product_id, quantity) VALUES
 (14, 1, 1),  -- 명절 선물세트: 제주 첫물차 1개
 (14, 4, 1),  -- 명절 선물세트: 강진 백모단차 1개
 (14, 5, 1);  -- 명절 선물세트: 제주 발효 홍차 1개
+
+-- 지역 특산품 데이터
+INSERT INTO products (name, category_id, producer_id, description, price, stock_quantity, main_image, product_type, weight, origin, is_featured) VALUES
+-- 농산물 (category_id: 15)
+('제주 한라봉', 15, 11, '제주의 청정 자연에서 자란 달콤한 한라봉', 35000, 100, '/images/products/jeju-hallabong.jpg', 'local', '5kg', '제주도', 1),
+('제주 천혜향', 15, 11, '향긋한 향과 달콤한 맛의 프리미엄 감귤', 32000, 80, '/images/products/jeju-cheonhyehyang.jpg', 'local', '5kg', '제주도', 0),
+('보성 녹차쌀', 15, 13, '녹차를 먹여 키운 친환경 쌀', 45000, 50, '/images/products/boseong-rice.jpg', 'local', '10kg', '보성', 1),
+
+-- 가공식품 (category_id: 16)
+('제주 감귤청', 16, 11, '제주 감귤로 만든 천연 청', 18000, 60, '/images/products/jeju-citrus-syrup.jpg', 'local', '500g', '제주도', 0),
+('부안 천일염', 16, 15, '미네랄 풍부한 청정 갯벌 천일염', 12000, 150, '/images/products/buan-salt.jpg', 'local', '1kg', '부안', 1),
+('강진 매실청', 16, 14, '강진 청매실로 만든 프리미엄 매실청', 28000, 40, '/images/products/gangjin-plum-syrup.jpg', 'local', '1L', '강진', 0),
+
+-- 수산물 (category_id: 17)
+('하동 재첩', 17, 12, '섬진강 청정 재첩', 25000, 30, '/images/products/hadong-jaechup.jpg', 'local', '1kg', '하동', 1),
+('부안 바지락', 17, 15, '갯벌에서 자란 싱싱한 바지락', 15000, 50, '/images/products/buan-clam.jpg', 'local', '1kg', '부안', 0),
+
+-- 축산물 (category_id: 18)
+('강진 한우 정육세트', 18, 14, '청정 지역에서 키운 한우 1등급', 85000, 20, '/images/products/gangjin-beef-set.jpg', 'local', '2kg', '강진', 1),
+('제주 흑돼지 세트', 18, 11, '제주 청정 자연에서 키운 흑돼지', 55000, 25, '/images/products/jeju-black-pork.jpg', 'local', '2kg', '제주도', 1);
 
 -- 이벤트 데이터
 INSERT INTO events (title, description, event_type, discount_rate, banner_image, start_date, end_date, is_active) VALUES

@@ -61,6 +61,10 @@ export const renderer = jsxRenderer(({ children }) => {
                   <i class="fas fa-gift text-xl mb-1"></i>
                   <span class="text-sm">선물세트</span>
                 </a>
+                <a href="/products?type=local" class="flex flex-col items-center text-gray-700 hover:text-green-600 transition group">
+                  <i class="fas fa-seedling text-xl mb-1"></i>
+                  <span class="text-sm">지역 특산품</span>
+                </a>
                 <a href="/regions" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
                   <i class="fas fa-map-marked-alt text-xl mb-1"></i>
                   <span class="text-sm">지역별 보기</span>
@@ -130,6 +134,7 @@ export const renderer = jsxRenderer(({ children }) => {
               <a href="/products?type=tea" class="block py-2 text-gray-700 hover:text-tea-green">차 직거래</a>
               <a href="/products?type=craft" class="block py-2 text-gray-700 hover:text-craft-blue">공예품</a>
               <a href="/products?type=gift_set" class="block py-2 text-gray-700 hover:text-tea-brown">선물세트</a>
+              <a href="/products?type=local" class="block py-2 text-gray-700 hover:text-green-600">지역 특산품</a>
               <a href="/regions" class="block py-2 text-gray-700 hover:text-tea-green">지역별 보기</a>
               <a href="/experiences" class="block py-2 text-gray-700 hover:text-tea-green">체험·교육</a>
               <div class="py-2">
