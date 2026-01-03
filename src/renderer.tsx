@@ -84,7 +84,7 @@ export const renderer = jsxRenderer(({ children }) => {
               {/* 로고 */}
               <a href="/" class="flex items-center space-x-3 group">
                 <i class="fas fa-leaf text-tea-green text-2xl group-hover:rotate-12 transition-transform duration-300"></i>
-                <div class="flex items-center">
+                <div class="flex items-center" id="logoText">
                   <span class="text-xl font-bold text-gray-800">한국 차</span>
                   <span class="logo-hanja text-lg mx-1">茶</span>
                   <span class="text-xl font-bold text-gray-800">공예</span>
@@ -95,48 +95,48 @@ export const renderer = jsxRenderer(({ children }) => {
               <div class="hidden md:flex items-center space-x-8">
                 <a href="/products?type=tea" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
                   <i class="fas fa-mug-hot text-xl mb-1"></i>
-                  <span class="text-sm">차 직거래</span>
+                  <span class="text-sm" data-i18n="nav.teaDirect">차 직거래</span>
                 </a>
                 <a href="/products?type=craft" class="flex flex-col items-center text-gray-700 hover:text-craft-blue transition group">
                   <i class="fas fa-palette text-xl mb-1"></i>
-                  <span class="text-sm">공예품</span>
+                  <span class="text-sm" data-i18n="nav.craft">공예품</span>
                 </a>
                 <a href="/products?type=gift_set" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
                   <i class="fas fa-gift text-xl mb-1"></i>
-                  <span class="text-sm">선물세트</span>
+                  <span class="text-sm" data-i18n="nav.giftSet">선물세트</span>
                 </a>
                 <a href="/products?type=local" class="flex flex-col items-center text-gray-700 hover:text-green-600 transition group">
                   <i class="fas fa-seedling text-xl mb-1"></i>
-                  <span class="text-sm">지역 특산품</span>
+                  <span class="text-sm" data-i18n="nav.localProducts">지역 특산품</span>
                 </a>
                 <a href="/regions" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
                   <i class="fas fa-map-marked-alt text-xl mb-1"></i>
-                  <span class="text-sm">지역별 보기</span>
+                  <span class="text-sm" data-i18n="nav.regions">지역별 보기</span>
                 </a>
                 <a href="/experiences" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
                   <i class="fas fa-users text-xl mb-1"></i>
-                  <span class="text-sm">체험·교육</span>
+                  <span class="text-sm" data-i18n="nav.experiences">체험·교육</span>
                 </a>
                 <div class="relative group">
                   <a href="/education/curriculum" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition">
                     <i class="fas fa-graduation-cap text-xl mb-1"></i>
-                    <span class="text-sm">다도교육</span>
+                    <span class="text-sm" data-i18n="nav.education">다도교육</span>
                   </a>
                   <div class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
                     <a href="/education/curriculum" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <i class="fas fa-book mr-2"></i>교육 커리큘럼
+                      <i class="fas fa-book mr-2"></i><span data-i18n="nav.educationCurriculum">교육 커리큘럼</span>
                     </a>
                     <a href="/education/apply" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <i class="fas fa-pencil-alt mr-2"></i>교육 신청
+                      <i class="fas fa-pencil-alt mr-2"></i><span data-i18n="nav.educationApply">교육 신청</span>
                     </a>
                     <a href="/education/status" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <i class="fas fa-list-check mr-2"></i>교육 현황
+                      <i class="fas fa-list-check mr-2"></i><span data-i18n="nav.educationStatus">교육 현황</span>
                     </a>
                   </div>
                 </div>
                 <a href="/events" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
                   <i class="fas fa-star text-xl mb-1"></i>
-                  <span class="text-sm">이벤트</span>
+                  <span class="text-sm" data-i18n="nav.events">이벤트</span>
                 </a>
               </div>
               

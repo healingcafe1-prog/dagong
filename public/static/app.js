@@ -2279,13 +2279,29 @@ fetchCurrentUser();
 // ===== 다국어 적용 =====
 function applyTranslations() {
   // i18n이 로드되지 않았으면 기본 한국어 사용
-  if (!window.i18n) return;
+  if (!window.i18n) {
+    console.warn('i18n not loaded yet');
+    return;
+  }
   
   const t = window.i18n.t;
+  const currentLang = window.i18n.getCurrentLanguage();
   
-  // 사이트 제목
-  const siteName = document.getElementById('siteName');
-  if (siteName) siteName.textContent = t('siteName');
+  console.log('Applying translations for language:', currentLang);
+  
+  // 로고 텍스트 변경
+  const logoText = document.getElementById('logoText');
+  if (logoText) {
+    if (currentLang === 'ko') {
+      logoText.innerHTML = '<span class="text-xl font-bold text-gray-800">한국 차</span><span class="logo-hanja text-lg mx-1">茶</span><span class="text-xl font-bold text-gray-800">공예</span>';
+    } else if (currentLang === 'en') {
+      logoText.innerHTML = '<span class="text-xl font-bold text-gray-800">Korean Tea</span><span class="logo-hanja text-lg mx-1">茶</span><span class="text-xl font-bold text-gray-800">Craft</span>';
+    } else if (currentLang === 'zh') {
+      logoText.innerHTML = '<span class="text-xl font-bold text-gray-800">韩国茶</span><span class="logo-hanja text-lg mx-1">茶</span><span class="text-xl font-bold text-gray-800">工艺</span>';
+    } else if (currentLang === 'ja') {
+      logoText.innerHTML = '<span class="text-xl font-bold text-gray-800">韓国茶</span><span class="logo-hanja text-lg mx-1">茶</span><span class="text-xl font-bold text-gray-800">工芸</span>';
+    }
+  }
   
   // 페이지 타이틀
   document.title = `${t('siteName')} - ${t('siteDescription')}`;
@@ -2293,6 +2309,24 @@ function applyTranslations() {
   // 메타 설명
   const metaDescription = document.querySelector('meta[name="description"]');
   if (metaDescription) metaDescription.content = t('siteDescription');
+  
+  // 네비게이션 메뉴 번역
+  const navItems = {
+    'teaDirect': t('nav.teaDirect'),
+    'craft': t('nav.craft'),
+    'giftSet': t('nav.giftSet'),
+    'localProducts': t('nav.localProducts'),
+    'regions': t('nav.regions'),
+    'experiences': t('nav.experiences'),
+    'education': t('nav.education'),
+    'events': t('nav.events')
+  };
+  
+  // 각 메뉴 항목 번역 (data-i18n 속성 사용)
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    element.textContent = t(key);
+  });
 }
 
 // 페이지 로드 완료 시 번역 적용
