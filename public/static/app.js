@@ -307,6 +307,19 @@ else if (path.startsWith('/education/curriculum/')) {
   const curriculumId = path.split('/')[3];
   loadEducationCurriculumDetailPage(curriculumId);
 }
+// 마이페이지 - 주문 상세
+else if (path.startsWith('/mypage/orders/')) {
+  const orderId = path.split('/')[3];
+  loadOrderDetailPage(orderId);
+}
+// 마이페이지 - 주문 내역
+else if (path === '/mypage/orders') {
+  loadOrderListPage();
+}
+// 마이페이지 메인
+else if (path === '/mypage') {
+  loadMyPage();
+}
 // 생산자 관리 페이지
 else if (path.startsWith('/producer/manage/')) {
   const producerId = path.split('/')[3];
@@ -2414,6 +2427,522 @@ if (document.readyState === 'loading') {
 } else {
   applyTranslations();
 }
+
+// ===== 마이페이지 & 주문 관리 =====
+
+// 마이페이지 메인
+async function loadMyPage() {
+  const app = document.getElementById('app');
+  
+  app.innerHTML = `
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">
+        <i class="fas fa-user-circle text-tea-green mr-3"></i>
+        마이페이지
+      </h1>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a href="/mypage/orders" class="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition">
+          <div class="text-center">
+            <i class="fas fa-shopping-bag text-4xl text-tea-green mb-4"></i>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">주문 내역</h3>
+            <p class="text-sm text-gray-600">구매한 상품 확인</p>
+          </div>
+        </a>
+        
+        <a href="/mypage/profile" class="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition">
+          <div class="text-center">
+            <i class="fas fa-user-edit text-4xl text-craft-blue mb-4"></i>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">회원 정보</h3>
+            <p class="text-sm text-gray-600">내 정보 수정</p>
+          </div>
+        </a>
+        
+        <a href="/mypage/reviews" class="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition">
+          <div class="text-center">
+            <i class="fas fa-star text-4xl text-yellow-500 mb-4"></i>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">리뷰 관리</h3>
+            <p class="text-sm text-gray-600">작성한 리뷰 보기</p>
+          </div>
+        </a>
+        
+        <a href="/mypage/wishlist" class="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition">
+          <div class="text-center">
+            <i class="fas fa-heart text-4xl text-red-500 mb-4"></i>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">찜 목록</h3>
+            <p class="text-sm text-gray-600">관심 상품 보기</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+// 주문 내역 페이지
+async function loadOrderListPage() {
+  const app = document.getElementById('app');
+  
+  try {
+    const response = await axios.get('/api/orders');
+    const orders = response.data.orders;
+    
+    const getStatusBadge = (status) => {
+      const statusMap = {
+        'pending': { label: '결제대기', class: 'bg-gray-100 text-gray-800' },
+        'paid': { label: '결제완료', class: 'bg-blue-100 text-blue-800' },
+        'preparing': { label: '상품준비중', class: 'bg-yellow-100 text-yellow-800' },
+        'shipping': { label: '배송중', class: 'bg-purple-100 text-purple-800' },
+        'delivered': { label: '배송완료', class: 'bg-green-100 text-green-800' },
+        'cancelled': { label: '취소됨', class: 'bg-red-100 text-red-800' },
+        'refunded': { label: '환불완료', class: 'bg-red-100 text-red-800' }
+      };
+      return statusMap[status] || { label: status, class: 'bg-gray-100 text-gray-800' };
+    };
+    
+    app.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            <i class="fas fa-shopping-bag text-tea-green mr-3"></i>
+            주문 내역
+          </h1>
+          <p class="text-gray-600">총 ${orders.length}개의 주문</p>
+        </div>
+        
+        ${orders.length === 0 ? `
+          <div class="text-center py-16">
+            <i class="fas fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
+            <p class="text-xl text-gray-600 mb-4">주문 내역이 없습니다</p>
+            <a href="/products" class="inline-block bg-tea-green text-white px-6 py-3 rounded-lg hover:bg-tea-green/90 transition">
+              <i class="fas fa-shopping-bag mr-2"></i>
+              쇼핑하러 가기
+            </a>
+          </div>
+        ` : `
+          <div class="space-y-6">
+            ${orders.map(order => {
+              const status = getStatusBadge(order.order_status);
+              const orderDate = new Date(order.created_at).toLocaleDateString('ko-KR', {
+                year: 'numeric', month: 'long', day: 'numeric'
+              });
+              
+              return `
+                <div class="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition">
+                  <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                      <div>
+                        <div class="text-sm text-gray-500 mb-1">${orderDate}</div>
+                        <h3 class="text-lg font-bold text-gray-900">
+                          주문번호: ${order.order_number}
+                        </h3>
+                      </div>
+                      <span class="px-3 py-1 rounded-full text-sm font-medium ${status.class}">
+                        ${status.label}
+                      </span>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <p class="text-sm text-gray-600">
+                            <i class="fas fa-box mr-2"></i>
+                            ${order.item_count}개 상품
+                          </p>
+                          <p class="text-lg font-bold text-gray-900 mt-2">
+                            ${formatPrice(order.final_amount)}
+                          </p>
+                        </div>
+                        
+                        <div class="space-x-2">
+                          <a href="/mypage/orders/${order.id}" 
+                             class="inline-block bg-tea-green text-white px-4 py-2 rounded-lg hover:bg-tea-green/90 transition text-sm">
+                            <i class="fas fa-search mr-1"></i>
+                            상세보기
+                          </a>
+                          ${order.order_status === 'delivered' ? `
+                            <button onclick="confirmOrder(${order.id})" 
+                                    class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition text-sm">
+                              <i class="fas fa-check mr-1"></i>
+                              수령확인
+                            </button>
+                          ` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </div>
+    `;
+  } catch (error) {
+    console.error('주문 내역 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">페이지를 불러올 수 없습니다</h2>
+        <p class="text-gray-600 mb-6">잠시 후 다시 시도해주세요.</p>
+        <a href="/" class="text-tea-green hover:underline">홈으로 돌아가기</a>
+      </div>
+    `;
+  }
+}
+
+// 주문 상세 페이지
+async function loadOrderDetailPage(orderId) {
+  const app = document.getElementById('app');
+  
+  try {
+    const response = await axios.get(`/api/orders/${orderId}`);
+    const { order, items, shipment, confirmation, history } = response.data;
+    
+    const getStatusBadge = (status) => {
+      const statusMap = {
+        'pending': { label: '결제대기', class: 'bg-gray-100 text-gray-800' },
+        'paid': { label: '결제완료', class: 'bg-blue-100 text-blue-800' },
+        'preparing': { label: '상품준비중', class: 'bg-yellow-100 text-yellow-800' },
+        'shipping': { label: '배송중', class: 'bg-purple-100 text-purple-800' },
+        'delivered': { label: '배송완료', class: 'bg-green-100 text-green-800' },
+        'cancelled': { label: '취소됨', class: 'bg-red-100 text-red-800' },
+        'refunded': { label: '환불완료', class: 'bg-red-100 text-red-800' }
+      };
+      return statusMap[status] || { label: status, class: 'bg-gray-100 text-gray-800' };
+    };
+    
+    const status = getStatusBadge(order.order_status);
+    const orderDate = new Date(order.created_at).toLocaleDateString('ko-KR', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    
+    app.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+          <a href="/mypage/orders" class="text-gray-600 hover:text-tea-green mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>
+            주문 목록으로
+          </a>
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                주문 상세 정보
+              </h1>
+              <p class="text-gray-600">주문번호: ${order.order_number}</p>
+              <p class="text-sm text-gray-500">${orderDate}</p>
+            </div>
+            <span class="px-4 py-2 rounded-full text-lg font-medium ${status.class}">
+              ${status.label}
+            </span>
+          </div>
+        </div>
+        
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- 주문 정보 -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- 주문 상품 -->
+            <div class="bg-white rounded-lg shadow p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-box text-tea-green mr-2"></i>
+                주문 상품
+              </h2>
+              <div class="space-y-4">
+                ${items.map(item => `
+                  <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex-1">
+                      <h3 class="font-bold text-gray-900">${item.product_name}</h3>
+                      <p class="text-sm text-gray-600 mt-1">
+                        ${formatPrice(item.product_price)} × ${item.quantity}개
+                      </p>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-bold text-gray-900">${formatPrice(item.item_total)}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              
+              <div class="mt-6 pt-6 border-t space-y-2">
+                <div class="flex justify-between text-gray-600">
+                  <span>상품 금액</span>
+                  <span>${formatPrice(order.total_amount)}</span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                  <span>배송비</span>
+                  <span>${formatPrice(order.shipping_fee)}</span>
+                </div>
+                ${order.discount_amount > 0 ? `
+                  <div class="flex justify-between text-red-600">
+                    <span>할인</span>
+                    <span>-${formatPrice(order.discount_amount)}</span>
+                  </div>
+                ` : ''}
+                <div class="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t">
+                  <span>총 결제 금액</span>
+                  <span class="text-tea-green">${formatPrice(order.final_amount)}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 배송 정보 -->
+            ${shipment ? `
+              <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">
+                  <i class="fas fa-truck text-tea-green mr-2"></i>
+                  배송 정보
+                </h2>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-600">택배사</span>
+                    <span class="font-medium">${shipment.courier_company}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-600">송장번호</span>
+                    <span class="font-mono font-medium">${shipment.tracking_number}</span>
+                  </div>
+                  ${shipment.shipped_date ? `
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-600">발송일</span>
+                      <span>${new Date(shipment.shipped_date).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                  ` : ''}
+                  ${shipment.delivery_completed_date ? `
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-600">배송완료일</span>
+                      <span>${new Date(shipment.delivery_completed_date).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            ` : ''}
+            
+            <!-- 수령 확인 -->
+            ${confirmation ? `
+              <div class="bg-green-50 rounded-lg border border-green-200 p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">
+                  <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                  수령 확인 완료
+                </h2>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <span class="text-gray-600 mr-2">평점:</span>
+                    <span class="text-yellow-500">
+                      ${'★'.repeat(confirmation.rating)}${'☆'.repeat(5 - confirmation.rating)}
+                    </span>
+                  </div>
+                  ${confirmation.review_comment ? `
+                    <div>
+                      <p class="text-gray-600 mb-1">리뷰:</p>
+                      <p class="text-gray-900">${confirmation.review_comment}</p>
+                    </div>
+                  ` : ''}
+                  <p class="text-sm text-gray-500">
+                    확인일: ${new Date(confirmation.confirmed_date).toLocaleString('ko-KR')}
+                  </p>
+                </div>
+              </div>
+            ` : order.order_status === 'delivered' ? `
+              <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">
+                  <i class="fas fa-clipboard-check text-tea-green mr-2"></i>
+                  수령 확인
+                </h2>
+                <p class="text-gray-600 mb-4">상품을 받으셨나요? 수령 확인 후 리뷰를 작성해주세요.</p>
+                <button onclick="showConfirmModal(${orderId})" 
+                        class="w-full bg-tea-green text-white py-3 rounded-lg font-bold hover:bg-tea-green/90 transition">
+                  <i class="fas fa-check mr-2"></i>
+                  수령 확인하기
+                </button>
+              </div>
+            ` : ''}
+          </div>
+          
+          <!-- 사이드바 -->
+          <div class="space-y-6">
+            <!-- 주문자 정보 -->
+            <div class="bg-white rounded-lg shadow p-6">
+              <h2 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fas fa-user text-tea-green mr-2"></i>
+                주문자 정보
+              </h2>
+              <div class="space-y-2 text-sm">
+                <p><span class="text-gray-600">이름:</span> ${order.buyer_name}</p>
+                <p><span class="text-gray-600">이메일:</span> ${order.buyer_email}</p>
+                <p><span class="text-gray-600">연락처:</span> ${order.buyer_phone}</p>
+              </div>
+            </div>
+            
+            <!-- 배송지 정보 -->
+            <div class="bg-white rounded-lg shadow p-6">
+              <h2 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fas fa-map-marker-alt text-tea-green mr-2"></i>
+                배송지 정보
+              </h2>
+              <div class="space-y-2 text-sm">
+                <p><span class="text-gray-600">수령인:</span> ${order.recipient_name}</p>
+                <p><span class="text-gray-600">연락처:</span> ${order.recipient_phone}</p>
+                <p><span class="text-gray-600">주소:</span><br/>${order.delivery_address}</p>
+                ${order.delivery_zipcode ? `<p><span class="text-gray-600">우편번호:</span> ${order.delivery_zipcode}</p>` : ''}
+                ${order.delivery_memo ? `<p class="mt-3 p-2 bg-gray-50 rounded"><span class="text-gray-600">배송 메모:</span><br/>${order.delivery_memo}</p>` : ''}
+              </div>
+            </div>
+            
+            <!-- 결제 정보 -->
+            <div class="bg-white rounded-lg shadow p-6">
+              <h2 class="text-lg font-bold text-gray-900 mb-4">
+                <i class="fas fa-credit-card text-tea-green mr-2"></i>
+                결제 정보
+              </h2>
+              <div class="space-y-2 text-sm">
+                <p><span class="text-gray-600">결제 상태:</span> 
+                  <span class="font-medium ${order.payment_status === 'completed' ? 'text-green-600' : 'text-gray-900'}">
+                    ${order.payment_status === 'completed' ? '결제완료' : order.payment_status}
+                  </span>
+                </p>
+                ${order.payment_method ? `<p><span class="text-gray-600">결제 수단:</span> ${order.payment_method}</p>` : ''}
+                ${order.payment_date ? `<p><span class="text-gray-600">결제일:</span> ${new Date(order.payment_date).toLocaleString('ko-KR')}</p>` : ''}
+              </div>
+            </div>
+            
+            <!-- 주문 취소 -->
+            ${order.order_status === 'pending' || order.order_status === 'paid' ? `
+              <button onclick="cancelOrder(${orderId})" 
+                      class="w-full bg-red-500 text-white py-3 rounded-lg font-bold hover:bg-red-600 transition">
+                <i class="fas fa-times mr-2"></i>
+                주문 취소
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error('주문 상세 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">주문 정보를 불러올 수 없습니다</h2>
+        <p class="text-gray-600 mb-6">주문번호를 확인해주세요.</p>
+        <a href="/mypage/orders" class="text-tea-green hover:underline">주문 목록으로 돌아가기</a>
+      </div>
+    `;
+  }
+}
+
+// 수령 확인 모달 표시
+window.showConfirmModal = function(orderId) {
+  const modal = document.createElement('div');
+  modal.id = 'confirmModal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h3 class="text-xl font-bold text-gray-900 mb-4">수령 확인 및 리뷰 작성</h3>
+      
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">별점</label>
+        <div class="flex space-x-2">
+          ${[1,2,3,4,5].map(i => `
+            <button onclick="setRating(${i})" class="rating-star text-3xl text-gray-300 hover:text-yellow-500 transition">
+              ☆
+            </button>
+          `).join('')}
+        </div>
+        <input type="hidden" id="rating" value="0">
+      </div>
+      
+      <div class="mb-6">
+        <label class="block text-gray-700 font-medium mb-2">리뷰 (선택)</label>
+        <textarea id="reviewComment" rows="4" 
+                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
+                  placeholder="상품은 어떠셨나요? 리뷰를 남겨주세요."></textarea>
+      </div>
+      
+      <div class="flex space-x-3">
+        <button onclick="submitConfirmation(${orderId})" 
+                class="flex-1 bg-tea-green text-white py-3 rounded-lg font-bold hover:bg-tea-green/90 transition">
+          확인
+        </button>
+        <button onclick="closeConfirmModal()" 
+                class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-bold hover:bg-gray-600 transition">
+          취소
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+};
+
+// 별점 설정
+window.setRating = function(rating) {
+  document.getElementById('rating').value = rating;
+  const stars = document.querySelectorAll('.rating-star');
+  stars.forEach((star, index) => {
+    if (index < rating) {
+      star.textContent = '★';
+      star.classList.add('text-yellow-500');
+      star.classList.remove('text-gray-300');
+    } else {
+      star.textContent = '☆';
+      star.classList.add('text-gray-300');
+      star.classList.remove('text-yellow-500');
+    }
+  });
+};
+
+// 수령 확인 제출
+window.submitConfirmation = async function(orderId) {
+  const rating = parseInt(document.getElementById('rating').value);
+  const reviewComment = document.getElementById('reviewComment').value;
+  
+  if (rating === 0) {
+    alert('별점을 선택해주세요.');
+    return;
+  }
+  
+  try {
+    await axios.post(`/api/orders/${orderId}/confirm`, {
+      rating,
+      review_comment: reviewComment || null
+    });
+    
+    alert('수령 확인이 완료되었습니다!');
+    closeConfirmModal();
+    loadOrderDetailPage(orderId);
+  } catch (error) {
+    console.error('수령 확인 오류:', error);
+    alert('수령 확인 중 오류가 발생했습니다.');
+  }
+};
+
+// 모달 닫기
+window.closeConfirmModal = function() {
+  const modal = document.getElementById('confirmModal');
+  if (modal) {
+    modal.remove();
+  }
+};
+
+// 주문 취소
+window.cancelOrder = async function(orderId) {
+  if (!confirm('정말로 주문을 취소하시겠습니까?')) {
+    return;
+  }
+  
+  const reason = prompt('취소 사유를 입력해주세요 (선택)');
+  
+  try {
+    await axios.post(`/api/orders/${orderId}/cancel`, {
+      cancel_reason: reason || '구매자 요청'
+    });
+    
+    alert('주문이 취소되었습니다.');
+    loadOrderDetailPage(orderId);
+  } catch (error) {
+    console.error('주문 취소 오류:', error);
+    alert(error.response?.data?.error || '주문 취소 중 오류가 발생했습니다.');
+  }
+};
 
 // ===== PWA Service Worker 등록 =====
 if ('serviceWorker' in navigator) {

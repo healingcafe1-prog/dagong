@@ -996,6 +996,35 @@ app.get('/education/curriculum/:id', (c) => {
   )
 })
 
+// ===== 마이페이지 =====
+
+// 마이페이지 메인
+app.get('/mypage', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
+// 주문 내역
+app.get('/mypage/orders', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
+// 주문 상세
+app.get('/mypage/orders/:id', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
 // ===== 소셜 로그인 API =====
 
 // 로그인 페이지
@@ -1332,6 +1361,346 @@ app.post('/api/auth/logout', async (c) => {
   }
   
   c.header('Set-Cookie', 'session=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax')
+  return c.json({ success: true })
+})
+
+// ===== 주문 관리 API =====
+
+// 주문 생성
+app.post('/api/orders', async (c) => {
+  const data = await c.req.json()
+  
+  // 주문번호 생성 (ORD + YYYYMMDD + 시퀀스)
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+  const { results } = await c.env.DB.prepare(
+    `SELECT COUNT(*) as count FROM orders WHERE order_number LIKE 'ORD${today}%'`
+  ).all()
+  const sequence = String((results[0].count as number) + 1).padStart(3, '0')
+  const orderNumber = `ORD${today}${sequence}`
+  
+  // 주문 생성
+  const orderResult = await c.env.DB.prepare(`
+    INSERT INTO orders (
+      order_number, user_id, buyer_name, buyer_email, buyer_phone,
+      recipient_name, recipient_phone, delivery_address, delivery_zipcode, delivery_memo,
+      total_amount, discount_amount, shipping_fee, final_amount,
+      order_status, payment_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending')
+  `).bind(
+    orderNumber,
+    data.user_id || null,
+    data.buyer_name,
+    data.buyer_email,
+    data.buyer_phone,
+    data.recipient_name,
+    data.recipient_phone,
+    data.delivery_address,
+    data.delivery_zipcode,
+    data.delivery_memo || null,
+    data.total_amount,
+    data.discount_amount || 0,
+    data.shipping_fee || 3000,
+    data.final_amount
+  ).run()
+  
+  const orderId = orderResult.meta.last_row_id
+  
+  // 주문 상품 추가
+  for (const item of data.items) {
+    await c.env.DB.prepare(`
+      INSERT INTO order_items (
+        order_id, product_id, product_name, product_price, quantity,
+        discount_rate, item_total, producer_id, commission_rate,
+        commission_amount, producer_revenue
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      orderId,
+      item.product_id,
+      item.product_name,
+      item.product_price,
+      item.quantity,
+      item.discount_rate || 0,
+      item.item_total,
+      item.producer_id,
+      item.commission_rate || 9.9,
+      item.commission_amount,
+      item.producer_revenue
+    ).run()
+  }
+  
+  // 상태 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, 'new', 'pending', 'system', '주문 생성')
+  `).bind(orderId).run()
+  
+  return c.json({ 
+    success: true, 
+    order_id: orderId,
+    order_number: orderNumber
+  })
+})
+
+// 주문 목록 조회
+app.get('/api/orders', async (c) => {
+  const userId = c.req.query('user_id')
+  const status = c.req.query('status')
+  const limit = parseInt(c.req.query('limit') || '20')
+  const offset = parseInt(c.req.query('offset') || '0')
+  
+  let query = `
+    SELECT o.*, 
+           COUNT(oi.id) as item_count
+    FROM orders o
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    WHERE 1=1
+  `
+  
+  const bindings: any[] = []
+  
+  if (userId) {
+    query += ' AND o.user_id = ?'
+    bindings.push(userId)
+  }
+  
+  if (status) {
+    query += ' AND o.order_status = ?'
+    bindings.push(status)
+  }
+  
+  query += ' GROUP BY o.id ORDER BY o.created_at DESC LIMIT ? OFFSET ?'
+  bindings.push(limit, offset)
+  
+  const { results } = await c.env.DB.prepare(query).bind(...bindings).all()
+  
+  return c.json({ orders: results })
+})
+
+// 주문 상세 조회
+app.get('/api/orders/:id', async (c) => {
+  const orderId = c.req.param('id')
+  
+  // 주문 정보
+  const orderResult = await c.env.DB.prepare(
+    'SELECT * FROM orders WHERE id = ?'
+  ).bind(orderId).first()
+  
+  if (!orderResult) {
+    return c.json({ error: 'Order not found' }, 404)
+  }
+  
+  // 주문 상품
+  const itemsResult = await c.env.DB.prepare(
+    'SELECT * FROM order_items WHERE order_id = ?'
+  ).bind(orderId).all()
+  
+  // 배송 정보
+  const shipmentResult = await c.env.DB.prepare(
+    'SELECT * FROM order_shipments WHERE order_id = ? ORDER BY created_at DESC LIMIT 1'
+  ).bind(orderId).first()
+  
+  // 수령 확인 정보
+  const confirmationResult = await c.env.DB.prepare(
+    'SELECT * FROM order_confirmations WHERE order_id = ?'
+  ).bind(orderId).first()
+  
+  // 상태 이력
+  const historyResult = await c.env.DB.prepare(
+    'SELECT * FROM order_status_history WHERE order_id = ? ORDER BY created_at DESC'
+  ).bind(orderId).all()
+  
+  return c.json({
+    order: orderResult,
+    items: itemsResult.results,
+    shipment: shipmentResult,
+    confirmation: confirmationResult,
+    history: historyResult.results
+  })
+})
+
+// 주문 상태 변경
+app.put('/api/orders/:id/status', async (c) => {
+  const orderId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // 현재 주문 조회
+  const currentOrder = await c.env.DB.prepare(
+    'SELECT order_status FROM orders WHERE id = ?'
+  ).bind(orderId).first()
+  
+  if (!currentOrder) {
+    return c.json({ error: 'Order not found' }, 404)
+  }
+  
+  // 상태 업데이트
+  await c.env.DB.prepare(
+    'UPDATE orders SET order_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+  ).bind(data.new_status, orderId).run()
+  
+  // 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, ?, ?, ?, ?)
+  `).bind(
+    orderId,
+    currentOrder.order_status,
+    data.new_status,
+    data.changed_by || 'system',
+    data.change_reason || ''
+  ).run()
+  
+  return c.json({ success: true })
+})
+
+// 결제 완료 처리
+app.post('/api/orders/:id/payment', async (c) => {
+  const orderId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // 주문 상태 업데이트
+  await c.env.DB.prepare(`
+    UPDATE orders 
+    SET order_status = 'paid', 
+        payment_status = 'completed',
+        payment_method = ?,
+        payment_date = CURRENT_TIMESTAMP,
+        payment_transaction_id = ?,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).bind(data.payment_method, data.transaction_id, orderId).run()
+  
+  // 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, 'pending', 'paid', 'system', '결제 완료')
+  `).bind(orderId).run()
+  
+  return c.json({ success: true })
+})
+
+// 배송 정보 등록
+app.post('/api/orders/:id/shipment', async (c) => {
+  const orderId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // 배송 정보 등록
+  await c.env.DB.prepare(`
+    INSERT INTO order_shipments (
+      order_id, courier_company, tracking_number, shipped_date,
+      estimated_delivery_date, delivery_status
+    ) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'shipped')
+  `).bind(
+    orderId,
+    data.courier_company,
+    data.tracking_number,
+    data.estimated_delivery_date
+  ).run()
+  
+  // 주문 상태 업데이트
+  await c.env.DB.prepare(
+    'UPDATE orders SET order_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+  ).bind('shipping', orderId).run()
+  
+  // 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, 'preparing', 'shipping', ?, '배송 시작')
+  `).bind(orderId, data.changed_by || 'system').run()
+  
+  return c.json({ success: true })
+})
+
+// 배송 완료 처리
+app.put('/api/orders/:id/delivered', async (c) => {
+  const orderId = c.req.param('id')
+  
+  // 주문 상태 업데이트
+  await c.env.DB.prepare(
+    'UPDATE orders SET order_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+  ).bind('delivered', orderId).run()
+  
+  // 배송 상태 업데이트
+  await c.env.DB.prepare(`
+    UPDATE order_shipments 
+    SET delivery_status = 'delivered', 
+        delivery_completed_date = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE order_id = ?
+  `).bind(orderId).run()
+  
+  // 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, 'shipping', 'delivered', 'system', '배송 완료')
+  `).bind(orderId).run()
+  
+  return c.json({ success: true })
+})
+
+// 수령 확인
+app.post('/api/orders/:id/confirm', async (c) => {
+  const orderId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // 주문 상태 확인
+  const order = await c.env.DB.prepare(
+    'SELECT order_status FROM orders WHERE id = ?'
+  ).bind(orderId).first()
+  
+  if (!order || order.order_status !== 'delivered') {
+    return c.json({ error: '배송 완료된 주문만 수령 확인할 수 있습니다' }, 400)
+  }
+  
+  // 수령 확인 등록
+  await c.env.DB.prepare(`
+    INSERT INTO order_confirmations (
+      order_id, confirmed_by, confirmed_date, rating, review_comment, is_reviewed
+    ) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
+  `).bind(
+    orderId,
+    data.user_id || null,
+    data.rating || null,
+    data.review_comment || null,
+    data.rating ? 1 : 0
+  ).run()
+  
+  return c.json({ success: true })
+})
+
+// 주문 취소
+app.post('/api/orders/:id/cancel', async (c) => {
+  const orderId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // 주문 상태 확인
+  const order = await c.env.DB.prepare(
+    'SELECT order_status FROM orders WHERE id = ?'
+  ).bind(orderId).first()
+  
+  if (!order) {
+    return c.json({ error: 'Order not found' }, 404)
+  }
+  
+  if (order.order_status === 'shipped' || order.order_status === 'delivered') {
+    return c.json({ error: '배송 시작된 주문은 취소할 수 없습니다' }, 400)
+  }
+  
+  // 주문 상태 업데이트
+  await c.env.DB.prepare(
+    'UPDATE orders SET order_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+  ).bind('cancelled', orderId).run()
+  
+  // 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, ?, 'cancelled', ?, ?)
+  `).bind(
+    orderId,
+    order.order_status,
+    data.changed_by || 'customer',
+    data.cancel_reason || '구매자 요청'
+  ).run()
+  
   return c.json({ success: true })
 })
 
