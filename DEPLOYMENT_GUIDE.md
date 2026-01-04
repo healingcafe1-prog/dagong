@@ -1,238 +1,422 @@
-# 배포 가이드 - 한국 차 공예
+# 🚀 차다이렉트 (chadirect.kr) 배포 가이드
 
-## 목차
-1. [Cloudflare Pages 배포](#cloudflare-pages-배포)
-2. [구글 플레이 스토어 (TWA)](#구글-플레이-스토어-twa)
-3. [PWA 설치](#pwa-설치)
-4. [환경 변수 설정](#환경-변수-설정)
+## 📋 목차
+1. [도메인 설정](#1-도메인-설정)
+2. [Cloudflare Pages 배포](#2-cloudflare-pages-배포)
+3. [데이터베이스 설정](#3-데이터베이스-설정)
+4. [환경 변수 설정](#4-환경-변수-설정)
+5. [커스텀 도메인 연결](#5-커스텀-도메인-연결)
+6. [배포 확인](#6-배포-확인)
 
 ---
 
-## Cloudflare Pages 배포
+## 1. 도메인 설정
 
-### 사전 준비
-1. Cloudflare 계정 생성
-2. Cloudflare API 토큰 발급
-3. GitHub 저장소 준비
+### 도메인 등록
+**선택한 도메인**: `chadirect.kr`
 
-### 1단계: Cloudflare API 키 설정
+**추천 등록 업체**:
+- **가비아**: https://www.gabia.com (국내, 한국어)
+- **Cloudflare**: https://www.cloudflare.com/products/registrar/ (원가 판매)
+- **후이즈**: https://www.whois.co.kr (저렴)
+
+### 등록 절차
+1. 등록 업체 사이트 접속
+2. "chadirect.kr" 검색
+3. 사용 가능 확인
+4. 결제 (연 15,000원 ~ 20,000원)
+5. 소유권 획득
+
+---
+
+## 2. Cloudflare Pages 배포
+
+### 2-1. Cloudflare 계정 준비
+1. https://dash.cloudflare.com 접속
+2. 회원가입 (무료)
+3. 이메일 인증 완료
+
+### 2-2. API 토큰 생성
+1. 대시보드 우측 상단 → 프로필 아이콘
+2. "API 토큰" 클릭
+3. "API 토큰 생성" 클릭
+4. "Cloudflare Pages 편집" 템플릿 선택
+5. 토큰 생성 → **복사해서 안전하게 보관**
+
+### 2-3. 프로젝트 빌드
 ```bash
-# Sandbox 환경에서
-# setup_cloudflare_api_key 도구 실행하여 인증 설정
+cd /home/user/webapp
+
+# 빌드
+npm run build
+
+# dist/ 디렉토리 생성 확인
+ls -la dist/
 ```
 
-### 2단계: D1 데이터베이스 생성
+### 2-4. Cloudflare Pages 프로젝트 생성
 ```bash
-# 프로덕션 데이터베이스 생성
-npx wrangler d1 create korean-tea-craft-production
+# 환경 변수 설정 (API 토큰)
+export CLOUDFLARE_API_TOKEN="your-api-token-here"
 
-# 출력된 database_id를 wrangler.jsonc에 복사
+# Pages 프로젝트 생성
+npx wrangler pages project create chadirect --production-branch main
+
+# 프로젝트 정보 확인
+npx wrangler pages project list
 ```
 
-### 3단계: wrangler.jsonc 설정
+### 2-5. 첫 배포
+```bash
+# dist 폴더 배포
+npx wrangler pages deploy dist --project-name chadirect
+
+# 배포 완료 후 URL 확인
+# 예: https://chadirect.pages.dev
+```
+
+---
+
+## 3. 데이터베이스 설정
+
+### 3-1. D1 프로덕션 데이터베이스 생성
+```bash
+# D1 데이터베이스 생성
+npx wrangler d1 create chadirect-production
+
+# 출력된 database_id 복사
+# 예: database_id: "xxxx-xxxx-xxxx-xxxx"
+```
+
+### 3-2. wrangler.jsonc 업데이트
 ```jsonc
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "korean-tea-craft",
-  "compatibility_date": "2024-01-01",
-  "pages_build_output_dir": "./dist",
-  "compatibility_flags": ["nodejs_compat"],
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "korean-tea-craft-production",
-      "database_id": "여기에-데이터베이스-ID-입력"
+      "database_name": "chadirect-production",
+      "database_id": "여기에-실제-database-id-입력"
     }
   ]
 }
 ```
 
-### 4단계: 마이그레이션 실행
+### 3-3. 마이그레이션 실행
 ```bash
-# 프로덕션 데이터베이스에 마이그레이션 적용
-npx wrangler d1 migrations apply korean-tea-craft-production
-```
+# 프로덕션 DB에 마이그레이션 적용
+npx wrangler d1 migrations apply chadirect-production --remote
 
-### 5단계: 빌드 및 배포
-```bash
-# 프로젝트 빌드
-npm run build
+# 시드 데이터 입력
+npx wrangler d1 execute chadirect-production --remote --file=./seed.sql
 
-# Cloudflare Pages 프로젝트 생성
-npx wrangler pages project create korean-tea-craft \
-  --production-branch main \
-  --compatibility-date 2024-01-01
-
-# 배포
-npx wrangler pages deploy dist --project-name korean-tea-craft
-```
-
-### 6단계: 환경 변수 설정 (선택사항)
-```bash
-# OAuth 설정 (소셜 로그인 사용 시)
-npx wrangler pages secret put GOOGLE_CLIENT_ID --project-name korean-tea-craft
-npx wrangler pages secret put GOOGLE_CLIENT_SECRET --project-name korean-tea-craft
-npx wrangler pages secret put NAVER_CLIENT_ID --project-name korean-tea-craft
-npx wrangler pages secret put NAVER_CLIENT_SECRET --project-name korean-tea-craft
-npx wrangler pages secret put KAKAO_CLIENT_ID --project-name korean-tea-craft
-npx wrangler pages secret put KAKAO_CLIENT_SECRET --project-name korean-tea-craft
-npx wrangler pages secret put SESSION_SECRET --project-name korean-tea-craft
-```
-
-### 배포 URL
-- 프로덕션: `https://korean-tea-craft.pages.dev`
-- 브랜치 배포: `https://main.korean-tea-craft.pages.dev`
-
----
-
-## 구글 플레이 스토어 (TWA)
-
-### Trusted Web Activity 앱 생성
-
-### 1단계: Android Studio 설치
-1. [Android Studio](https://developer.android.com/studio) 다운로드 및 설치
-
-### 2단계: Bubblewrap 사용 (추천)
-```bash
-# Bubblewrap CLI 설치
-npm install -g @bubblewrap/cli
-
-# TWA 프로젝트 초기화
-bubblewrap init --manifest https://korean-tea-craft.pages.dev/manifest.json
-
-# 프롬프트에 따라 입력:
-# - Package name: com.koreantea.craft
-# - App name: 한국 차 공예
-# - Display mode: standalone
-# - Status bar color: #7c9473
-
-# Android 프로젝트 빌드
-bubblewrap build
-
-# APK 생성됨: ./app-release-signed.apk
-```
-
-### 3단계: Digital Asset Links 설정
-Cloudflare Pages에 `.well-known/assetlinks.json` 파일 추가:
-
-```json
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.koreantea.craft",
-    "sha256_cert_fingerprints": ["여기에_SHA256_지문_입력"]
-  }
-}]
-```
-
-### 4단계: 구글 플레이 콘솔에서 앱 등록
-1. [Google Play Console](https://play.google.com/console) 로그인
-2. "앱 만들기" 클릭
-3. APK 업로드
-4. 스토어 등록정보 작성:
-   - 앱 이름: 한국 차 공예
-   - 간단한 설명: 한국 전통 차와 공예품 직거래 플랫폼
-   - 자세한 설명: README.md의 프로젝트 설명 참고
-   - 카테고리: 쇼핑
-   - 스크린샷: `public/static/screenshots/` 사용
-
-### 5단계: 앱 검토 제출
-- 테스트 트랙에 먼저 배포
-- 검토 완료 후 프로덕션으로 승격
-
----
-
-## PWA 설치
-
-### 데스크톱 (Chrome, Edge)
-1. 웹사이트 방문
-2. 주소창 오른쪽의 "설치" 버튼 클릭
-3. "설치" 확인
-
-### 모바일 (Android, iOS)
-**Android (Chrome):**
-1. 웹사이트 방문
-2. 메뉴 (⋮) → "홈 화면에 추가"
-3. "추가" 확인
-
-**iOS (Safari):**
-1. 웹사이트 방문
-2. 공유 버튼 (↑) 클릭
-3. "홈 화면에 추가" 선택
-4. "추가" 확인
-
----
-
-## 환경 변수 설정
-
-### 로컬 개발 (.dev.vars)
-```bash
-# .dev.vars 파일 생성
-cat > .dev.vars << 'EOF'
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# Naver OAuth
-NAVER_CLIENT_ID=your_naver_client_id
-NAVER_CLIENT_SECRET=your_naver_client_secret
-
-# Kakao OAuth
-KAKAO_CLIENT_ID=your_kakao_client_id
-KAKAO_CLIENT_SECRET=your_kakao_client_secret
-
-# Session
-SESSION_SECRET=your_random_secret_key
-EOF
-```
-
-### 프로덕션 (Wrangler Secrets)
-```bash
-# 각 환경 변수 설정
-npx wrangler pages secret put VARIABLE_NAME --project-name korean-tea-craft
+# 확인
+npx wrangler d1 execute chadirect-production --remote --command="SELECT COUNT(*) FROM products"
 ```
 
 ---
 
-## 문제 해결
+## 4. 환경 변수 설정
 
-### 빌드 오류
+### 4-1. OAuth 키 설정 (소셜 로그인)
+
+**Google OAuth**:
 ```bash
-# 의존성 재설치
-rm -rf node_modules package-lock.json
-npm install
+npx wrangler pages secret put GOOGLE_CLIENT_ID --project-name chadirect
+# 값 입력: your-google-client-id
 
-# 캐시 정리
-rm -rf .wrangler dist
-npm run build
+npx wrangler pages secret put GOOGLE_CLIENT_SECRET --project-name chadirect
+# 값 입력: your-google-client-secret
 ```
 
-### 데이터베이스 오류
+**Naver OAuth**:
 ```bash
-# 로컬 D1 데이터베이스 리셋
-npm run db:reset
-
-# 프로덕션 마이그레이션 재실행
-npx wrangler d1 migrations apply korean-tea-craft-production
+npx wrangler pages secret put NAVER_CLIENT_ID --project-name chadirect
+npx wrangler pages secret put NAVER_CLIENT_SECRET --project-name chadirect
 ```
 
-### PWA 설치 버튼이 보이지 않음
-- HTTPS 필수 (localhost는 예외)
-- manifest.json 확인
-- Service Worker 등록 확인
-- 개발자 도구 → Application → Manifest 탭 확인
+**Kakao OAuth**:
+```bash
+npx wrangler pages secret put KAKAO_CLIENT_ID --project-name chadirect
+```
+
+### 4-2. 시크릿 확인
+```bash
+npx wrangler pages secret list --project-name chadirect
+```
 
 ---
 
-## 유용한 링크
-- [Cloudflare Pages 문서](https://developers.cloudflare.com/pages/)
-- [Cloudflare D1 문서](https://developers.cloudflare.com/d1/)
-- [PWA 가이드](https://web.dev/progressive-web-apps/)
-- [TWA 가이드](https://developer.chrome.com/docs/android/trusted-web-activity/)
-- [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap)
+## 5. 커스텀 도메인 연결
+
+### 5-1. Cloudflare에 도메인 추가
+
+**케이스 A: Cloudflare에서 도메인 구매한 경우**
+- 자동으로 네임서버 설정됨
+- 5-2 단계로 이동
+
+**케이스 B: 다른 곳에서 도메인 구매한 경우 (가비아 등)**
+
+1. **Cloudflare 대시보드**
+   - "웹사이트 추가" 클릭
+   - `chadirect.kr` 입력
+   - 무료 플랜 선택
+
+2. **네임서버 확인**
+   - Cloudflare가 제공하는 네임서버 확인
+   - 예:
+     ```
+     ns1.cloudflare.com
+     ns2.cloudflare.com
+     ```
+
+3. **도메인 등록 업체에서 네임서버 변경**
+   
+   **가비아 예시**:
+   - 가비아 로그인
+   - "My 가비아" → "도메인 관리"
+   - `chadirect.kr` 선택
+   - "네임서버 설정" 클릭
+   - "다른 네임서버 사용" 선택
+   - Cloudflare 네임서버 2개 입력
+   - 저장 (24-48시간 소요)
+
+4. **Cloudflare에서 확인 대기**
+   - 네임서버 변경이 완료될 때까지 대기
+   - 이메일로 활성화 알림 수신
+
+### 5-2. Pages에 커스텀 도메인 연결
+
+```bash
+# 커스텀 도메인 추가
+npx wrangler pages domain add chadirect.kr --project-name chadirect
+
+# www 서브도메인도 추가 (선택사항)
+npx wrangler pages domain add www.chadirect.kr --project-name chadirect
+```
+
+**또는 대시보드에서**:
+1. Cloudflare Pages → chadirect 프로젝트
+2. "사용자 지정 도메인" 탭
+3. "사용자 지정 도메인 설정" 클릭
+4. `chadirect.kr` 입력
+5. DNS 레코드 자동 추가됨
+6. SSL 인증서 자동 발급 (수분 소요)
+
+### 5-3. DNS 설정 확인
+
+Cloudflare DNS 레코드가 자동으로 추가됨:
+```
+CNAME  chadirect.kr  →  chadirect.pages.dev
+CNAME  www           →  chadirect.pages.dev
+```
 
 ---
 
-## 지원
-문제가 발생하면 GitHub Issues에 등록해주세요.
+## 6. 배포 확인
+
+### 6-1. 기본 URL 확인
+```bash
+# 브라우저에서 접속
+https://chadirect.pages.dev
+```
+
+### 6-2. 커스텀 도메인 확인
+```bash
+# 도메인 설정 완료 후 (24-48시간)
+https://chadirect.kr
+https://www.chadirect.kr
+```
+
+### 6-3. 기능 테스트
+
+**필수 확인 사항**:
+- [ ] 홈페이지 로딩
+- [ ] 상품 목록 조회
+- [ ] 상품 상세 페이지
+- [ ] 장바구니 담기
+- [ ] 주문하기
+- [ ] 소셜 로그인 (Google, Naver, Kakao)
+- [ ] 마이페이지 → 주문 내역
+- [ ] 생산자 관리 페이지
+
+### 6-4. 성능 확인
+
+**Lighthouse 테스트**:
+1. Chrome DevTools → Lighthouse
+2. "분석 생성" 클릭
+3. 목표 점수:
+   - Performance: 90+
+   - Accessibility: 90+
+   - Best Practices: 90+
+   - SEO: 90+
+
+---
+
+## 7. 자동 배포 설정 (GitHub Actions)
+
+### 7-1. GitHub 저장소 연결
+
+```bash
+# GitHub 저장소 생성 (github.com)
+# 저장소 이름: chadirect
+
+# 로컬 저장소 연결
+cd /home/user/webapp
+git remote add origin https://github.com/YOUR_USERNAME/chadirect.git
+git branch -M main
+git push -u origin main
+```
+
+### 7-2. Cloudflare Pages ↔ GitHub 연동
+
+1. Cloudflare Pages 대시보드
+2. chadirect 프로젝트 → "설정"
+3. "빌드 및 배포" → "Git 연결"
+4. GitHub 계정 연결
+5. 저장소 선택: `chadirect`
+6. 빌드 설정:
+   ```
+   빌드 명령: npm run build
+   빌드 출력 디렉토리: dist
+   ```
+7. 저장
+
+### 7-3. 자동 배포 테스트
+
+```bash
+# 코드 수정 후 커밋
+git add .
+git commit -m "Test auto deployment"
+git push
+
+# Cloudflare Pages 대시보드에서 배포 진행 확인
+# 완료 후 자동으로 배포됨
+```
+
+---
+
+## 8. 유지보수
+
+### 8-1. 로그 확인
+```bash
+# 실시간 로그
+npx wrangler pages tail chadirect
+
+# 특정 배포 로그
+npx wrangler pages deployment list --project-name chadirect
+```
+
+### 8-2. 롤백
+```bash
+# 이전 배포로 롤백
+npx wrangler pages deployment rollback --project-name chadirect
+```
+
+### 8-3. 데이터베이스 백업
+```bash
+# D1 데이터 내보내기
+npx wrangler d1 export chadirect-production --remote --output backup.sql
+
+# 특정 테이블만
+npx wrangler d1 execute chadirect-production --remote --command="SELECT * FROM orders" > orders_backup.json
+```
+
+---
+
+## 9. 비용 안내
+
+### Cloudflare Pages (무료 플랜)
+- ✅ 무제한 요청
+- ✅ 무제한 대역폭
+- ✅ 500 빌드/월
+- ✅ 20,000 파일
+- ✅ 무료 SSL
+- ✅ DDoS 방어
+
+### D1 데이터베이스 (무료 플랜)
+- ✅ 5GB 저장공간
+- ✅ 5,000,000 읽기/일
+- ✅ 100,000 쓰기/일
+
+### 도메인 비용
+- `.kr` 도메인: 연 15,000원 ~ 20,000원
+
+**예상 월 비용**: 약 1,500원 (도메인만)
+
+---
+
+## 10. 문제 해결
+
+### Q1. 배포 후 404 에러
+**원인**: 라우팅 설정 문제  
+**해결**: `_routes.json` 확인
+```bash
+cat dist/_routes.json
+```
+
+### Q2. 데이터베이스 연결 실패
+**원인**: D1 바인딩 오류  
+**해결**: wrangler.jsonc의 database_id 확인
+```bash
+npx wrangler d1 list
+```
+
+### Q3. 소셜 로그인 실패
+**원인**: OAuth 리디렉션 URI 불일치  
+**해결**: OAuth 앱 설정에서 리디렉션 URI 추가
+```
+https://chadirect.kr/auth/google/callback
+https://chadirect.kr/auth/naver/callback
+https://chadirect.kr/auth/kakao/callback
+```
+
+### Q4. 도메인 접속 불가
+**원인**: DNS 전파 대기 중  
+**해결**: 24-48시간 대기 또는 DNS 확인
+```bash
+nslookup chadirect.kr
+# 또는
+dig chadirect.kr
+```
+
+---
+
+## 11. 배포 체크리스트
+
+### 배포 전
+- [ ] `npm run build` 성공
+- [ ] `.env` 파일 확인 (로컬만)
+- [ ] Git 커밋 및 푸시
+- [ ] 도메인 등록 완료
+
+### 배포 중
+- [ ] Cloudflare Pages 프로젝트 생성
+- [ ] D1 데이터베이스 생성
+- [ ] 마이그레이션 실행
+- [ ] 환경 변수 설정
+- [ ] 커스텀 도메인 연결
+
+### 배포 후
+- [ ] 홈페이지 접속 확인
+- [ ] API 작동 확인
+- [ ] 데이터베이스 쿼리 테스트
+- [ ] 소셜 로그인 테스트
+- [ ] Lighthouse 점수 확인
+- [ ] 모바일 반응형 테스트
+
+---
+
+## 12. 긴급 연락처 및 문서
+
+**Cloudflare 고객지원**: https://support.cloudflare.com  
+**Wrangler 문서**: https://developers.cloudflare.com/workers/wrangler/  
+**D1 문서**: https://developers.cloudflare.com/d1/  
+**Pages 문서**: https://developers.cloudflare.com/pages/  
+
+---
+
+**배포 완료 후 이 가이드는 프로젝트 문서화를 위해 Git에 포함됩니다.**
+
+📅 최종 업데이트: 2026-01-04  
+📝 작성자: AI Assistant  
+🚀 프로젝트: 차다이렉트 (chadirect.kr)
