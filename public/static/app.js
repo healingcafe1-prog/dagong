@@ -371,11 +371,14 @@ async function loadHomePage() {
       <!-- 히어로 섹션 -->
       <section class="bg-gradient-to-r from-tea-green to-craft-blue text-white py-20">
         <div class="container mx-auto px-4 text-center">
-          <h1 class="text-4xl md:text-5xl font-bold mb-4">
+          <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
             <i class="fas fa-leaf mr-2"></i>
-            한국의 차와 공예, 직접 만나보세요
+            당신이 만드는 한국 차 문화,
+            <br class="md:hidden">
+            우리가 잇는 전통의 가치
           </h1>
-          <p class="text-xl mb-8">차산지와 공예산지를 직접 연결하는 신뢰의 플랫폼</p>
+          <p class="text-xl md:text-2xl mb-3 font-light">생산자와 소비자가 함께 쓰는 새로운 역사</p>
+          <p class="text-base md:text-lg mb-8 text-white/90">당신의 선택이 한국 차 문화를 살립니다</p>
           <div class="flex flex-wrap justify-center gap-4">
             <a href="/products?type=tea" class="bg-white text-tea-green px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition">
               차 둘러보기

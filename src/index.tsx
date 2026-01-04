@@ -25,9 +25,9 @@ app.use('/static/*', serveStatic({ root: './' }))
 // PWA 파일 서빙
 app.get('/manifest.json', async (c) => {
   const manifestData = {
-    name: "한국 차 공예",
+    name: "한국 차 공예 - 당신이 만드는 한국 차 문화",
     short_name: "차공예",
-    description: "한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼",
+    description: "생산자와 소비자가 함께 만드는 한국 차 문화. 당신의 선택이 천년 전통을 이어갑니다.",
     start_url: "/",
     display: "standalone",
     background_color: "#f5f1e8",

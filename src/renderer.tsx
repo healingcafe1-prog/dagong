@@ -6,8 +6,8 @@ export const renderer = jsxRenderer(({ children }) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        <title>한국 차 공예 - 한국 차산지와 공예산지 직거래 플랫폼</title>
-        <meta name="description" content="한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼. 지역 문화관광과 다도 체험까지." />
+        <title>한국 차 공예 - 당신이 만드는 한국 차 문화</title>
+        <meta name="description" content="생산자와 소비자가 함께 만드는 한국 차 문화. 당신의 선택이 천년 전통을 이어갑니다. 직거래로 살리는 차산지와 공예산지." />
         
         {/* PWA 설정 */}
         <meta name="theme-color" content="#7c9473" />
@@ -22,12 +22,12 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="keywords" content="한국차, 전통차, 공예품, 직거래, 차산지, 공예산지, 다도, 지역특산품, Korean tea, Korean craft" />
         <meta name="author" content="한국 차 공예" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="한국 차 공예 - 한국 차산지와 공예산지 직거래 플랫폼" />
-        <meta property="og:description" content="한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼" />
+        <meta property="og:title" content="한국 차 공예 - 당신이 만드는 한국 차 문화" />
+        <meta property="og:description" content="생산자와 소비자가 함께 만드는 한국 차 문화. 당신의 선택이 천년 전통을 이어갑니다." />
         <meta property="og:image" content="/static/icons/icon-512x512.png" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="한국 차 공예" />
-        <meta name="twitter:description" content="한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼" />
+        <meta name="twitter:title" content="한국 차 공예 - 당신이 만드는 한국 차 문화" />
+        <meta name="twitter:description" content="생산자와 소비자가 함께 만드는 한국 차 문화. 당신의 선택이 천년 전통을 이어갑니다." />
         <meta name="twitter:image" content="/static/icons/icon-512x512.png" />
         
         {/* TailwindCSS */}
