@@ -1364,6 +1364,248 @@ app.post('/api/auth/logout', async (c) => {
   return c.json({ success: true })
 })
 
+// ===== 장바구니 API =====
+
+// 장바구니 목록 조회
+app.get('/api/cart', async (c) => {
+  const userId = c.req.query('user_id')
+  const sessionId = c.req.query('session_id')
+  
+  if (!userId && !sessionId) {
+    return c.json({ error: '사용자 ID 또는 세션 ID가 필요합니다' }, 400)
+  }
+  
+  const query = `
+    SELECT 
+      c.id, c.product_id, c.quantity, c.is_selected, 
+      c.price_snapshot, c.created_at,
+      p.name as product_name, p.price, p.main_image, 
+      p.stock_quantity, p.is_available,
+      pr.name as producer_name, pr.id as producer_id
+    FROM cart_items c
+    JOIN products p ON c.product_id = p.id
+    LEFT JOIN producers pr ON p.producer_id = pr.id
+    WHERE ${userId ? 'c.user_id = ?' : 'c.session_id = ?'}
+    ORDER BY c.created_at DESC
+  `
+  
+  const { results } = await c.env.DB.prepare(query)
+    .bind(userId || sessionId)
+    .all()
+  
+  return c.json({ cart_items: results })
+})
+
+// 장바구니에 상품 추가
+app.post('/api/cart', async (c) => {
+  const data = await c.req.json()
+  const { user_id, session_id, product_id, quantity = 1 } = data
+  
+  if (!user_id && !session_id) {
+    return c.json({ error: '사용자 ID 또는 세션 ID가 필요합니다' }, 400)
+  }
+  
+  if (!product_id) {
+    return c.json({ error: '상품 ID가 필요합니다' }, 400)
+  }
+  
+  // 상품 존재 및 재고 확인
+  const product = await c.env.DB.prepare(
+    'SELECT id, price, stock_quantity, is_available FROM products WHERE id = ?'
+  ).bind(product_id).first()
+  
+  if (!product) {
+    return c.json({ error: '상품을 찾을 수 없습니다' }, 404)
+  }
+  
+  if (!product.is_available) {
+    return c.json({ error: '판매 중단된 상품입니다' }, 400)
+  }
+  
+  if (product.stock_quantity < quantity) {
+    return c.json({ error: '재고가 부족합니다', available_stock: product.stock_quantity }, 400)
+  }
+  
+  // 이미 장바구니에 있는지 확인
+  const existingItem = await c.env.DB.prepare(`
+    SELECT id, quantity FROM cart_items 
+    WHERE product_id = ? AND ${user_id ? 'user_id = ?' : 'session_id = ?'}
+  `).bind(product_id, user_id || session_id).first()
+  
+  if (existingItem) {
+    // 수량 업데이트
+    const newQuantity = (existingItem.quantity as number) + quantity
+    
+    if (product.stock_quantity < newQuantity) {
+      return c.json({ 
+        error: '재고가 부족합니다', 
+        available_stock: product.stock_quantity,
+        current_cart_quantity: existingItem.quantity
+      }, 400)
+    }
+    
+    await c.env.DB.prepare(`
+      UPDATE cart_items 
+      SET quantity = ?, price_snapshot = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(newQuantity, product.price, existingItem.id).run()
+    
+    return c.json({ 
+      success: true, 
+      cart_item_id: existingItem.id,
+      quantity: newQuantity,
+      message: '장바구니 수량이 업데이트되었습니다'
+    })
+  }
+  
+  // 새로 추가
+  const result = await c.env.DB.prepare(`
+    INSERT INTO cart_items (user_id, session_id, product_id, quantity, price_snapshot)
+    VALUES (?, ?, ?, ?, ?)
+  `).bind(user_id || null, session_id || null, product_id, quantity, product.price).run()
+  
+  return c.json({ 
+    success: true, 
+    cart_item_id: result.meta.last_row_id,
+    message: '장바구니에 추가되었습니다'
+  })
+})
+
+// 장바구니 수량 변경
+app.put('/api/cart/:id', async (c) => {
+  const cartItemId = c.req.param('id')
+  const data = await c.req.json()
+  const { quantity, is_selected } = data
+  
+  // 현재 장바구니 항목 조회
+  const cartItem = await c.env.DB.prepare(
+    'SELECT product_id FROM cart_items WHERE id = ?'
+  ).bind(cartItemId).first()
+  
+  if (!cartItem) {
+    return c.json({ error: '장바구니 항목을 찾을 수 없습니다' }, 404)
+  }
+  
+  // 수량 변경인 경우 재고 확인
+  if (quantity !== undefined) {
+    const product = await c.env.DB.prepare(
+      'SELECT stock_quantity, is_available FROM products WHERE id = ?'
+    ).bind(cartItem.product_id).first()
+    
+    if (!product || !product.is_available) {
+      return c.json({ error: '상품을 구매할 수 없습니다' }, 400)
+    }
+    
+    if (product.stock_quantity < quantity) {
+      return c.json({ 
+        error: '재고가 부족합니다', 
+        available_stock: product.stock_quantity 
+      }, 400)
+    }
+    
+    await c.env.DB.prepare(`
+      UPDATE cart_items 
+      SET quantity = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(quantity, cartItemId).run()
+  }
+  
+  // 선택 상태 변경
+  if (is_selected !== undefined) {
+    await c.env.DB.prepare(`
+      UPDATE cart_items 
+      SET is_selected = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(is_selected ? 1 : 0, cartItemId).run()
+  }
+  
+  return c.json({ success: true, message: '장바구니가 업데이트되었습니다' })
+})
+
+// 장바구니 항목 삭제
+app.delete('/api/cart/:id', async (c) => {
+  const cartItemId = c.req.param('id')
+  
+  await c.env.DB.prepare('DELETE FROM cart_items WHERE id = ?')
+    .bind(cartItemId).run()
+  
+  return c.json({ success: true, message: '장바구니에서 삭제되었습니다' })
+})
+
+// 장바구니 전체 비우기
+app.delete('/api/cart', async (c) => {
+  const userId = c.req.query('user_id')
+  const sessionId = c.req.query('session_id')
+  
+  if (!userId && !sessionId) {
+    return c.json({ error: '사용자 ID 또는 세션 ID가 필요합니다' }, 400)
+  }
+  
+  await c.env.DB.prepare(`
+    DELETE FROM cart_items WHERE ${userId ? 'user_id = ?' : 'session_id = ?'}
+  `).bind(userId || sessionId).run()
+  
+  return c.json({ success: true, message: '장바구니가 비워졌습니다' })
+})
+
+// 위시리스트 목록 조회
+app.get('/api/wishlist', async (c) => {
+  const userId = c.req.query('user_id')
+  
+  if (!userId) {
+    return c.json({ error: '사용자 ID가 필요합니다' }, 400)
+  }
+  
+  const { results } = await c.env.DB.prepare(`
+    SELECT 
+      w.id, w.product_id, w.created_at,
+      p.name, p.price, p.main_image, p.is_available, p.stock_quantity,
+      pr.name as producer_name
+    FROM wishlist w
+    JOIN products p ON w.product_id = p.id
+    LEFT JOIN producers pr ON p.producer_id = pr.id
+    WHERE w.user_id = ?
+    ORDER BY w.created_at DESC
+  `).bind(userId).all()
+  
+  return c.json({ wishlist: results })
+})
+
+// 위시리스트에 추가
+app.post('/api/wishlist', async (c) => {
+  const data = await c.req.json()
+  const { user_id, product_id } = data
+  
+  if (!user_id || !product_id) {
+    return c.json({ error: '사용자 ID와 상품 ID가 필요합니다' }, 400)
+  }
+  
+  try {
+    const result = await c.env.DB.prepare(`
+      INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)
+    `).bind(user_id, product_id).run()
+    
+    return c.json({ 
+      success: true, 
+      wishlist_id: result.meta.last_row_id,
+      message: '찜 목록에 추가되었습니다'
+    })
+  } catch (error) {
+    // UNIQUE 제약 위반 (이미 추가됨)
+    return c.json({ error: '이미 찜 목록에 있습니다' }, 409)
+  }
+})
+
+// 위시리스트에서 삭제
+app.delete('/api/wishlist/:id', async (c) => {
+  const wishlistId = c.req.param('id')
+  
+  await c.env.DB.prepare('DELETE FROM wishlist WHERE id = ?')
+    .bind(wishlistId).run()
+  
+  return c.json({ success: true, message: '찜 목록에서 삭제되었습니다' })
+})
+
 // ===== 주문 관리 API =====
 
 // 주문 생성

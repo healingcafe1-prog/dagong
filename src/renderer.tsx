@@ -140,11 +140,17 @@ export const renderer = jsxRenderer(({ children }) => {
                 </a>
               </div>
               
-              {/* 검색, 언어선택, 로그인 & 모바일 메뉴 */}
+              {/* 검색, 장바구니, 언어선택, 로그인 & 모바일 메뉴 */}
               <div class="flex items-center space-x-4">
                 <button id="searchBtn" class="text-gray-700 hover:text-tea-green">
                   <i class="fas fa-search text-xl"></i>
                 </button>
+                
+                {/* 장바구니 */}
+                <a href="/cart" class="relative text-gray-700 hover:text-tea-green transition">
+                  <i class="fas fa-shopping-cart text-xl"></i>
+                  <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+                </a>
                 
                 {/* 언어 선택 */}
                 <div class="relative hidden md:block">

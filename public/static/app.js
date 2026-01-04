@@ -307,6 +307,14 @@ else if (path.startsWith('/education/curriculum/')) {
   const curriculumId = path.split('/')[3];
   loadEducationCurriculumDetailPage(curriculumId);
 }
+// 장바구니
+else if (path === '/cart') {
+  loadCartPage();
+}
+// 주문서 작성
+else if (path === '/checkout') {
+  loadCheckoutPage();
+}
 // 마이페이지 - 주문 상세
 else if (path.startsWith('/mypage/orders/')) {
   const orderId = path.split('/')[3];
@@ -687,25 +695,98 @@ async function loadProductDetailPage(productId) {
               </div>
             </div>
             
+            <!-- 수량 선택 -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">수량</label>
+              <div class="flex items-center border rounded-lg w-32">
+                <button id="decreaseQty" class="px-4 py-2 hover:bg-gray-100">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" id="productQuantity" value="1" min="1" max="${product.stock}" 
+                       class="w-16 text-center border-x py-2">
+                <button id="increaseQty" class="px-4 py-2 hover:bg-gray-100">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            
             <div class="flex gap-3">
-              <button class="flex-1 bg-tea-green text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition">
+              <button onclick="addToCart(${product.id}, document.getElementById('productQuantity').value)" 
+                      class="flex-1 bg-tea-green text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                      ${product.stock <= 0 ? 'disabled' : ''}>
                 <i class="fas fa-shopping-cart mr-2"></i>
                 장바구니
               </button>
-              <button class="flex-1 bg-tea-brown text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition">
+              <button onclick="buyNow(${product.id}, document.getElementById('productQuantity').value)" 
+                      class="flex-1 bg-tea-brown text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                      ${product.stock <= 0 ? 'disabled' : ''}>
                 <i class="fas fa-credit-card mr-2"></i>
                 구매하기
               </button>
             </div>
+            
+            ${product.stock <= 0 ? `
+              <p class="mt-3 text-center text-red-600">
+                <i class="fas fa-exclamation-circle"></i> 현재 품절된 상품입니다
+              </p>
+            ` : product.stock < 10 ? `
+              <p class="mt-3 text-center text-orange-600 text-sm">
+                <i class="fas fa-fire"></i> 남은 수량 ${product.stock}개
+              </p>
+            ` : ''}
           </div>
         </div>
       </div>
     `;
+    
+    // 수량 조절 버튼 이벤트
+    const qtyInput = document.getElementById('productQuantity');
+    const decreaseBtn = document.getElementById('decreaseQty');
+    const increaseBtn = document.getElementById('increaseQty');
+    
+    if (qtyInput && decreaseBtn && increaseBtn) {
+      decreaseBtn.addEventListener('click', () => {
+        const currentValue = parseInt(qtyInput.value);
+        if (currentValue > 1) {
+          qtyInput.value = currentValue - 1;
+        }
+      });
+      
+      increaseBtn.addEventListener('click', () => {
+        const currentValue = parseInt(qtyInput.value);
+        const maxStock = parseInt(qtyInput.getAttribute('max'));
+        if (currentValue < maxStock) {
+          qtyInput.value = currentValue + 1;
+        } else {
+          alert('재고가 부족합니다');
+        }
+      });
+    }
+    
   } catch (error) {
     console.error('상품 상세 로드 오류:', error);
     app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">상품을 찾을 수 없습니다.</p></div>';
   }
 }
+
+// 바로 구매
+window.buyNow = async function(productId, quantity = 1) {
+  try {
+    // 임시로 세션 스토리지에 저장하고 주문서 작성 페이지로 이동
+    const buyNowItems = [{
+      product_id: productId,
+      quantity: parseInt(quantity)
+    }];
+    
+    sessionStorage.setItem('checkout_items', JSON.stringify(buyNowItems));
+    sessionStorage.setItem('checkout_type', 'direct'); // 바로구매
+    
+    window.location.href = '/checkout';
+  } catch (error) {
+    console.error('바로 구매 오류:', error);
+    alert('주문서 작성 페이지로 이동 중 오류가 발생했습니다');
+  }
+};
 
 // ===== 지역 목록 페이지 =====
 async function loadRegionsPage() {
@@ -2943,6 +3024,799 @@ window.cancelOrder = async function(orderId) {
     alert(error.response?.data?.error || '주문 취소 중 오류가 발생했습니다.');
   }
 };
+
+// ===== 장바구니 관리 =====
+
+// 세션 ID 가져오기 (비로그인 사용자용)
+function getSessionId() {
+  let sessionId = localStorage.getItem('session_id');
+  if (!sessionId) {
+    sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('session_id', sessionId);
+  }
+  return sessionId;
+}
+
+// 장바구니 개수 업데이트
+async function updateCartCount() {
+  try {
+    const userId = localStorage.getItem('user_id');
+    const sessionId = getSessionId();
+    
+    const response = await fetch(`/api/cart?${userId ? `user_id=${userId}` : `session_id=${sessionId}`}`);
+    const data = await response.json();
+    
+    const cartCount = data.cart_items?.length || 0;
+    const cartBadge = document.getElementById('cartCount');
+    
+    if (cartBadge) {
+      cartBadge.textContent = cartCount;
+      cartBadge.style.display = cartCount > 0 ? 'inline-block' : 'none';
+    }
+  } catch (error) {
+    console.error('장바구니 개수 업데이트 오류:', error);
+  }
+}
+
+// 장바구니에 추가
+window.addToCart = async function(productId, quantity = 1) {
+  try {
+    const userId = localStorage.getItem('user_id');
+    const sessionId = getSessionId();
+    
+    const response = await fetch('/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId || null,
+        session_id: sessionId,
+        product_id: productId,
+        quantity: quantity
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert(result.message || '장바구니에 추가되었습니다');
+      await updateCartCount();
+    } else {
+      alert(result.error || '장바구니 추가 실패');
+    }
+  } catch (error) {
+    console.error('장바구니 추가 오류:', error);
+    alert('장바구니 추가 중 오류가 발생했습니다');
+  }
+};
+
+// 장바구니 페이지 로드
+window.loadCartPage = async function() {
+  const app = document.getElementById('app');
+  
+  try {
+    const userId = localStorage.getItem('user_id');
+    const sessionId = getSessionId();
+    
+    const response = await fetch(`/api/cart?${userId ? `user_id=${userId}` : `session_id=${sessionId}`}`);
+    const data = await response.json();
+    const cartItems = data.cart_items || [];
+    
+    if (cartItems.length === 0) {
+      app.innerHTML = `
+        <div class="max-w-4xl mx-auto px-4 py-12">
+          <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+            <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">장바구니가 비어있습니다</h2>
+            <p class="text-gray-600 mb-6">관심있는 상품을 장바구니에 담아보세요</p>
+            <a href="/products" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              상품 보러가기
+            </a>
+          </div>
+        </div>
+      `;
+      return;
+    }
+    
+    // 선택된 상품들의 총액 계산
+    const calculateTotal = () => {
+      const selectedItems = cartItems.filter(item => item.is_selected);
+      const subtotal = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const shippingFee = subtotal >= 30000 ? 0 : 3000; // 3만원 이상 무료배송
+      const total = subtotal + shippingFee;
+      
+      return { subtotal, shippingFee, total, itemCount: selectedItems.length };
+    };
+    
+    const renderCart = () => {
+      const { subtotal, shippingFee, total, itemCount } = calculateTotal();
+      
+      app.innerHTML = `
+        <div class="max-w-6xl mx-auto px-4 py-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-8">
+            <i class="fas fa-shopping-cart mr-2"></i>
+            장바구니
+          </h1>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 장바구니 항목 -->
+            <div class="lg:col-span-2">
+              <div class="bg-white rounded-lg shadow-sm">
+                <!-- 전체 선택 -->
+                <div class="p-4 border-b flex items-center">
+                  <input type="checkbox" id="selectAll" class="mr-2 w-4 h-4" ${cartItems.every(item => item.is_selected) ? 'checked' : ''}>
+                  <label for="selectAll" class="font-medium text-gray-700 cursor-pointer">전체 선택</label>
+                  <button onclick="deleteSelectedItems()" class="ml-auto text-red-600 hover:text-red-700 text-sm">
+                    <i class="fas fa-trash mr-1"></i>선택 삭제
+                  </button>
+                </div>
+                
+                <!-- 상품 목록 -->
+                <div id="cartItemsList">
+                  ${cartItems.map(item => `
+                    <div class="p-4 border-b flex items-start gap-4" data-item-id="${item.id}">
+                      <input type="checkbox" class="item-checkbox mt-2 w-4 h-4" data-id="${item.id}" ${item.is_selected ? 'checked' : ''}>
+                      
+                      <img src="${item.main_image || '/static/images/no-image.jpg'}" 
+                           alt="${item.product_name}"
+                           class="w-24 h-24 object-cover rounded"
+                           onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
+                      
+                      <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 mb-1">${item.product_name}</h3>
+                        <p class="text-sm text-gray-600 mb-2">${item.producer_name || '생산자 정보 없음'}</p>
+                        <p class="text-lg font-bold text-green-600">${formatPrice(item.price)}</p>
+                        
+                        ${!item.is_available ? `
+                          <p class="text-sm text-red-600 mt-2">
+                            <i class="fas fa-exclamation-circle"></i> 품절된 상품입니다
+                          </p>
+                        ` : item.stock_quantity < item.quantity ? `
+                          <p class="text-sm text-orange-600 mt-2">
+                            <i class="fas fa-exclamation-triangle"></i> 재고 부족 (현재 재고: ${item.stock_quantity}개)
+                          </p>
+                        ` : ''}
+                      </div>
+                      
+                      <div class="flex flex-col items-end gap-2">
+                        <!-- 수량 조절 -->
+                        <div class="flex items-center border rounded">
+                          <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" 
+                                  class="px-3 py-1 hover:bg-gray-100 ${item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                  ${item.quantity <= 1 ? 'disabled' : ''}>
+                            <i class="fas fa-minus text-sm"></i>
+                          </button>
+                          <input type="number" value="${item.quantity}" 
+                                 class="w-12 text-center border-x py-1" 
+                                 min="1" max="${item.stock_quantity}"
+                                 onchange="updateCartQuantity(${item.id}, this.value)">
+                          <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" 
+                                  class="px-3 py-1 hover:bg-gray-100 ${item.quantity >= item.stock_quantity ? 'opacity-50 cursor-not-allowed' : ''}"
+                                  ${item.quantity >= item.stock_quantity ? 'disabled' : ''}>
+                            <i class="fas fa-plus text-sm"></i>
+                          </button>
+                        </div>
+                        
+                        <!-- 삭제 버튼 -->
+                        <button onclick="removeCartItem(${item.id})" 
+                                class="text-gray-500 hover:text-red-600 text-sm">
+                          <i class="fas fa-times"></i> 삭제
+                        </button>
+                        
+                        <!-- 소계 -->
+                        <p class="font-bold text-gray-800 mt-2">${formatPrice(item.price * item.quantity)}</p>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+            
+            <!-- 주문 요약 -->
+            <div class="lg:col-span-1">
+              <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">주문 요약</h2>
+                
+                <div class="space-y-3 mb-4">
+                  <div class="flex justify-between text-gray-700">
+                    <span>상품금액 (${itemCount}개)</span>
+                    <span>${formatPrice(subtotal)}</span>
+                  </div>
+                  <div class="flex justify-between text-gray-700">
+                    <span>배송비</span>
+                    <span>${shippingFee === 0 ? '무료' : formatPrice(shippingFee)}</span>
+                  </div>
+                  ${subtotal > 0 && subtotal < 30000 ? `
+                    <p class="text-xs text-orange-600">
+                      <i class="fas fa-info-circle"></i> ${formatPrice(30000 - subtotal)} 더 담으면 무료배송
+                    </p>
+                  ` : ''}
+                </div>
+                
+                <div class="border-t pt-4 mb-6">
+                  <div class="flex justify-between text-xl font-bold text-gray-800">
+                    <span>총 결제금액</span>
+                    <span class="text-green-600">${formatPrice(total)}</span>
+                  </div>
+                </div>
+                
+                <button onclick="proceedToCheckout()" 
+                        class="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition-colors font-bold text-lg ${itemCount === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${itemCount === 0 ? 'disabled' : ''}>
+                  ${itemCount > 0 ? '주문하기' : '상품을 선택해주세요'}
+                </button>
+                
+                <button onclick="window.location.href='/products'" 
+                        class="w-full mt-3 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  계속 쇼핑하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // 전체 선택 체크박스 이벤트
+      document.getElementById('selectAll').addEventListener('change', async (e) => {
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        const isChecked = e.target.checked;
+        
+        for (const checkbox of checkboxes) {
+          checkbox.checked = isChecked;
+          const itemId = checkbox.getAttribute('data-id');
+          const item = cartItems.find(i => i.id == itemId);
+          if (item) item.is_selected = isChecked;
+          
+          await fetch(`/api/cart/${itemId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_selected: isChecked })
+          });
+        }
+        
+        renderCart();
+      });
+      
+      // 개별 체크박스 이벤트
+      document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', async (e) => {
+          const itemId = e.target.getAttribute('data-id');
+          const isChecked = e.target.checked;
+          
+          const item = cartItems.find(i => i.id == itemId);
+          if (item) item.is_selected = isChecked;
+          
+          await fetch(`/api/cart/${itemId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_selected: isChecked })
+          });
+          
+          renderCart();
+        });
+      });
+    };
+    
+    renderCart();
+    
+  } catch (error) {
+    console.error('장바구니 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+          <h2 class="text-xl font-bold text-red-700 mb-2">오류가 발생했습니다</h2>
+          <p class="text-red-600">${error.message}</p>
+        </div>
+      </div>
+    `;
+  }
+};
+
+// 장바구니 수량 변경
+window.updateCartQuantity = async function(itemId, newQuantity) {
+  if (newQuantity < 1) return;
+  
+  try {
+    const response = await fetch(`/api/cart/${itemId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantity: parseInt(newQuantity) })
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      await loadCartPage();
+      await updateCartCount();
+    } else {
+      alert(result.error || '수량 변경 실패');
+    }
+  } catch (error) {
+    console.error('수량 변경 오류:', error);
+    alert('수량 변경 중 오류가 발생했습니다');
+  }
+};
+
+// 장바구니 항목 삭제
+window.removeCartItem = async function(itemId) {
+  if (!confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) return;
+  
+  try {
+    const response = await fetch(`/api/cart/${itemId}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      await loadCartPage();
+      await updateCartCount();
+    }
+  } catch (error) {
+    console.error('장바구니 삭제 오류:', error);
+    alert('삭제 중 오류가 발생했습니다');
+  }
+};
+
+// 선택 항목 삭제
+window.deleteSelectedItems = async function() {
+  const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+  
+  if (checkboxes.length === 0) {
+    alert('삭제할 상품을 선택해주세요');
+    return;
+  }
+  
+  if (!confirm(`선택한 ${checkboxes.length}개 상품을 삭제하시겠습니까?`)) return;
+  
+  try {
+    for (const checkbox of checkboxes) {
+      const itemId = checkbox.getAttribute('data-id');
+      await fetch(`/api/cart/${itemId}`, { method: 'DELETE' });
+    }
+    
+    await loadCartPage();
+    await updateCartCount();
+  } catch (error) {
+    console.error('일괄 삭제 오류:', error);
+    alert('삭제 중 오류가 발생했습니다');
+  }
+};
+
+// 주문하기로 이동
+window.proceedToCheckout = function() {
+  // 선택된 상품들을 세션에 저장하고 주문서 작성 페이지로 이동
+  sessionStorage.setItem('checkout_type', 'cart'); // 장바구니에서 주문
+  window.location.href = '/checkout';
+};
+
+// 주문서 작성 페이지
+window.loadCheckoutPage = async function() {
+  const app = document.getElementById('app');
+  
+  try {
+    const checkoutType = sessionStorage.getItem('checkout_type'); // 'cart' or 'direct'
+    let checkoutItems = [];
+    
+    if (checkoutType === 'direct') {
+      // 바로 구매
+      const items = JSON.parse(sessionStorage.getItem('checkout_items') || '[]');
+      
+      // 상품 정보 가져오기
+      for (const item of items) {
+        const response = await fetch(`/api/products/${item.product_id}`);
+        const data = await response.json();
+        checkoutItems.push({
+          product_id: item.product_id,
+          product_name: data.product.name,
+          price: data.product.price,
+          quantity: item.quantity,
+          main_image: data.product.main_image,
+          producer_id: data.product.producer_id,
+          producer_name: data.product.producer_name,
+          shipping_fee: data.product.shipping_fee || 3000
+        });
+      }
+    } else {
+      // 장바구니에서 주문
+      const userId = localStorage.getItem('user_id');
+      const sessionId = getSessionId();
+      
+      const response = await fetch(`/api/cart?${userId ? `user_id=${userId}` : `session_id=${sessionId}`}`);
+      const data = await response.json();
+      
+      // 선택된 상품만 필터링
+      checkoutItems = (data.cart_items || [])
+        .filter(item => item.is_selected)
+        .map(item => ({
+          cart_item_id: item.id,
+          product_id: item.product_id,
+          product_name: item.product_name,
+          price: item.price,
+          quantity: item.quantity,
+          main_image: item.main_image,
+          producer_id: item.producer_id,
+          producer_name: item.producer_name,
+          shipping_fee: 3000
+        }));
+      
+      if (checkoutItems.length === 0) {
+        app.innerHTML = `
+          <div class="max-w-4xl mx-auto px-4 py-12">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+              <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+              <h2 class="text-xl font-bold text-yellow-700 mb-2">선택된 상품이 없습니다</h2>
+              <p class="text-yellow-600 mb-4">주문할 상품을 선택해주세요</p>
+              <a href="/cart" class="inline-block bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700">
+                장바구니로 돌아가기
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+    }
+    
+    // 가격 계산
+    const subtotal = checkoutItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shippingFee = subtotal >= 30000 ? 0 : 3000;
+    const total = subtotal + shippingFee;
+    
+    // 사용자 정보 가져오기 (있으면)
+    const savedBuyerName = localStorage.getItem('buyer_name') || '';
+    const savedBuyerEmail = localStorage.getItem('buyer_email') || '';
+    const savedBuyerPhone = localStorage.getItem('buyer_phone') || '';
+    const savedAddress = localStorage.getItem('delivery_address') || '';
+    const savedZipcode = localStorage.getItem('delivery_zipcode') || '';
+    
+    app.innerHTML = `
+      <div class="max-w-6xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">
+          <i class="fas fa-file-invoice mr-2"></i>
+          주문서 작성
+        </h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- 주문 정보 입력 -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- 주문 상품 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">주문 상품</h2>
+              <div class="space-y-4">
+                ${checkoutItems.map(item => `
+                  <div class="flex items-center gap-4 pb-4 border-b last:border-0">
+                    <img src="${item.main_image || '/static/images/no-image.jpg'}" 
+                         alt="${item.product_name}"
+                         class="w-20 h-20 object-cover rounded"
+                         onerror="this.src='https://via.placeholder.com/80x80?text=No+Image'">
+                    <div class="flex-1">
+                      <h3 class="font-bold text-gray-800">${item.product_name}</h3>
+                      <p class="text-sm text-gray-600">${item.producer_name}</p>
+                      <p class="text-sm text-gray-600">수량: ${item.quantity}개</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-bold text-gray-800">${formatPrice(item.price * item.quantity)}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <!-- 주문자 정보 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">주문자 정보</h2>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                  <input type="text" id="buyerName" value="${savedBuyerName}"
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         placeholder="홍길동">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이메일 *</label>
+                  <input type="email" id="buyerEmail" value="${savedBuyerEmail}"
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         placeholder="example@email.com">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">전화번호 *</label>
+                  <input type="tel" id="buyerPhone" value="${savedBuyerPhone}"
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         placeholder="010-1234-5678">
+                </div>
+              </div>
+            </div>
+            
+            <!-- 배송 정보 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800">배송 정보</h2>
+                <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                  <input type="checkbox" id="sameAsBuyer" class="mr-2">
+                  주문자 정보와 동일
+                </label>
+              </div>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">수령인 이름 *</label>
+                  <input type="text" id="recipientName" value="${savedBuyerName}"
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         placeholder="홍길동">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">수령인 전화번호 *</label>
+                  <input type="tel" id="recipientPhone" value="${savedBuyerPhone}"
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         placeholder="010-1234-5678">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">우편번호 *</label>
+                  <div class="flex gap-2">
+                    <input type="text" id="deliveryZipcode" value="${savedZipcode}" readonly
+                           class="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-gray-50"
+                           placeholder="우편번호">
+                    <button onclick="searchAddress()" 
+                            class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                      주소 검색
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">기본 주소 *</label>
+                  <input type="text" id="deliveryAddress" value="${savedAddress}" readonly
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50"
+                         placeholder="주소 검색 버튼을 클릭하세요">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">상세 주소</label>
+                  <input type="text" id="deliveryAddressDetail"
+                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                         placeholder="상세 주소 입력 (예: 101동 202호)">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">배송 메모</label>
+                  <textarea id="deliveryMemo" rows="3"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            placeholder="배송 시 요청사항을 입력해주세요 (예: 부재 시 문앞에 놓아주세요)"></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 결제 수단 -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">결제 수단</h2>
+              <div class="space-y-3">
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="radio" name="paymentMethod" value="card" checked class="mr-3">
+                  <i class="fas fa-credit-card mr-2 text-blue-600"></i>
+                  <span>신용/체크카드</span>
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="radio" name="paymentMethod" value="transfer" class="mr-3">
+                  <i class="fas fa-university mr-2 text-green-600"></i>
+                  <span>계좌이체</span>
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="radio" name="paymentMethod" value="kakao_pay" class="mr-3">
+                  <i class="fas fa-comment mr-2 text-yellow-500"></i>
+                  <span>카카오페이</span>
+                </label>
+                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="radio" name="paymentMethod" value="naver_pay" class="mr-3">
+                  <i class="fas fa-n mr-2 text-green-500"></i>
+                  <span>네이버페이</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 결제 금액 -->
+          <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">결제 금액</h2>
+              
+              <div class="space-y-3 mb-4">
+                <div class="flex justify-between text-gray-700">
+                  <span>상품금액</span>
+                  <span>${formatPrice(subtotal)}</span>
+                </div>
+                <div class="flex justify-between text-gray-700">
+                  <span>배송비</span>
+                  <span>${shippingFee === 0 ? '무료' : formatPrice(shippingFee)}</span>
+                </div>
+                ${subtotal > 0 && subtotal < 30000 ? `
+                  <p class="text-xs text-orange-600">
+                    <i class="fas fa-info-circle"></i> ${formatPrice(30000 - subtotal)} 더 담으면 무료배송
+                  </p>
+                ` : ''}
+              </div>
+              
+              <div class="border-t pt-4 mb-6">
+                <div class="flex justify-between text-xl font-bold text-gray-800">
+                  <span>총 결제금액</span>
+                  <span class="text-green-600">${formatPrice(total)}</span>
+                </div>
+              </div>
+              
+              <button onclick="submitOrder(${JSON.stringify(checkoutItems).replace(/"/g, '&quot;')}, ${subtotal}, ${shippingFee}, ${total})" 
+                      class="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition-colors font-bold text-lg">
+                ${formatPrice(total)} 결제하기
+              </button>
+              
+              <div class="mt-4 text-xs text-gray-500 space-y-1">
+                <p>· 주문 완료 후 취소는 상품 준비 전까지 가능합니다</p>
+                <p>· 배송은 주문 확정 후 2-3일 소요됩니다</p>
+                <p>· 30,000원 이상 주문 시 배송비 무료</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // 주문자 정보와 동일 체크박스
+    document.getElementById('sameAsBuyer').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.getElementById('recipientName').value = document.getElementById('buyerName').value;
+        document.getElementById('recipientPhone').value = document.getElementById('buyerPhone').value;
+      }
+    });
+    
+  } catch (error) {
+    console.error('주문서 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+          <h2 class="text-xl font-bold text-red-700 mb-2">오류가 발생했습니다</h2>
+          <p class="text-red-600">${error.message}</p>
+        </div>
+      </div>
+    `;
+  }
+};
+
+// 주소 검색 (다음 우편번호 API - 실제로는 API 키 필요)
+window.searchAddress = function() {
+  alert('주소 검색 기능은 카카오 우편번호 서비스 연동이 필요합니다.\n\n데모 버전에서는 직접 입력해주세요.');
+  
+  // 임시로 입력 가능하게
+  document.getElementById('deliveryZipcode').readOnly = false;
+  document.getElementById('deliveryAddress').readOnly = false;
+};
+
+// 주문 제출
+window.submitOrder = async function(items, subtotal, shippingFee, total) {
+  try {
+    // 유효성 검사
+    const buyerName = document.getElementById('buyerName').value.trim();
+    const buyerEmail = document.getElementById('buyerEmail').value.trim();
+    const buyerPhone = document.getElementById('buyerPhone').value.trim();
+    const recipientName = document.getElementById('recipientName').value.trim();
+    const recipientPhone = document.getElementById('recipientPhone').value.trim();
+    const deliveryZipcode = document.getElementById('deliveryZipcode').value.trim();
+    const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
+    const deliveryAddressDetail = document.getElementById('deliveryAddressDetail').value.trim();
+    const deliveryMemo = document.getElementById('deliveryMemo').value.trim();
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+    if (!buyerName) {
+      alert('주문자 이름을 입력해주세요');
+      document.getElementById('buyerName').focus();
+      return;
+    }
+    
+    if (!buyerEmail) {
+      alert('주문자 이메일을 입력해주세요');
+      document.getElementById('buyerEmail').focus();
+      return;
+    }
+    
+    if (!buyerPhone) {
+      alert('주문자 전화번호를 입력해주세요');
+      document.getElementById('buyerPhone').focus();
+      return;
+    }
+    
+    if (!recipientName) {
+      alert('수령인 이름을 입력해주세요');
+      document.getElementById('recipientName').focus();
+      return;
+    }
+    
+    if (!recipientPhone) {
+      alert('수령인 전화번호를 입력해주세요');
+      document.getElementById('recipientPhone').focus();
+      return;
+    }
+    
+    if (!deliveryZipcode || !deliveryAddress) {
+      alert('배송지 주소를 입력해주세요');
+      return;
+    }
+    
+    // 정보 저장 (다음 주문 시 편의를 위해)
+    localStorage.setItem('buyer_name', buyerName);
+    localStorage.setItem('buyer_email', buyerEmail);
+    localStorage.setItem('buyer_phone', buyerPhone);
+    localStorage.setItem('delivery_zipcode', deliveryZipcode);
+    localStorage.setItem('delivery_address', deliveryAddress);
+    
+    // 주문 생성
+    const fullAddress = deliveryAddressDetail 
+      ? `${deliveryAddress} ${deliveryAddressDetail}` 
+      : deliveryAddress;
+    
+    const orderData = {
+      user_id: localStorage.getItem('user_id') || null,
+      buyer_name: buyerName,
+      buyer_email: buyerEmail,
+      buyer_phone: buyerPhone,
+      recipient_name: recipientName,
+      recipient_phone: recipientPhone,
+      delivery_address: fullAddress,
+      delivery_zipcode: deliveryZipcode,
+      delivery_memo: deliveryMemo,
+      total_amount: subtotal,
+      discount_amount: 0,
+      shipping_fee: shippingFee,
+      final_amount: total,
+      payment_method: paymentMethod,
+      items: items.map(item => ({
+        product_id: item.product_id,
+        product_name: item.product_name,
+        quantity: item.quantity,
+        price: item.price,
+        producer_id: item.producer_id
+      }))
+    };
+    
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      // 주문 성공
+      alert(`주문이 완료되었습니다!\n주문번호: ${result.order_number}`);
+      
+      // 장바구니에서 주문한 경우 장바구니 비우기
+      const checkoutType = sessionStorage.getItem('checkout_type');
+      if (checkoutType === 'cart') {
+        const userId = localStorage.getItem('user_id');
+        const sessionId = getSessionId();
+        
+        // 선택된 항목만 삭제
+        for (const item of items) {
+          if (item.cart_item_id) {
+            await fetch(`/api/cart/${item.cart_item_id}`, { method: 'DELETE' });
+          }
+        }
+      }
+      
+      // 세션 스토리지 정리
+      sessionStorage.removeItem('checkout_items');
+      sessionStorage.removeItem('checkout_type');
+      
+      // 장바구니 개수 업데이트
+      await updateCartCount();
+      
+      // 주문 상세 페이지로 이동
+      window.location.href = `/mypage/orders/${result.order_id}`;
+    } else {
+      alert(result.error || '주문 처리 중 오류가 발생했습니다');
+    }
+  } catch (error) {
+    console.error('주문 제출 오류:', error);
+    alert('주문 처리 중 오류가 발생했습니다');
+  }
+};
+
+// 페이지 로드 시 장바구니 개수 업데이트
+document.addEventListener('DOMContentLoaded', () => {
+  updateCartCount();
+});
 
 // ===== PWA Service Worker 등록 =====
 if ('serviceWorker' in navigator) {
