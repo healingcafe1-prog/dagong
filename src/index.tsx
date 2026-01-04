@@ -1760,6 +1760,37 @@ app.get('/api/orders/:id', async (c) => {
   })
 })
 
+// 생산자별 주문 조회
+app.get('/api/orders/producer/:producerId', async (c) => {
+  const producerId = c.req.param('producerId')
+  
+  // 생산자의 상품을 포함한 주문들 조회
+  const { results } = await c.env.DB.prepare(`
+    SELECT DISTINCT
+      o.id as order_id,
+      o.order_number,
+      o.buyer_name,
+      o.buyer_phone,
+      o.recipient_name,
+      o.recipient_phone,
+      o.delivery_address,
+      o.order_status,
+      o.payment_status,
+      o.payment_method,
+      o.total_amount,
+      o.final_amount,
+      o.created_at,
+      COUNT(oi.id) as item_count
+    FROM orders o
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE oi.producer_id = ?
+    GROUP BY o.id
+    ORDER BY o.created_at DESC
+  `).bind(producerId).all()
+  
+  return c.json({ orders: results })
+})
+
 // 주문 상태 변경
 app.put('/api/orders/:id/status', async (c) => {
   const orderId = c.req.param('id')

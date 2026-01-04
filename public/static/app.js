@@ -3813,6 +3813,342 @@ window.submitOrder = async function(items, subtotal, shippingFee, total) {
   }
 };
 
+// ===== 생산자 관리 페이지 =====
+
+// 생산자 관리 페이지 로드
+window.loadProducerManagePage = async function(producerId) {
+  const app = document.getElementById('app');
+  
+  try {
+    // 생산자 정보 조회
+    const producerResponse = await fetch(`/api/producers/${producerId}`);
+    const producerData = await producerResponse.json();
+    const producer = producerData.producer;
+    
+    // 생산자의 주문 목록 조회
+    const ordersResponse = await fetch(`/api/orders/producer/${producerId}`);
+    const ordersData = await ordersResponse.json();
+    const orders = ordersData.orders || [];
+    
+    // 상태별 통계
+    const stats = {
+      total: orders.length,
+      pending: orders.filter(o => o.order_status === 'pending').length,
+      paid: orders.filter(o => o.order_status === 'paid').length,
+      preparing: orders.filter(o => o.order_status === 'preparing').length,
+      shipping: orders.filter(o => o.order_status === 'shipping').length,
+      delivered: orders.filter(o => o.order_status === 'delivered').length,
+    };
+    
+    // 총 매출 (완료된 주문만)
+    const totalRevenue = orders
+      .filter(o => ['delivered', 'shipping'].includes(o.order_status))
+      .reduce((sum, o) => sum + (o.final_amount || 0), 0);
+    
+    // 생산자 수령액 (플랫폼 수수료 9.9% 제외)
+    const producerRevenue = Math.round(totalRevenue * 0.901);
+    
+    app.innerHTML = `
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 생산자 정보 헤더 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-tea-green rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                ${producer.name?.charAt(0) || '생'}
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold text-gray-800">${producer.name}</h1>
+                <p class="text-gray-600">${producer.region_name || ''} · ${producer.producer_type === 'tea' ? '차' : '공예'} 생산자</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-gray-600">총 매출</p>
+              <p class="text-2xl font-bold text-green-600">${formatPrice(totalRevenue)}</p>
+              <p class="text-xs text-gray-500 mt-1">수령액: ${formatPrice(producerRevenue)} (수수료 9.9% 제외)</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 주문 상태 통계 -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">전체</p>
+            <p class="text-2xl font-bold text-gray-800">${stats.total}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">결제대기</p>
+            <p class="text-2xl font-bold text-orange-600">${stats.pending}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">결제완료</p>
+            <p class="text-2xl font-bold text-blue-600">${stats.paid}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">준비중</p>
+            <p class="text-2xl font-bold text-purple-600">${stats.preparing}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">배송중</p>
+            <p class="text-2xl font-bold text-indigo-600">${stats.shipping}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">배송완료</p>
+            <p class="text-2xl font-bold text-green-600">${stats.delivered}</p>
+          </div>
+        </div>
+        
+        <!-- 주문 목록 -->
+        <div class="bg-white rounded-lg shadow-sm">
+          <div class="p-6 border-b flex items-center justify-between">
+            <h2 class="text-xl font-bold text-gray-800">
+              <i class="fas fa-box mr-2"></i>
+              주문 관리
+            </h2>
+            <div class="flex gap-2">
+              <select id="statusFilter" class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="all">전체 상태</option>
+                <option value="pending">결제대기</option>
+                <option value="paid">결제완료</option>
+                <option value="preparing">준비중</option>
+                <option value="shipping">배송중</option>
+                <option value="delivered">배송완료</option>
+              </select>
+            </div>
+          </div>
+          
+          <div id="ordersList" class="divide-y">
+            ${orders.length === 0 ? `
+              <div class="p-12 text-center text-gray-500">
+                <i class="fas fa-inbox text-6xl mb-4"></i>
+                <p class="text-lg">아직 받은 주문이 없습니다</p>
+              </div>
+            ` : orders.map(order => `
+              <div class="p-6 hover:bg-gray-50 cursor-pointer transition" onclick="loadProducerOrderDetail('${order.order_id}')">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <div class="flex items-center gap-3 mb-2">
+                      <span class="font-bold text-gray-800">${order.order_number}</span>
+                      <span class="px-3 py-1 rounded-full text-xs font-bold ${getOrderStatusStyle(order.order_status)}">
+                        ${getOrderStatusText(order.order_status)}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-600">구매자: ${order.buyer_name}</p>
+                    <p class="text-xs text-gray-500">주문일시: ${formatDate(order.created_at)}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-lg font-bold text-gray-800">${formatPrice(order.final_amount)}</p>
+                    <p class="text-xs text-gray-500">수령액: ${formatPrice(Math.round(order.final_amount * 0.901))}</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                  <div class="text-sm text-gray-600">
+                    상품 ${order.item_count}개
+                  </div>
+                  <div class="flex gap-2">
+                    ${order.order_status === 'paid' ? `
+                      <button onclick="event.stopPropagation(); updateProducerOrderStatus('${order.order_id}', 'preparing')" 
+                              class="px-4 py-2 bg-purple-600 text-white rounded text-xs hover:bg-purple-700">
+                        <i class="fas fa-box-open mr-1"></i>준비 시작
+                      </button>
+                    ` : order.order_status === 'preparing' ? `
+                      <button onclick="event.stopPropagation(); showShipmentModal('${order.order_id}')" 
+                              class="px-4 py-2 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700">
+                        <i class="fas fa-shipping-fast mr-1"></i>배송 등록
+                      </button>
+                    ` : order.order_status === 'shipping' ? `
+                      <button onclick="event.stopPropagation(); updateProducerOrderStatus('${order.order_id}', 'delivered')" 
+                              class="px-4 py-2 bg-green-600 text-white rounded text-xs hover:bg-green-700">
+                        <i class="fas fa-check mr-1"></i>배송 완료
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      
+      <!-- 배송 등록 모달 -->
+      <div id="shipmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">배송 정보 등록</h3>
+          
+          <div class="space-y-4 mb-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">택배사</label>
+              <select id="courierCompany" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                <option value="CJ대한통운">CJ대한통운</option>
+                <option value="로젠택배">로젠택배</option>
+                <option value="한진택배">한진택배</option>
+                <option value="우체국택배">우체국택배</option>
+                <option value="롯데택배">롯데택배</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">송장번호</label>
+              <input type="text" id="trackingNumber" 
+                     class="w-full border border-gray-300 rounded-lg px-4 py-2"
+                     placeholder="송장번호를 입력하세요">
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <button onclick="closeShipmentModal()" 
+                    class="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+              취소
+            </button>
+            <button onclick="submitShipment()" 
+                    class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+              등록
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // 상태 필터링
+    document.getElementById('statusFilter').addEventListener('change', (e) => {
+      const status = e.target.value;
+      const orderCards = document.querySelectorAll('#ordersList > div[onclick]');
+      
+      orderCards.forEach(card => {
+        if (status === 'all') {
+          card.style.display = 'block';
+        } else {
+          const statusBadge = card.querySelector('.px-3.py-1');
+          const cardStatus = statusBadge.textContent.trim();
+          const shouldShow = 
+            (status === 'pending' && cardStatus === '결제대기') ||
+            (status === 'paid' && cardStatus === '결제완료') ||
+            (status === 'preparing' && cardStatus === '준비중') ||
+            (status === 'shipping' && cardStatus === '배송중') ||
+            (status === 'delivered' && cardStatus === '배송완료');
+          
+          card.style.display = shouldShow ? 'block' : 'none';
+        }
+      });
+    });
+    
+  } catch (error) {
+    console.error('생산자 관리 페이지 로드 오류:', error);
+    app.innerHTML = `
+      <div class="max-w-4xl mx-auto px-4 py-12">
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-4"></i>
+          <h2 class="text-xl font-bold text-red-700 mb-2">오류가 발생했습니다</h2>
+          <p class="text-red-600">${error.message}</p>
+        </div>
+      </div>
+    `;
+  }
+};
+
+// 생산자 주문 상태 변경
+window.updateProducerOrderStatus = async function(orderId, newStatus) {
+  try {
+    const response = await fetch(`/api/orders/${orderId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    
+    if (response.ok) {
+      alert('주문 상태가 업데이트되었습니다');
+      window.location.reload();
+    } else {
+      const result = await response.json();
+      alert(result.error || '상태 업데이트 실패');
+    }
+  } catch (error) {
+    console.error('상태 업데이트 오류:', error);
+    alert('상태 업데이트 중 오류가 발생했습니다');
+  }
+};
+
+// 배송 등록 모달
+let currentOrderIdForShipment = null;
+
+window.showShipmentModal = function(orderId) {
+  currentOrderIdForShipment = orderId;
+  document.getElementById('shipmentModal').classList.remove('hidden');
+};
+
+window.closeShipmentModal = function() {
+  document.getElementById('shipmentModal').classList.add('hidden');
+  currentOrderIdForShipment = null;
+  document.getElementById('trackingNumber').value = '';
+};
+
+window.submitShipment = async function() {
+  const courierCompany = document.getElementById('courierCompany').value;
+  const trackingNumber = document.getElementById('trackingNumber').value.trim();
+  
+  if (!trackingNumber) {
+    alert('송장번호를 입력해주세요');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/orders/${currentOrderIdForShipment}/shipment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        courier_company: courierCompany,
+        tracking_number: trackingNumber
+      })
+    });
+    
+    if (response.ok) {
+      alert('배송 정보가 등록되었습니다');
+      closeShipmentModal();
+      window.location.reload();
+    } else {
+      const result = await response.json();
+      alert(result.error || '배송 등록 실패');
+    }
+  } catch (error) {
+    console.error('배송 등록 오류:', error);
+    alert('배송 등록 중 오류가 발생했습니다');
+  }
+};
+
+// 생산자 주문 상세 페이지
+window.loadProducerOrderDetail = function(orderId) {
+  // 일반 주문 상세 페이지로 이동
+  window.location.href = `/mypage/orders/${orderId}`;
+};
+
+// 주문 상태 스타일
+function getOrderStatusStyle(status) {
+  const styles = {
+    pending: 'bg-orange-100 text-orange-700',
+    paid: 'bg-blue-100 text-blue-700',
+    preparing: 'bg-purple-100 text-purple-700',
+    shipping: 'bg-indigo-100 text-indigo-700',
+    delivered: 'bg-green-100 text-green-700',
+    cancelled: 'bg-gray-100 text-gray-700',
+    refunded: 'bg-red-100 text-red-700'
+  };
+  return styles[status] || 'bg-gray-100 text-gray-700';
+}
+
+// 주문 상태 텍스트
+function getOrderStatusText(status) {
+  const texts = {
+    pending: '결제대기',
+    paid: '결제완료',
+    preparing: '준비중',
+    shipping: '배송중',
+    delivered: '배송완료',
+    cancelled: '취소됨',
+    refunded: '환불됨'
+  };
+  return texts[status] || status;
+}
+
 // 페이지 로드 시 장바구니 개수 업데이트
 document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
