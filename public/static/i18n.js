@@ -10,7 +10,7 @@ const translations = {
       teaDirect: "차 직거래",
       craft: "공예품",
       giftSet: "선물세트",
-      localProducts: "지역 특산품",
+      localProducts: "지역특산물",
       regions: "지역별 보기",
       experiences: "체험·교육",
       education: "다도교육",

@@ -532,7 +532,8 @@ async function loadProductsPage() {
     const typeNames = {
       'tea': '차',
       'craft': '공예품',
-      'gift_set': '선물세트'
+      'gift_set': '선물세트',
+      'local': '지역특산물'
     };
     
     app.innerHTML = `
