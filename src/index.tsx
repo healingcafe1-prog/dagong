@@ -463,22 +463,37 @@ app.get('/api/producers/:id/experiences', async (c) => {
 app.post('/api/products', async (c) => {
   const data = await c.req.json()
   
+  // 새로운 가격 필드 사용: consumer_price, direct_price
+  // 하위 호환성을 위해 original_price, price도 유지
+  const consumerPrice = data.consumer_price || data.original_price
+  const directPrice = data.direct_price || data.price
+  const discountRate = data.discount_rate || 30
+  const commissionRate = 5.5
+  const commissionAmount = Math.round(directPrice * (commissionRate / 100))
+  const producerRevenue = directPrice - commissionAmount
+  
   const result = await c.env.DB.prepare(`
     INSERT INTO products (
       name, category_id, producer_id, description, 
-      original_price, price, discount_rate, shipping_fee, stock_quantity, 
+      consumer_price, direct_price, original_price, price, discount_rate, 
+      shipping_fee, stock_quantity, commission_rate, commission_amount, producer_revenue,
       main_image, product_type, weight, origin, is_featured
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     data.name,
     data.category_id,
     data.producer_id,
     data.description,
-    data.original_price,
-    data.price,
-    data.discount_rate || 30,
+    consumerPrice,
+    directPrice,
+    consumerPrice, // 하위 호환성
+    directPrice, // 하위 호환성
+    discountRate,
     data.shipping_fee || 3000,
     data.stock_quantity,
+    commissionRate,
+    commissionAmount,
+    producerRevenue,
     data.main_image || '/images/products/default.jpg',
     data.product_type,
     data.weight,
@@ -497,21 +512,35 @@ app.put('/api/products/:id', async (c) => {
   const productId = c.req.param('id')
   const data = await c.req.json()
   
+  const consumerPrice = data.consumer_price || data.original_price
+  const directPrice = data.direct_price || data.price
+  const discountRate = data.discount_rate || 30
+  const commissionRate = 5.5
+  const commissionAmount = Math.round(directPrice * (commissionRate / 100))
+  const producerRevenue = directPrice - commissionAmount
+  
   await c.env.DB.prepare(`
     UPDATE products 
     SET name = ?, category_id = ?, description = ?,
-        original_price = ?, price = ?, discount_rate = ?, shipping_fee = ?,
-        stock_quantity = ?, main_image = ?, weight = ?, origin = ?
+        consumer_price = ?, direct_price = ?, original_price = ?, price = ?,
+        discount_rate = ?, shipping_fee = ?, stock_quantity = ?,
+        commission_rate = ?, commission_amount = ?, producer_revenue = ?,
+        main_image = ?, weight = ?, origin = ?
     WHERE id = ?
   `).bind(
     data.name,
     data.category_id,
     data.description,
-    data.original_price,
-    data.price,
-    data.discount_rate || 30,
+    consumerPrice,
+    directPrice,
+    consumerPrice, // 하위 호환성
+    directPrice, // 하위 호환성
+    discountRate,
     data.shipping_fee || 3000,
     data.stock_quantity,
+    commissionRate,
+    commissionAmount,
+    producerRevenue,
     data.main_image,
     data.weight,
     data.origin,

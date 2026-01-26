@@ -621,23 +621,40 @@ async function loadProductDetailPage(productId) {
               </div>
               <h1 class="text-3xl font-bold text-gray-800 mb-4">${product.name}</h1>
               <div class="mb-4">
-                ${product.original_price && product.discount_rate ? `
-                  <div class="flex items-center gap-3 mb-2">
-                    <span class="text-xl text-gray-400 line-through">${formatPrice(product.original_price)}</span>
-                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">${product.discount_rate}% 할인</span>
+                ${(product.consumer_price || product.original_price) && product.discount_rate ? `
+                  <div class="mb-3">
+                    <div class="text-sm text-gray-500 mb-1">소비자가</div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xl text-gray-400 line-through">${formatPrice(product.consumer_price || product.original_price)}</span>
+                      <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">${product.discount_rate}% 할인</span>
+                    </div>
                   </div>
-                  <div class="flex items-center gap-3">
-                    <span class="text-4xl font-bold text-tea-green">${formatPrice(product.price)}</span>
-                    ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                  <div class="mb-3">
+                    <div class="text-sm text-red-600 font-semibold mb-1">
+                      <i class="fas fa-handshake mr-1"></i>
+                      직거래가
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-4xl font-bold text-red-600">${formatPrice(product.direct_price || product.price)}</span>
+                      ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                    </div>
                   </div>
-                  <div class="mt-2 text-sm text-red-600 font-medium">
-                    <i class="fas fa-tag mr-1"></i>
-                    직거래 특별가! ${formatPrice(product.original_price - product.price)} 절약
+                  <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div class="flex items-center text-red-600 font-medium">
+                      <i class="fas fa-tag mr-2"></i>
+                      <span>직거래 특별 혜택! <strong>${formatPrice((product.consumer_price || product.original_price) - (product.direct_price || product.price))} 절약</strong></span>
+                    </div>
                   </div>
                 ` : `
-                  <div class="flex items-center space-x-4">
-                    <span class="text-3xl font-bold text-tea-green">${formatPrice(product.price)}</span>
-                    ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                  <div class="mb-3">
+                    <div class="text-sm text-red-600 font-semibold mb-1">
+                      <i class="fas fa-handshake mr-1"></i>
+                      직거래가
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-4xl font-bold text-red-600">${formatPrice(product.direct_price || product.price)}</span>
+                      ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                    </div>
                   </div>
                 `}
               </div>

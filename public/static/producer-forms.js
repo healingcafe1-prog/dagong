@@ -64,35 +64,35 @@ async function loadProductFormPage(producerId, productId) {
               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <p class="text-sm text-blue-800">
                   <i class="fas fa-info-circle mr-2"></i>
-                  <strong>직거래 할인 안내:</strong> 할인율은 10%~50% 사이에서 설정할 수 있습니다. 
-                  정가를 입력하면 할인가가 자동으로 계산됩니다.
+                  <strong>직거래 할인 안내:</strong> 할인율은 25%~50% 사이에서 설정할 수 있습니다. 
+                  소비자가를 입력하면 직거래가가 자동으로 계산됩니다. (플랫폼 수수료 5.5%)
                 </p>
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
-                  <label class="block text-gray-700 font-bold mb-2">정가 *</label>
-                  <input type="number" id="originalPrice" required min="0" step="1000"
+                  <label class="block text-gray-700 font-bold mb-2">소비자가 *</label>
+                  <input type="number" id="consumerPrice" required min="0" step="1000"
                          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
-                         placeholder="50000" value="${product?.original_price || ''}"
+                         placeholder="50000" value="${product?.consumer_price || product?.original_price || ''}"
                          onchange="calculatePrice()">
-                  <p class="text-xs text-gray-500 mt-1">원</p>
+                  <p class="text-xs text-gray-500 mt-1">시중 판매가</p>
                 </div>
                 
                 <div>
                   <label class="block text-gray-700 font-bold mb-2">할인율 *</label>
-                  <input type="number" id="discountRate" required min="10" max="50" step="5"
+                  <input type="number" id="discountRate" required min="25" max="50" step="5"
                          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green"
                          placeholder="30" value="${product?.discount_rate || 30}"
                          onchange="calculatePrice()">
-                  <p class="text-xs text-gray-500 mt-1">10% ~ 50% (5% 단위)</p>
+                  <p class="text-xs text-gray-500 mt-1">25% ~ 50% (5% 단위)</p>
                 </div>
                 
                 <div>
-                  <label class="block text-gray-700 font-bold mb-2">판매가</label>
-                  <input type="number" id="price" readonly
+                  <label class="block text-gray-700 font-bold mb-2">직거래가</label>
+                  <input type="number" id="directPrice" readonly
                          class="w-full px-4 py-2 border rounded-lg bg-gray-100"
-                         value="${product?.price || ''}">
+                         value="${product?.direct_price || product?.price || ''}">
                   <p class="text-xs text-gray-500 mt-1">자동 계산</p>
                 </div>
                 
@@ -107,20 +107,29 @@ async function loadProductFormPage(producerId, productId) {
               
               <div id="pricePreview" class="bg-green-50 border border-green-200 rounded-lg p-4 hidden">
                 <div class="space-y-2">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <span class="text-gray-600 line-through text-lg" id="previewOriginal"></span>
-                      <span class="ml-3 bg-red-500 text-white px-3 py-1 rounded text-sm font-bold" id="previewDiscount"></span>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-gray-600">소비자가</span>
+                      <span class="text-gray-600 line-through" id="previewConsumer"></span>
                     </div>
-                    <div class="text-2xl font-bold text-tea-green" id="previewPrice"></div>
+                    <div class="flex items-center justify-between">
+                      <div class="text-red-600 font-semibold">
+                        <i class="fas fa-handshake mr-1"></i>
+                        직거래가
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="bg-red-500 text-white px-3 py-1 rounded text-sm font-bold" id="previewDiscount"></span>
+                        <span class="text-2xl font-bold text-red-600" id="previewDirect"></span>
+                      </div>
+                    </div>
                   </div>
                   <div class="pt-2 border-t border-green-300">
                     <div class="flex justify-between text-sm">
-                      <span class="text-gray-600">플랫폼 수수료 (9.9%)</span>
+                      <span class="text-gray-600">플랫폼 수수료 (5.5%)</span>
                       <span class="text-gray-800" id="previewCommission"></span>
                     </div>
                     <div class="flex justify-between text-sm font-bold mt-1">
-                      <span class="text-gray-800">생산자 수익</span>
+                      <span class="text-gray-800">생산자 수령액 (배송 완료 + 3일 후 송금)</span>
                       <span class="text-tea-green" id="previewRevenue"></span>
                     </div>
                   </div>
@@ -203,34 +212,34 @@ async function loadProductFormPage(producerId, productId) {
     
     // 가격 계산 함수
     window.calculatePrice = function() {
-      const originalPrice = parseInt(document.getElementById('originalPrice').value) || 0;
+      const consumerPrice = parseInt(document.getElementById('consumerPrice').value) || 0;
       let discountRate = parseInt(document.getElementById('discountRate').value) || 0;
-      const commissionRate = 9.9; // 플랫폼 수수료율
+      const commissionRate = 5.5; // 플랫폼 수수료율 (5.5%)
       
-      // 할인율 유효성 검사 (10% ~ 50%)
-      if (discountRate < 10) {
-        discountRate = 10;
-        document.getElementById('discountRate').value = 10;
-        alert('할인율은 최소 10%부터 설정 가능합니다.');
+      // 할인율 유효성 검사 (25% ~ 50%)
+      if (discountRate < 25) {
+        discountRate = 25;
+        document.getElementById('discountRate').value = 25;
+        alert('할인율은 최소 25%부터 설정 가능합니다.');
       } else if (discountRate > 50) {
         discountRate = 50;
         document.getElementById('discountRate').value = 50;
         alert('할인율은 최대 50%까지 설정 가능합니다.');
       }
       
-      if (originalPrice > 0) {
-        const price = Math.round(originalPrice * (1 - discountRate / 100));
-        const commissionAmount = Math.round(price * (commissionRate / 100));
-        const producerRevenue = price - commissionAmount;
+      if (consumerPrice > 0) {
+        const directPrice = Math.round(consumerPrice * (1 - discountRate / 100));
+        const commissionAmount = Math.round(directPrice * (commissionRate / 100));
+        const producerRevenue = directPrice - commissionAmount;
         
-        document.getElementById('price').value = price;
+        document.getElementById('directPrice').value = directPrice;
         
         // 미리보기 업데이트
         const preview = document.getElementById('pricePreview');
         preview.classList.remove('hidden');
-        document.getElementById('previewOriginal').textContent = formatPrice(originalPrice);
+        document.getElementById('previewConsumer').textContent = formatPrice(consumerPrice);
         document.getElementById('previewDiscount').textContent = discountRate + '% 할인';
-        document.getElementById('previewPrice').textContent = formatPrice(price);
+        document.getElementById('previewDirect').textContent = formatPrice(directPrice);
         document.getElementById('previewCommission').textContent = formatPrice(commissionAmount);
         document.getElementById('previewRevenue').textContent = formatPrice(producerRevenue);
       }
@@ -250,8 +259,10 @@ async function loadProductFormPage(producerId, productId) {
         category_id: parseInt(document.getElementById('categoryId').value),
         producer_id: parseInt(producerId),
         description: document.getElementById('productDescription').value,
-        original_price: parseInt(document.getElementById('originalPrice').value),
-        price: parseInt(document.getElementById('price').value),
+        consumer_price: parseInt(document.getElementById('consumerPrice').value),
+        direct_price: parseInt(document.getElementById('directPrice').value),
+        original_price: parseInt(document.getElementById('consumerPrice').value), // 하위 호환성
+        price: parseInt(document.getElementById('directPrice').value), // 하위 호환성
         discount_rate: parseInt(document.getElementById('discountRate').value),
         shipping_fee: parseInt(document.getElementById('shippingFee').value),
         stock_quantity: parseInt(document.getElementById('stockQuantity').value),
