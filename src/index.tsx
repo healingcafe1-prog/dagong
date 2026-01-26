@@ -258,7 +258,21 @@ app.get('/api/categories', async (c) => {
     params.push(type)
   }
   
-  query += ' ORDER BY id'
+  // 차 카테고리는 커스텀 순서 적용: 녹차→백차→청차→황차→홍차→발효차→블렌딩차
+  if (type === 'tea') {
+    query += ` ORDER BY CASE 
+      WHEN id=6 THEN 1   -- 녹차
+      WHEN id=30 THEN 2  -- 백차
+      WHEN id=31 THEN 3  -- 청차
+      WHEN id=7 THEN 4   -- 황차
+      WHEN id=8 THEN 5   -- 홍차
+      WHEN id=9 THEN 6   -- 발효차
+      WHEN id=11 THEN 7  -- 블렌딩차
+      ELSE 99 
+    END`
+  } else {
+    query += ' ORDER BY id'
+  }
   
   const { results } = await c.env.DB.prepare(query).bind(...params).all()
   return c.json({ categories: results })
