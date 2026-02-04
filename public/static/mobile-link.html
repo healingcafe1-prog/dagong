@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다공 - 모바일 접속 안내</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #7c9473 0%, #f5f1e8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+        .btn-copy {
+            transition: all 0.3s ease;
+        }
+        .btn-copy:active {
+            transform: scale(0.95);
+        }
+        .copied {
+            background: #10b981 !important;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="card max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-[#7c9473] to-[#6a8062] text-white p-6 text-center">
+            <h1 class="text-3xl font-bold mb-2">다공</h1>
+            <p class="text-sm opacity-90">차와 공예의 직거래 플랫폼</p>
+        </div>
+        
+        <!-- QR Code -->
+        <div class="p-6">
+            <div class="text-center mb-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">📱 QR 코드로 빠른 접속</h2>
+                <p class="text-sm text-gray-600">스마트폰 카메라로 QR 코드를 스캔하세요</p>
+            </div>
+            <div id="qrcode" class="mb-6"></div>
+            
+            <!-- URL -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <p class="text-xs text-gray-500 mb-2">접속 주소:</p>
+                <div class="flex items-center gap-2">
+                    <input 
+                        type="text" 
+                        id="urlInput" 
+                        value="https://3000-i1cjrhuxghhqe7nryfah2-18e660f9.sandbox.novita.ai" 
+                        readonly 
+                        class="flex-1 text-sm bg-white border border-gray-300 rounded px-3 py-2 text-gray-700"
+                    />
+                    <button 
+                        onclick="copyUrl()" 
+                        id="copyBtn"
+                        class="btn-copy bg-[#7c9473] text-white px-4 py-2 rounded font-semibold text-sm hover:bg-[#6a8062]"
+                    >
+                        복사
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Direct Link -->
+            <a 
+                href="https://3000-i1cjrhuxghhqe7nryfah2-18e660f9.sandbox.novita.ai" 
+                target="_blank"
+                class="block w-full bg-gradient-to-r from-[#7c9473] to-[#6a8062] text-white text-center py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-all"
+            >
+                🚀 바로 접속하기
+            </a>
+            
+            <!-- Features -->
+            <div class="mt-6 grid grid-cols-3 gap-3 text-center">
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <div class="text-2xl mb-1">🍵</div>
+                    <div class="text-xs text-gray-600">전통차</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <div class="text-2xl mb-1">🎨</div>
+                    <div class="text-xs text-gray-600">공예품</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <div class="text-2xl mb-1">💰</div>
+                    <div class="text-xs text-gray-600">직거래</div>
+                </div>
+            </div>
+            
+            <!-- Info -->
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-sm text-blue-800">
+                    <strong>💡 팁:</strong> 홈 화면에 추가하면 앱처럼 사용할 수 있어요!
+                </p>
+                <p class="text-xs text-blue-600 mt-2">
+                    Safari: 공유 버튼 → 홈 화면에 추가<br>
+                    Chrome: 메뉴 → 홈 화면에 추가
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-4 text-center border-t">
+            <p class="text-xs text-gray-500">
+                생산자와 소비자를 직접 연결하는 플랫폼
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Generate QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: "https://3000-i1cjrhuxghhqe7nryfah2-18e660f9.sandbox.novita.ai",
+            width: 200,
+            height: 200,
+            colorDark: "#7c9473",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Copy URL function
+        function copyUrl() {
+            const input = document.getElementById('urlInput');
+            const btn = document.getElementById('copyBtn');
+            
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile
+            
+            navigator.clipboard.writeText(input.value).then(() => {
+                btn.textContent = '✓ 복사됨';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = '복사';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // Fallback
+                document.execCommand('copy');
+                btn.textContent = '✓ 복사됨';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = '복사';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
