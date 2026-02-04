@@ -12,6 +12,8 @@ type Bindings = {
   KAKAO_CLIENT_ID?: string
   KAKAO_CLIENT_SECRET?: string
   SESSION_SECRET?: string
+  TOSS_PAYMENTS_CLIENT_KEY?: string
+  TOSS_PAYMENTS_SECRET_KEY?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -2024,6 +2026,364 @@ app.post('/api/orders/:id/cancel', async (c) => {
   ).run()
   
   return c.json({ success: true })
+})
+
+// ===== 결제 및 정산 시스템 API =====
+
+// 사업자 계좌 등록
+app.post('/api/producers/:id/business-account', async (c) => {
+  const producerId = c.req.param('id')
+  const data = await c.req.json()
+  
+  try {
+    const result = await c.env.DB.prepare(`
+      INSERT INTO business_accounts (
+        producer_id, business_registration_number, business_name, representative_name,
+        business_type, business_category, bank_name, account_number, account_holder,
+        commission_rate, settlement_cycle, minimum_settlement_amount
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      producerId,
+      data.business_registration_number,
+      data.business_name,
+      data.representative_name,
+      data.business_type || null,
+      data.business_category || null,
+      data.bank_name,
+      data.account_number,
+      data.account_holder,
+      data.commission_rate || 9.9,
+      data.settlement_cycle || 'weekly',
+      data.minimum_settlement_amount || 10000
+    ).run()
+    
+    return c.json({ 
+      success: true, 
+      accountId: result.meta.last_row_id,
+      message: '사업자 계좌가 등록되었습니다. 관리자 승인 후 사용 가능합니다.'
+    })
+  } catch (error: any) {
+    return c.json({ error: '계좌 등록 실패: ' + error.message }, 500)
+  }
+})
+
+// 사업자 계좌 조회
+app.get('/api/producers/:id/business-account', async (c) => {
+  const producerId = c.req.param('id')
+  
+  const account = await c.env.DB.prepare(`
+    SELECT 
+      id, producer_id, business_registration_number, business_name, representative_name,
+      business_type, business_category, bank_name, 
+      SUBSTR(account_number, 1, 3) || '-****-' || SUBSTR(account_number, -4) as account_number_masked,
+      account_holder, commission_rate, settlement_cycle, minimum_settlement_amount,
+      verification_status, verified_at, is_active, created_at
+    FROM business_accounts
+    WHERE producer_id = ?
+  `).bind(producerId).first()
+  
+  if (!account) {
+    return c.json({ error: '등록된 계좌 정보가 없습니다' }, 404)
+  }
+  
+  return c.json({ account })
+})
+
+// 사업자 계좌 수정
+app.put('/api/producers/:id/business-account', async (c) => {
+  const producerId = c.req.param('id')
+  const data = await c.req.json()
+  
+  try {
+    await c.env.DB.prepare(`
+      UPDATE business_accounts SET
+        bank_name = ?, account_number = ?, account_holder = ?,
+        settlement_cycle = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE producer_id = ?
+    `).bind(
+      data.bank_name,
+      data.account_number,
+      data.account_holder,
+      data.settlement_cycle || 'weekly',
+      producerId
+    ).run()
+    
+    return c.json({ success: true, message: '계좌 정보가 수정되었습니다.' })
+  } catch (error: any) {
+    return c.json({ error: '계좌 수정 실패: ' + error.message }, 500)
+  }
+})
+
+// 결제 승인 검증 (토스페이먼츠)
+app.post('/api/payment/confirm', async (c) => {
+  const { orderId, amount, paymentKey } = await c.req.json()
+  
+  // 토스페이먼츠 API 키 확인
+  const SECRET_KEY = c.env.TOSS_PAYMENTS_SECRET_KEY
+  if (!SECRET_KEY) {
+    return c.json({ error: '결제 시스템 설정 오류' }, 500)
+  }
+  
+  try {
+    // 토스페이먼츠 승인 API 호출
+    const authString = btoa(SECRET_KEY + ':')
+    const response = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${authString}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ orderId, amount, paymentKey })
+    })
+    
+    const payment = await response.json()
+    
+    if (!response.ok) {
+      throw new Error(payment.message || '결제 승인 실패')
+    }
+    
+    // 주문 정보 조회
+    const order = await c.env.DB.prepare(
+      'SELECT id FROM orders WHERE order_number = ?'
+    ).bind(orderId).first()
+    
+    if (!order) {
+      return c.json({ error: '주문을 찾을 수 없습니다' }, 404)
+    }
+    
+    // 결제 트랜잭션 저장
+    await c.env.DB.prepare(`
+      INSERT INTO payment_transactions (
+        order_id, pg_provider, pg_transaction_id, payment_method, payment_amount,
+        card_company, card_number_masked, installment_months,
+        transaction_status, approved_at, approval_number, pg_response_data
+      ) VALUES (?, 'tosspayments', ?, ?, ?, ?, ?, ?, 'completed', CURRENT_TIMESTAMP, ?, ?)
+    `).bind(
+      order.id,
+      paymentKey,
+      payment.method,
+      payment.totalAmount,
+      payment.card?.company || null,
+      payment.card?.number || null,
+      payment.card?.installmentPlanMonths || 0,
+      payment.approvedAt,
+      JSON.stringify(payment)
+    ).run()
+    
+    // 주문 상태 업데이트
+    await c.env.DB.prepare(`
+      UPDATE orders SET 
+        payment_status = 'completed',
+        payment_method = ?,
+        payment_date = CURRENT_TIMESTAMP,
+        payment_transaction_id = ?,
+        order_status = 'paid',
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(payment.method, paymentKey, order.id).run()
+    
+    return c.json({ 
+      success: true, 
+      payment,
+      message: '결제가 완료되었습니다.'
+    })
+  } catch (error: any) {
+    return c.json({ error: error.message }, 400)
+  }
+})
+
+// 결제 취소
+app.post('/api/payment/cancel', async (c) => {
+  const { paymentKey, cancelReason } = await c.req.json()
+  
+  const SECRET_KEY = c.env.TOSS_PAYMENTS_SECRET_KEY
+  if (!SECRET_KEY) {
+    return c.json({ error: '결제 시스템 설정 오류' }, 500)
+  }
+  
+  try {
+    const authString = btoa(SECRET_KEY + ':')
+    const response = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}/cancel`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${authString}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ cancelReason })
+    })
+    
+    const result = await response.json()
+    
+    if (!response.ok) {
+      throw new Error(result.message || '결제 취소 실패')
+    }
+    
+    // 트랜잭션 상태 업데이트
+    await c.env.DB.prepare(`
+      UPDATE payment_transactions SET
+        transaction_status = 'cancelled',
+        cancelled_at = CURRENT_TIMESTAMP,
+        cancel_reason = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE pg_transaction_id = ?
+    `).bind(cancelReason, paymentKey).run()
+    
+    // 주문 상태 업데이트
+    await c.env.DB.prepare(`
+      UPDATE orders SET
+        payment_status = 'refunded',
+        order_status = 'cancelled',
+        updated_at = CURRENT_TIMESTAMP
+      WHERE payment_transaction_id = ?
+    `).bind(paymentKey).run()
+    
+    return c.json({ success: true, message: '결제가 취소되었습니다.' })
+  } catch (error: any) {
+    return c.json({ error: error.message }, 400)
+  }
+})
+
+// 정산 내역 조회 (생산자용)
+app.get('/api/producers/:id/settlements', async (c) => {
+  const producerId = c.req.param('id')
+  
+  const settlements = await c.env.DB.prepare(`
+    SELECT 
+      ps.*,
+      sb.settlement_period_start,
+      sb.settlement_period_end,
+      sb.settlement_status as batch_status
+    FROM producer_settlements ps
+    JOIN settlement_batches sb ON ps.settlement_batch_id = sb.id
+    WHERE ps.producer_id = ?
+    ORDER BY sb.settlement_period_end DESC
+    LIMIT 50
+  `).bind(producerId).all()
+  
+  return c.json({ settlements: settlements.results })
+})
+
+// 정산 상세 내역 (주문 목록)
+app.get('/api/settlements/:id/items', async (c) => {
+  const settlementId = c.req.param('id')
+  
+  const items = await c.env.DB.prepare(`
+    SELECT * FROM settlement_items
+    WHERE settlement_id = ?
+    ORDER BY order_date DESC
+  `).bind(settlementId).all()
+  
+  return c.json({ items: items.results })
+})
+
+// 정산 배치 생성 (관리자용)
+app.post('/api/admin/settlements/create-batch', async (c) => {
+  const { periodStart, periodEnd } = await c.req.json()
+  
+  try {
+    // 1. 정산 배치 생성
+    const batchResult = await c.env.DB.prepare(`
+      INSERT INTO settlement_batches (
+        settlement_period_start, settlement_period_end, settlement_status
+      ) VALUES (?, ?, 'calculating')
+    `).bind(periodStart, periodEnd).run()
+    
+    const batchId = batchResult.meta.last_row_id
+    
+    // 2. 생산자별 정산 계산
+    const producers = await c.env.DB.prepare(`
+      SELECT 
+        p.id as producer_id,
+        ba.id as account_id,
+        ba.bank_name,
+        ba.account_number,
+        ba.account_holder,
+        ba.commission_rate,
+        COUNT(DISTINCT oi.order_id) as order_count,
+        SUM(oi.item_total) as total_sales,
+        SUM(oi.commission_amount) as total_commission
+      FROM producers p
+      JOIN business_accounts ba ON p.id = ba.producer_id
+      JOIN order_items oi ON p.id = oi.producer_id
+      JOIN orders o ON oi.order_id = o.id
+      WHERE o.payment_status = 'completed'
+        AND o.order_status NOT IN ('cancelled', 'refunded')
+        AND o.payment_date BETWEEN ? AND ?
+        AND ba.verification_status = 'verified'
+        AND ba.is_active = 1
+      GROUP BY p.id
+    `).bind(periodStart, periodEnd).all()
+    
+    let totalOrderAmount = 0
+    let totalCommission = 0
+    let totalSettlement = 0
+    
+    // 3. 생산자별 정산 레코드 생성
+    for (const producer of producers.results as any[]) {
+      const settlementAmount = producer.total_sales - producer.total_commission
+      
+      await c.env.DB.prepare(`
+        INSERT INTO producer_settlements (
+          settlement_batch_id, producer_id, account_id,
+          settlement_period_start, settlement_period_end,
+          order_count, total_sales_amount, total_commission_amount, settlement_amount,
+          bank_name, account_number, account_holder, settlement_status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+      `).bind(
+        batchId, producer.producer_id, producer.account_id,
+        periodStart, periodEnd,
+        producer.order_count, producer.total_sales,
+        producer.total_commission, settlementAmount,
+        producer.bank_name, producer.account_number, producer.account_holder
+      ).run()
+      
+      totalOrderAmount += producer.total_sales
+      totalCommission += producer.total_commission
+      totalSettlement += settlementAmount
+    }
+    
+    // 4. 배치 통계 업데이트
+    await c.env.DB.prepare(`
+      UPDATE settlement_batches SET
+        settlement_status = 'ready',
+        total_order_amount = ?,
+        total_commission_amount = ?,
+        total_settlement_amount = ?,
+        producer_count = ?,
+        calculated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(totalOrderAmount, totalCommission, totalSettlement, producers.results.length, batchId).run()
+    
+    // 5. 플랫폼 수익 기록
+    await c.env.DB.prepare(`
+      INSERT INTO platform_revenues (
+        settlement_batch_id, revenue_period_start, revenue_period_end,
+        total_commission_amount, total_order_count, total_order_amount
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `).bind(batchId, periodStart, periodEnd, totalCommission, producers.results.length, totalOrderAmount).run()
+    
+    return c.json({ 
+      success: true,
+      batchId,
+      producerCount: producers.results.length,
+      totalOrderAmount,
+      totalCommission,
+      totalSettlement
+    })
+  } catch (error: any) {
+    return c.json({ error: '정산 배치 생성 실패: ' + error.message }, 500)
+  }
+})
+
+// 정산 배치 목록 (관리자용)
+app.get('/api/admin/settlements/batches', async (c) => {
+  const batches = await c.env.DB.prepare(`
+    SELECT * FROM settlement_batches
+    ORDER BY settlement_period_end DESC
+    LIMIT 50
+  `).all()
+  
+  return c.json({ batches: batches.results })
 })
 
 export default app
