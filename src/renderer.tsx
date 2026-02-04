@@ -85,9 +85,7 @@ export const renderer = jsxRenderer(({ children }) => {
               <a href="/" class="flex items-center space-x-3 group">
                 <i class="fas fa-leaf text-tea-green text-2xl group-hover:rotate-12 transition-transform duration-300"></i>
                 <div class="flex items-center" id="logoText">
-                  <span class="text-xl font-bold text-gray-800">한국 차</span>
-                  <span class="logo-hanja text-lg mx-1">茶</span>
-                  <span class="text-xl font-bold text-gray-800">공예</span>
+                  <span class="text-2xl font-bold text-gray-800">다공</span>
                 </div>
               </a>
               
@@ -284,10 +282,10 @@ export const renderer = jsxRenderer(({ children }) => {
           <div class="container mx-auto px-4 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
-                <h4 class="text-lg font-bold mb-4">차茶공예</h4>
+                <h4 class="text-lg font-bold mb-4">다공</h4>
                 <p class="text-gray-400 text-sm">
-                  한국의 아름다운 차산지와 공예산지를<br />
-                  직접 연결하는 플랫폼입니다.
+                  전통 차와 공예품을 생산자와<br />
+                  직거래하는 플랫폼입니다.
                 </p>
               </div>
               <div>
@@ -315,7 +313,7 @@ export const renderer = jsxRenderer(({ children }) => {
               </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
-              <p>&copy; 2024 차茶공예. All rights reserved.</p>
+              <p>&copy; 2024 다공. All rights reserved.</p>
             </div>
           </div>
         </footer>
