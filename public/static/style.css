@@ -108,3 +108,336 @@ a:active {
     display: none;
   }
 }
+
+/* ===== 모바일 PWA 최적화 ===== */
+
+/* 터치 영역 최소 크기 (44x44px) */
+button,
+a,
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 터치 피드백 개선 */
+button:active,
+a:active,
+.touch-target:active {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+/* 텍스트 선택 비활성화 (네이티브 앱처럼) */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 모바일 네비게이션 최적화 */
+@media (max-width: 768px) {
+  /* 폰트 크기 조정 */
+  body {
+    font-size: 16px; /* iOS 줌 방지 */
+  }
+  
+  /* 헤더 고정 높이 */
+  nav {
+    height: 64px;
+  }
+  
+  /* 카드 간격 축소 */
+  .grid {
+    gap: 0.75rem;
+  }
+  
+  /* 버튼 크기 증가 */
+  button,
+  .btn {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+  
+  /* 입력 필드 최적화 */
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* iOS 줌 방지 */
+    padding: 12px;
+  }
+}
+
+/* 하단 네비게이션 바 (모바일) */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    padding: 8px 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  
+  .mobile-bottom-nav a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    color: #666;
+    text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s;
+  }
+  
+  .mobile-bottom-nav a.active {
+    color: #7c9473;
+  }
+  
+  .mobile-bottom-nav i {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  /* 하단 네비 때문에 컨텐츠 여백 추가 */
+  main {
+    padding-bottom: 80px;
+  }
+}
+
+/* Pull to Refresh 스타일 */
+.pull-to-refresh {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.9), transparent);
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.3s ease;
+}
+
+.pull-to-refresh.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 스와이프 제스처 표시 */
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.swipe-indicator.left {
+  left: 20px;
+}
+
+.swipe-indicator.right {
+  right: 20px;
+}
+
+/* 로딩 스피너 개선 */
+.spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(124, 148, 115, 0.2);
+  border-top-color: #7c9473;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 스켈레톤 로딩 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 카드 스와이프 애니메이션 */
+.swipe-card {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.swipe-card.swiping {
+  transition: none;
+}
+
+.swipe-card.swiped-left {
+  transform: translateX(-150%) rotate(-15deg);
+  opacity: 0;
+}
+
+.swipe-card.swiped-right {
+  transform: translateX(150%) rotate(15deg);
+  opacity: 0;
+}
+
+/* iOS Safe Area 지원 */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  nav {
+    padding-top: calc(env(safe-area-inset-top) + 1rem);
+  }
+  
+  .mobile-bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+  }
+}
+
+/* 다크 모드 지원 (시스템 설정 따라감) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #f5f1e8;
+    --text-secondary: #b8b8b8;
+  }
+  
+  /* 다크 모드 적용은 선택사항 */
+}
+
+/* 손떨림 보정 (더 큰 터치 영역) */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"] {
+    padding: 12px 16px;
+  }
+}
+
+/* 가로 스크롤 카드 */
+.horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  gap: 1rem;
+  padding: 1rem 0;
+  scrollbar-width: none;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.horizontal-scroll > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* 페이지 전환 애니메이션 */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.page-transition {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* 모바일 모달 전체 화면 */
+@media (max-width: 768px) {
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+/* 햅틱 피드백 표시 (시각적) */
+@keyframes haptic-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+}
+
+.haptic-feedback {
+  animation: haptic-pulse 0.2s ease-out;
+}
+
+/* PWA 설치 프롬프트 */
+.install-prompt {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}

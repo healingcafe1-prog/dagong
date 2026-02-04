@@ -25,14 +25,15 @@ app.use('/static/*', serveStatic({ root: './' }))
 // PWA 파일 서빙
 app.get('/manifest.json', async (c) => {
   const manifestData = {
-    name: "한국 차 공예 - 우리가 함께 쓰는 새로운 문화 혁명",
-    short_name: "차공예",
-    description: "한국 차 문화, 생산자와 소비자가 함께 쓰는 새로운 문화 혁명. 당신의 선택이 천년 전통을 이어갑니다.",
+    name: "다공 - 차와 공예의 직거래 플랫폼",
+    short_name: "다공",
+    description: "한국 차와 공예품을 생산자와 직거래하는 모바일 플랫폼. 소비자가와 직거래가로 최대 50% 절약하세요.",
     start_url: "/",
     display: "standalone",
     background_color: "#f5f1e8",
     theme_color: "#7c9473",
     orientation: "portrait-primary",
+    scope: "/",
     icons: [
       { src: "/static/icons/icon-72x72.png", sizes: "72x72", type: "image/png", purpose: "any" },
       { src: "/static/icons/icon-96x96.png", sizes: "96x96", type: "image/png", purpose: "any" },
@@ -44,12 +45,30 @@ app.get('/manifest.json', async (c) => {
       { src: "/static/icons/icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
     ],
     screenshots: [
-      { src: "/static/screenshots/screenshot-mobile.png", sizes: "540x720", type: "image/png", form_factor: "narrow" },
-      { src: "/static/screenshots/screenshot-desktop.png", sizes: "1920x1080", type: "image/png", form_factor: "wide" }
+      { src: "/static/screenshots/screenshot-mobile.png", sizes: "540x720", type: "image/png", form_factor: "narrow", label: "홈 화면" },
+      { src: "/static/screenshots/screenshot-products.png", sizes: "540x720", type: "image/png", form_factor: "narrow", label: "상품 목록" }
     ],
     categories: ["shopping", "food", "lifestyle"],
     lang: "ko-KR",
-    dir: "ltr"
+    dir: "ltr",
+    prefer_related_applications: false,
+    related_applications: [
+      {
+        platform: "play",
+        url: "https://play.google.com/store/apps/details?id=kr.co.dagong.twa",
+        id: "kr.co.dagong.twa"
+      }
+    ],
+    share_target: {
+      action: "/share",
+      method: "POST",
+      enctype: "multipart/form-data",
+      params: {
+        title: "title",
+        text: "text",
+        url: "url"
+      }
+    }
   }
   return c.json(manifestData)
 })
