@@ -2,8 +2,8 @@
 const translations = {
   ko: {
     // 사이트 정보
-    siteName: "한국 차 공예",
-    siteDescription: "한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼",
+    siteName: "다공",
+    siteDescription: "차와 공예의 직거래 플랫폼",
     
     // 네비게이션
     nav: {

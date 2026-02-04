@@ -27,7 +27,7 @@ app.get('/manifest.json', async (c) => {
   const manifestData = {
     name: "다공 - 차와 공예의 직거래 플랫폼",
     short_name: "다공",
-    description: "한국 차와 공예품을 생산자와 직거래하는 모바일 플랫폼. 소비자가와 직거래가로 최대 50% 절약하세요.",
+    description: "전통 차와 공예품을 생산자와 직거래하는 모바일 플랫폼. 소비자가와 직거래가로 최대 50% 절약하세요.",
     start_url: "/",
     display: "standalone",
     background_color: "#f5f1e8",

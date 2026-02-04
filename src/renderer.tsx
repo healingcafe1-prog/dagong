@@ -6,28 +6,28 @@ export const renderer = jsxRenderer(({ children }) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        <title>한국 차 공예 - 우리가 함께 쓰는 새로운 문화 혁명</title>
-        <meta name="description" content="한국 차 문화, 생산자와 소비자가 함께 쓰는 새로운 문화 혁명. 당신의 선택이 천년 전통을 이어갑니다. 직거래로 살리는 차산지와 공예산지." />
+        <title>다공 - 차와 공예의 직거래 플랫폼</title>
+        <meta name="description" content="다공 - 전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진을 줄여 합리적 가격으로 좋은 품질을 만나보세요." />
         
         {/* PWA 설정 */}
         <meta name="theme-color" content="#7c9473" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="한국 차 공예" />
+        <meta name="apple-mobile-web-app-title" content="다공" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png" />
         
         {/* SEO */}
         <meta name="keywords" content="한국차, 전통차, 공예품, 직거래, 차산지, 공예산지, 다도, 지역특산품, Korean tea, Korean craft" />
-        <meta name="author" content="한국 차 공예" />
+        <meta name="author" content="다공" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="한국 차 공예 - 우리가 함께 쓰는 새로운 문화 혁명" />
-        <meta property="og:description" content="한국 차 문화, 생산자와 소비자가 함께 쓰는 새로운 문화 혁명. 당신의 선택이 천년 전통을 이어갑니다." />
+        <meta property="og:title" content="다공 - 차와 공예의 직거래 플랫포" />
+        <meta property="og:description" content="전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진을 줄여 합리적 가격으로 좋은 품질을 만나보세요." />
         <meta property="og:image" content="/static/icons/icon-512x512.png" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="한국 차 공예 - 우리가 함께 쓰는 새로운 문화 혁명" />
-        <meta name="twitter:description" content="한국 차 문화, 생산자와 소비자가 함께 쓰는 새로운 문화 혁명. 당신의 선택이 천년 전통을 이어갑니다." />
+        <meta name="twitter:title" content="다공 - 차와 공예의 직거래 플랫폼" />
+        <meta name="twitter:description" content="전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진을 줄여 합리적 가격으로 좋은 품질을 만나보세요." />
         <meta name="twitter:image" content="/static/icons/icon-512x512.png" />
         
         {/* TailwindCSS */}
@@ -50,7 +50,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="한국 차 공예" />
+        <meta name="apple-mobile-web-app-title" content="다공" />
         <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png" />
         <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512x512.png" />
