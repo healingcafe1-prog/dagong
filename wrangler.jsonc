@@ -21,13 +21,15 @@
   //     "bucket_name": "my-bucket"
   //   }
   // ],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "webapp-production",
-      "database_id": "webapp-production-db"
-    }
-  ],
+  // D1 데이터베이스는 로컬 개발에서만 사용
+  // 프로덕션 배포 시에는 주석 처리
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "webapp-production",
+  //     "database_id": "webapp-production-db"
+  //   }
+  // ],
   // "ai": {
   //   "binding": "AI"
   // }
