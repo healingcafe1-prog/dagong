@@ -46,7 +46,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="twitter:image" content="https://dagong.co.kr/static/icons/icon-512x512.png" />
         
         {/* 네이버 검색 최적화 */}
-        <meta name="naver-site-verification" content="" />
+        <meta name="naver-site-verification" content="51a0658e89bc8816eeb448bf53b1862b86609662" />
         <meta property="article:publisher" content="https://dagong.co.kr" />
         
 

@@ -24,6 +24,13 @@ app.use('/api/*', cors())
 // 정적 파일 서빙
 app.use('/static/*', serveStatic({ root: './' }))
 
+// 네이버 사이트 소유 확인 파일
+app.get('/naverf3735d7a56c13e617b246ff2b6e0da46.html', (c) => {
+  return c.text('naver-site-verification: naverf3735d7a56c13e617b246ff2b6e0da46.html', 200, {
+    'Content-Type': 'text/html; charset=utf-8'
+  })
+})
+
 // robots.txt 서빙
 app.get('/robots.txt', (c) => {
   return c.text(`User-agent: *
