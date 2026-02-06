@@ -183,7 +183,7 @@ app.get('/api/regions', async (c) => {
     params.push(type)
   }
   
-  query += ' ORDER BY id'
+  query += ' ORDER BY display_order, id'
   
   const { results } = await c.env.DB.prepare(query).bind(...params).all()
   return c.json({ regions: results })
