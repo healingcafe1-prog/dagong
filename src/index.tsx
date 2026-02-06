@@ -1508,6 +1508,32 @@ app.post('/api/auth/logout', async (c) => {
 
 // ===== 장바구니 API =====
 
+// 장바구니 개수 조회 (로그인 없이도 작동)
+app.get('/api/cart/count', async (c) => {
+  const userId = c.req.query('user_id')
+  const sessionId = c.req.query('session_id')
+  
+  // 로그인하지 않은 사용자는 count 0 반환
+  if (!userId && !sessionId) {
+    return c.json({ count: 0 })
+  }
+  
+  try {
+    const query = userId 
+      ? 'SELECT COUNT(*) as count FROM cart_items WHERE user_id = ?'
+      : 'SELECT COUNT(*) as count FROM cart_items WHERE session_id = ?'
+    
+    const result = await c.env.DB.prepare(query)
+      .bind(userId || sessionId)
+      .first()
+    
+    return c.json({ count: result?.count || 0 })
+  } catch (error) {
+    console.error('Cart count error:', error)
+    return c.json({ count: 0 })
+  }
+})
+
 // 장바구니 목록 조회
 app.get('/api/cart', async (c) => {
   const userId = c.req.query('user_id')
