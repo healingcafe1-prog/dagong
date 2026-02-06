@@ -24,6 +24,90 @@ app.use('/api/*', cors())
 // 정적 파일 서빙
 app.use('/static/*', serveStatic({ root: './' }))
 
+// robots.txt 서빙
+app.get('/robots.txt', (c) => {
+  return c.text(`User-agent: *
+Allow: /
+
+Sitemap: https://dagong.co.kr/sitemap.xml`, 200, {
+    'Content-Type': 'text/plain; charset=utf-8'
+  })
+})
+
+// sitemap.xml 서빙 (간단 버전)
+app.get('/sitemap.xml', (c) => {
+  const baseUrl = 'https://dagong.co.kr'
+  const today = new Date().toISOString().split('T')[0]
+  
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/products</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/products?type=tea</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/products?type=craft</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/regions</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/producers</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/experiences</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/education/apply</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/education/curriculum</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/events</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>`
+
+  return c.text(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8'
+  })
+})
+
 // PWA 파일 서빙
 app.get('/manifest.json', async (c) => {
   const manifestData = {
