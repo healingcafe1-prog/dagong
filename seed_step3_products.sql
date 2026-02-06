@@ -1,0 +1,23 @@
+-- 상품 데이터 (차) - is_featured = 1
+INSERT OR REPLACE INTO products (id, name, category_id, producer_id, description, price, stock_quantity, main_image, product_type, weight, origin, is_featured) VALUES
+(1, '제주 유기농 첫물차', 1, 1, '봄에 첫 수확한 어린 찻잎으로 만든 프리미엄 녹차', 35000, 50, '/images/products/jeju-first-tea.jpg', 'tea', '50g', '제주도', 1),
+(2, '하동 야생 녹차', 1, 2, '지리산 자락의 야생 차나무에서 채취한 귀한 녹차', 45000, 30, '/images/products/hadong-wild-tea.jpg', 'tea', '40g', '하동', 1),
+(3, '보성 우전차', 1, 3, '곡우 전에 딴 어린 잎으로 만든 최상급 녹차', 28000, 100, '/images/products/boseong-ujeon.jpg', 'tea', '50g', '보성', 1),
+(4, '강진 백모단차', 1, 4, '은은한 향과 깊은 맛의 전통 덖음차', 32000, 60, '/images/products/gangjin-tea.jpg', 'tea', '50g', '강진', 1),
+(5, '제주 발효 홍차', 3, 1, '제주 녹차를 발효시켜 만든 깊은 맛의 홍차', 38000, 40, '/images/products/jeju-black-tea.jpg', 'tea', '50g', '제주도', 1),
+(6, '보성 말차', 5, 3, '고급 녹차를 분말로 만든 프리미엄 말차', 42000, 35, '/images/products/boseong-matcha.jpg', 'tea', '30g', '보성', 1),
+(7, '백자 찻잔 세트', 8, 6, '순백의 아름다움이 돋보이는 전통 백자 찻잔 5개 세트', 85000, 20, '/images/products/white-teacup-set.jpg', 'craft', '500g', '이천', 1),
+(8, '분청사기 다관', 9, 5, '소박한 아름다움의 분청사기 찻주전자', 120000, 15, '/images/products/buncheong-teapot.jpg', 'craft', '400g', '경기 광주', 1),
+(9, '청자 찻잔', 8, 7, '은은한 청록색이 아름다운 청자 찻잔', 45000, 30, '/images/products/celadon-teacup.jpg', 'craft', '150g', '여주', 1),
+(10, '프리미엄 다기세트', 10, 6, '찻잔, 다관, 찻받침이 포함된 완벽한 다기세트', 250000, 10, '/images/products/premium-tea-set.jpg', 'craft', '2kg', '이천', 1),
+(11, '강진 고려청자 다완', 8, 9, '천년의 역사를 지닌 고려청자 찻잔', 180000, 8, '/images/products/gangjin-celadon-bowl.jpg', 'craft', '200g', '강진', 1),
+(12, '문경 사기 다기세트', 10, 10, '문경 사기로 만든 실용적인 다기세트', 150000, 12, '/images/products/mungyeong-tea-set.jpg', 'craft', '1.8kg', '문경', 1),
+(13, '프리미엄 차茶 선물세트', 14, 1, '최상급 녹차와 백자 찻잔이 어우러진 명품 선물세트', 180000, 30, '/images/products/premium-gift-set.jpg', 'gift_set', '1kg', '제주도/이천', 1),
+(14, '전통 다례 입문 세트', 15, 2, '차 입문자를 위한 녹차와 다기 기본 세트', 95000, 50, '/images/products/starter-tea-set.jpg', 'gift_set', '800g', '하동/여주', 1),
+(15, '명절 감사 선물세트', 13, 3, '추석, 설날을 위한 전통차 모음 선물세트', 120000, 40, '/images/products/holiday-gift-set.jpg', 'gift_set', '600g', '보성', 1),
+(16, '제주 한라봉', 17, 11, '제주의 청정 자연에서 자란 달콤한 한라봉', 35000, 100, '/images/products/jeju-hallabong.jpg', 'local', '5kg', '제주도', 1),
+(17, '보성 녹차쌀', 17, 13, '녹차를 먹여 키운 친환경 쌀', 45000, 50, '/images/products/boseong-rice.jpg', 'local', '10kg', '보성', 1),
+(18, '부안 천일염', 18, 15, '미네랄 풍부한 청정 갯벌 천일염', 12000, 150, '/images/products/buan-salt.jpg', 'local', '1kg', '부안', 1),
+(19, '하동 재첩', 19, 12, '섬진강 청정 재첩', 25000, 30, '/images/products/hadong-jaechup.jpg', 'local', '1kg', '하동', 1),
+(20, '강진 한우 정육세트', 20, 14, '청정 지역에서 키운 한우 1등급', 85000, 20, '/images/products/gangjin-beef-set.jpg', 'local', '2kg', '강진', 1),
+(21, '제주 흑돼지 세트', 20, 11, '제주 청정 자연에서 키운 흑돼지', 55000, 25, '/images/products/jeju-black-pork.jpg', 'local', '2kg', '제주도', 1);

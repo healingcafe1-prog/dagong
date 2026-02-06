@@ -1,0 +1,40 @@
+-- 차산지 지역 데이터
+INSERT OR REPLACE INTO regions (id, name, type, description, featured_image) VALUES
+(1, '제주도', 'tea', '청정 자연환경에서 자라는 제주 녹차의 고향', '/images/regions/jeju.jpg'),
+(2, '하동', 'tea', '천년의 역사를 지닌 한국 차문화의 중심지', '/images/regions/hadong.jpg'),
+(3, '김해', 'tea', '가야의 전통을 이어받은 차의 명산지', '/images/regions/gimhae.jpg'),
+(4, '광양', 'tea', '섬진강이 흐르는 청정 차밭의 고장', '/images/regions/gwangyang.jpg'),
+(5, '보성', 'tea', '아름다운 차밭 경관으로 유명한 녹차의 수도', '/images/regions/boseong.jpg'),
+(6, '강진', 'tea', '다산 정약용의 차문화가 살아있는 곳', '/images/regions/gangjin.jpg'),
+(7, '장흥', 'tea', '청정 남해안의 차밭이 펼쳐진 지역', '/images/regions/jangheung.jpg'),
+(8, '부안', 'tea', '변산반도의 맑은 공기 속에서 자라는 차', '/images/regions/buan.jpg'),
+(9, '경기 광주', 'craft', '500년 전통의 도자기 명가', '/images/regions/gwangju-craft.jpg'),
+(10, '이천', 'craft', '세계적으로 유명한 도자기 예술의 본고장', '/images/regions/icheon.jpg'),
+(11, '여주', 'craft', '우아한 백자의 전통을 계승하는 도자기 마을', '/images/regions/yeoju.jpg'),
+(12, '청주', 'craft', '청화백자의 명성을 이어가는 공예의 도시', '/images/regions/cheongju.jpg'),
+(13, '부안', 'craft', '변산반도의 전통 옹기와 도자 공예의 고장', '/images/regions/buan-craft.jpg'),
+(14, '강진', 'craft', '고려청자의 발상지, 천년 도자 예술의 본향', '/images/regions/gangjin-craft.jpg'),
+(15, '문경', 'craft', '전통 사기와 도자기의 명맥을 잇는 공예의 고장', '/images/regions/mungyeong.jpg');
+
+-- 카테고리 데이터
+INSERT OR REPLACE INTO categories (id, name, parent_id, type, description) VALUES
+(1, '녹차', NULL, 'tea', '신선하고 상쾌한 한국 전통 녹차'),
+(2, '황차', NULL, 'tea', '은은한 향과 부드러운 맛의 황차'),
+(3, '홍차', NULL, 'tea', '깊고 풍부한 향의 발효 홍차'),
+(4, '발효차', NULL, 'tea', '숙성된 맛과 향의 발효차'),
+(5, '말차', NULL, 'tea', '고급 녹차를 분말로 만든 말차'),
+(6, '블렌딩차', NULL, 'tea', '여러 차를 조화롭게 블렌딩한 차'),
+(7, '허브차', NULL, 'tea', '건강과 힐링을 위한 허브 블렌딩 차'),
+(8, '찻잔', NULL, 'craft', '차를 마시기 위한 전통 도자기'),
+(9, '다관', NULL, 'craft', '차를 우리는 전통 찻주전자'),
+(10, '다기세트', NULL, 'craft', '차를 즐기기 위한 완벽한 다기 세트'),
+(11, '장식 도자기', NULL, 'craft', '인테리어를 위한 예술 도자기'),
+(12, '목공예', NULL, 'craft', '나무로 만든 전통 공예품'),
+(13, '명절 선물세트', NULL, 'gift', '명절을 위한 특별한 선물'),
+(14, '프리미엄 선물세트', NULL, 'gift', '고급스러운 차와 공예품 조합'),
+(15, '입문자 선물세트', NULL, 'gift', '차문화를 시작하는 분들을 위한 세트'),
+(16, '기업 선물세트', NULL, 'gift', '비즈니스 선물을 위한 세트'),
+(17, '농산물', NULL, 'local', '신선한 지역 농산물'),
+(18, '가공식품', NULL, 'local', '전통 방식으로 만든 가공식품'),
+(19, '수산물', NULL, 'local', '신선한 지역 수산물'),
+(20, '축산물', NULL, 'local', '건강하게 키운 축산물');
