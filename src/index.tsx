@@ -379,12 +379,34 @@ app.get('/api/categories', async (c) => {
 
 // 이벤트 목록 조회 API
 app.get('/api/events', async (c) => {
-  const { results } = await c.env.DB.prepare(`
-    SELECT * FROM events 
-    WHERE is_active = 1 
-    AND date('now') BETWEEN date(start_date) AND date(end_date)
-    ORDER BY start_date DESC
-  `).all()
+  const month = c.req.query('month')  // 1-12월 또는 'all'
+  const type = c.req.query('type')    // discount, season, holiday, special 등
+  const all = c.req.query('all')      // 'true'면 날짜 필터 무시 (관리자용)
+  
+  let query = `SELECT * FROM events WHERE is_active = 1`
+  const params: (string | number)[] = []
+  
+  // 날짜 필터링 (all=true가 아닐 때만)
+  if (all !== 'true') {
+    query += ` AND date('now') BETWEEN date(start_date) AND date(end_date)`
+  }
+  
+  // 월별 필터링
+  if (month && month !== 'all') {
+    query += ' AND month = ?'
+    params.push(parseInt(month))
+  }
+  
+  // 이벤트 타입 필터링
+  if (type) {
+    query += ' AND event_type = ?'
+    params.push(type)
+  }
+  
+  // 우선순위 높은 순, 시작일 최신 순
+  query += ' ORDER BY priority DESC, start_date DESC'
+  
+  const { results } = await c.env.DB.prepare(query).bind(...params).all()
   
   return c.json({ events: results })
 })
