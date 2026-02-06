@@ -3064,10 +3064,12 @@ async function updateCartCount() {
     const userId = localStorage.getItem('user_id');
     const sessionId = getSessionId();
     
-    const response = await fetch(`/api/cart?${userId ? `user_id=${userId}` : `session_id=${sessionId}`}`);
+    // 새로운 /api/cart/count 엔드포인트 사용
+    const params = userId ? `user_id=${userId}` : sessionId ? `session_id=${sessionId}` : '';
+    const response = await fetch(`/api/cart/count${params ? '?' + params : ''}`);
     const data = await response.json();
     
-    const cartCount = data.cart_items?.length || 0;
+    const cartCount = data.count || 0;
     const cartBadge = document.getElementById('cartCount');
     
     if (cartBadge) {
