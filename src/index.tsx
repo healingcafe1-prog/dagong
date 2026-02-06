@@ -2503,4 +2503,333 @@ app.get('/api/admin/settlements/batches', async (c) => {
   return c.json({ batches: batches.results })
 })
 
+// ===== JSX Renderer =====
+import { jsxRenderer } from 'hono/jsx-renderer'
+
+app.use('*', jsxRenderer(({ children }) => {
+  return (
+    <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+        <title>다공 - 차와 공예의 직거래 플랫폼</title>
+        <meta name="description" content="다공 - 전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진을 줄여 합리적 가격으로 좋은 품질을 만나보세요." />
+        
+        {/* PWA Meta Tags */}
+        <meta name="theme-color" content="#7c9473" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="다공" />
+        
+        {/* SEO Keywords */}
+        <meta name="keywords" content="다공, 한국차, 전통차, 공예품, 차 직거래, 공예품 직거래, 차산지, 공예산지, 다도, 지역특산품, 보성녹차, 하동녹차, 제주녹차, 전통공예, 도자기, 목공예, 금속공예, Korean tea, Korean craft, traditional tea, handmade craft, direct trade" />
+        <meta name="author" content="다공" />
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="NaverBot" content="index, follow" />
+        <meta name="Yeti" content="index, follow" />
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href="https://dagong.co.kr/" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="다공" />
+        <meta property="og:title" content="다공 - 차와 공예의 직거래 플랫폼 | 생산자 직거래로 합리적 가격에" />
+        <meta property="og:description" content="전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진 없이 생산자에게 직접 구매하세요. 보성녹차, 하동녹차, 제주녹차부터 전통 도자기, 목공예까지 - 소비자가 대비 최대 50% 절약!" />
+        <meta property="og:url" content="https://dagong.co.kr/" />
+        <meta property="og:image" content="https://dagong.co.kr/static/icons/icon-512x512.png" />
+        <meta property="og:image:width" content="512" />
+        <meta property="og:image:height" content="512" />
+        <meta property="og:locale" content="ko_KR" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@dagong_kr" />
+        <meta name="twitter:title" content="다공 - 차와 공예의 직거래 플랫폼" />
+        <meta name="twitter:description" content="전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진 없이 합리적 가격으로 좋은 품질을 만나보세요." />
+        <meta name="twitter:image" content="https://dagong.co.kr/static/icons/icon-512x512.png" />
+        
+        {/* Naver Site Verification */}
+        <meta name="naver-site-verification" content="51a0658e89bc8816eeb448bf53b1862b86609662" />
+        
+        {/* Structured Data */}
+        <meta property="article:publisher" content="https://dagong.co.kr" />
+        
+        {/* External Resources */}
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet" />
+        <link href="/static/style.css" rel="stylesheet" />
+        
+        {/* PWA Manifest */}
+        <meta name="theme-color" content="#7c9473" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="다공" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512x512.png" />
+        
+        {/* i18n Script */}
+        <script src="/static/i18n.js"></script>
+        
+        {/* Tailwind Config */}
+        <script dangerouslySetInnerHTML={{__html: `
+            tailwind.config = {
+              theme: {
+                extend: {
+                  colors: {
+                    'tea-green': '#7c9473',
+                    'tea-brown': '#8b6f47',
+                    'tea-cream': '#f5f1e8',
+                    'craft-blue': '#5b7c99',
+                  }
+                }
+              }
+            }
+          `}} />
+      </head>
+      <body class="bg-tea-cream min-h-screen">
+        {children}
+        
+        {/* Scripts */}
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+        <script src="/static/app.js"></script>
+        <script src="/static/producer-forms.js"></script>
+        <script src="/static/mobile.js"></script>
+      </body>
+    </html>
+  )
+}))
+
+// ===== Homepage =====
+app.get('/', (c) => {
+  return c.render(
+    <>
+      {/* Navigation */}
+      <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+          <div class="flex items-center justify-between h-20">
+            {/* Logo */}
+            <a href="/" class="flex items-center space-x-3 group">
+              <i class="fas fa-leaf text-tea-green text-2xl group-hover:rotate-12 transition-transform duration-300"></i>
+              <div class="flex items-center" id="logoText">
+                <span class="text-2xl font-bold text-gray-800">다공</span>
+              </div>
+            </a>
+            
+            {/* Desktop Menu */}
+            <div class="hidden md:flex items-center space-x-8">
+              <a href="/products?type=tea" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                <i class="fas fa-mug-hot text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.teaDirect">차 직거래</span>
+              </a>
+              <a href="/products?type=craft" class="flex flex-col items-center text-gray-700 hover:text-craft-blue transition group">
+                <i class="fas fa-palette text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.craft">공예품</span>
+              </a>
+              <a href="/products?type=gift_set" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
+                <i class="fas fa-gift text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.giftSet">선물세트</span>
+              </a>
+              <a href="/products?type=local" class="flex flex-col items-center text-gray-700 hover:text-green-600 transition group">
+                <i class="fas fa-seedling text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.localProducts">지역특산물</span>
+              </a>
+              <a href="/regions" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.regions">지역별 보기</span>
+              </a>
+              <a href="/experiences" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                <i class="fas fa-users text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.experiences">체험·교육</span>
+              </a>
+              <div class="relative group">
+                <a href="/education/curriculum" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition">
+                  <i class="fas fa-graduation-cap text-xl mb-1"></i>
+                  <span class="text-sm" data-i18n="nav.education">다도교육</span>
+                </a>
+                <div class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+                  <a href="/education/curriculum" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-book mr-2"></i>
+                    <span data-i18n="nav.educationCurriculum">교육 커리큘럼</span>
+                  </a>
+                  <a href="/education/apply" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-pencil-alt mr-2"></i>
+                    <span data-i18n="nav.educationApply">교육 신청</span>
+                  </a>
+                  <a href="/education/status" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-list-check mr-2"></i>
+                    <span data-i18n="nav.educationStatus">교육 현황</span>
+                  </a>
+                </div>
+              </div>
+              <a href="/events" class="flex flex-col items-center text-gray-700 hover:text-tea-brown transition group">
+                <i class="fas fa-star text-xl mb-1"></i>
+                <span class="text-sm" data-i18n="nav.events">이벤트</span>
+              </a>
+            </div>
+            
+            {/* Right Actions */}
+            <div class="flex items-center space-x-4">
+              <button id="searchBtn" class="text-gray-700 hover:text-tea-green">
+                <i class="fas fa-search text-xl"></i>
+              </button>
+              <a href="/cart" class="relative text-gray-700 hover:text-tea-green transition">
+                <i class="fas fa-shopping-cart text-xl"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+              </a>
+              <div class="relative hidden md:block">
+                <button id="langBtn" class="flex items-center space-x-1 text-gray-700 hover:text-tea-green transition">
+                  <i class="fas fa-globe text-xl"></i>
+                  <span id="currentLang" class="text-sm font-medium">KO</span>
+                  <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                  <button data-lang="ko" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <span class="flex items-center"><span class="mr-2">🇰🇷</span> 한국어</span>
+                    <span class="text-xs text-gray-500">KO</span>
+                  </button>
+                  <button data-lang="en" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <span class="flex items-center"><span class="mr-2">🇺🇸</span> English</span>
+                    <span class="text-xs text-gray-500">EN</span>
+                  </button>
+                  <button data-lang="zh" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <span class="flex items-center"><span class="mr-2">🇨🇳</span> 中文</span>
+                    <span class="text-xs text-gray-500">ZH</span>
+                  </button>
+                  <button data-lang="ja" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-tea-cream transition flex items-center justify-between">
+                    <span class="flex items-center"><span class="mr-2">🇯🇵</span> 日本語</span>
+                    <span class="text-xs text-gray-500">JA</span>
+                  </button>
+                </div>
+              </div>
+              <div id="userMenu" class="hidden md:block">
+                <a href="/login" id="loginBtn" class="text-gray-700 hover:text-tea-green">
+                  <i class="fas fa-user text-xl"></i>
+                </a>
+                <div id="userDropdown" class="hidden relative">
+                  <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-tea-green">
+                    <img id="userAvatar" src="" alt="프로필" class="w-8 h-8 rounded-full" />
+                    <span id="userName"></span>
+                  </button>
+                  <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
+                    <a href="/mypage" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-user mr-2"></i>마이페이지
+                    </a>
+                    <button id="logoutBtn" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button id="mobileMenuBtn" class="md:hidden text-gray-700">
+                <i class="fas fa-bars text-xl"></i>
+              </button>
+            </div>
+          </div>
+          
+          {/* Mobile Menu */}
+          <div id="mobileMenu" class="hidden md:hidden pb-4">
+            <a href="/products?type=tea" class="block py-2 text-gray-700 hover:text-tea-green">차 직거래</a>
+            <a href="/products?type=craft" class="block py-2 text-gray-700 hover:text-craft-blue">공예품</a>
+            <a href="/products?type=gift_set" class="block py-2 text-gray-700 hover:text-tea-brown">선물세트</a>
+            <a href="/products?type=local" class="block py-2 text-gray-700 hover:text-green-600">지역특산물</a>
+            <a href="/regions" class="block py-2 text-gray-700 hover:text-tea-green">지역별 보기</a>
+            <a href="/experiences" class="block py-2 text-gray-700 hover:text-tea-green">체험·교육</a>
+            <div class="py-2">
+              <div class="font-medium text-gray-900 mb-1">다도교육</div>
+              <a href="/education/curriculum" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 커리큘럼</a>
+              <a href="/education/apply" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 신청</a>
+              <a href="/education/status" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 현황</a>
+            </div>
+            <a href="/events" class="block py-2 text-gray-700 hover:text-tea-brown">이벤트</a>
+            <div class="py-2 border-t border-gray-200 mt-2">
+              <div class="font-medium text-gray-900 mb-2 flex items-center">
+                <i class="fas fa-globe mr-2"></i>언어 선택
+              </div>
+              <button data-lang-mobile="ko" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <span class="mr-2">🇰🇷</span> 한국어 (Korean)
+              </button>
+              <button data-lang-mobile="en" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <span class="mr-2">🇺🇸</span> English
+              </button>
+              <button data-lang-mobile="zh" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <span class="mr-2">🇨🇳</span> 中文 (Chinese)
+              </button>
+              <button data-lang-mobile="ja" class="block w-full text-left py-2 pl-4 text-gray-700 hover:text-tea-green hover:bg-tea-cream rounded">
+                <span class="mr-2">🇯🇵</span> 日本語 (Japanese)
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+      
+      {/* Search Modal */}
+      <div id="searchModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-gray-800">검색</h3>
+              <button id="closeSearchBtn" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            <input type="text" id="searchInput" placeholder="상품, 생산자, 지역을 검색하세요..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green" />
+            <div id="searchResults" class="mt-4"></div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <main class="min-h-screen">
+        <div id="app">
+          <div class="loading">로딩 중...</div>
+        </div>
+      </main>
+      
+      {/* Footer */}
+      <footer class="bg-gray-800 text-white mt-20">
+        <div class="container mx-auto px-4 py-12">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h4 class="text-lg font-bold mb-4">다공</h4>
+              <p class="text-gray-400 text-sm">전통 차와 공예품을 생산자와<br />직거래하는 플랫폼입니다.</p>
+            </div>
+            <div>
+              <h4 class="text-lg font-bold mb-4">상품</h4>
+              <ul class="space-y-2 text-sm">
+                <li><a href="/products?type=tea" class="text-gray-400 hover:text-white">차 직거래</a></li>
+                <li><a href="/products?type=craft" class="text-gray-400 hover:text-white">공예품</a></li>
+                <li><a href="/products?type=gift_set" class="text-gray-400 hover:text-white">선물세트</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-lg font-bold mb-4">지역</h4>
+              <ul class="space-y-2 text-sm">
+                <li><a href="/regions?type=tea" class="text-gray-400 hover:text-white">차 산지</a></li>
+                <li><a href="/regions?type=craft" class="text-gray-400 hover:text-white">공예 산지</a></li>
+                <li><a href="/producers" class="text-gray-400 hover:text-white">생산자</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-lg font-bold mb-4">체험·이벤트</h4>
+              <ul class="space-y-2 text-sm">
+                <li><a href="/experiences" class="text-gray-400 hover:text-white">체험 프로그램</a></li>
+                <li><a href="/events" class="text-gray-400 hover:text-white">이달의 이벤트</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
+            <p>© 2024 다공. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </>
+  )
+})
+
 export default app
