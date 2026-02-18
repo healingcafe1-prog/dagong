@@ -1323,6 +1323,60 @@ app.get('/api/education-statistics', async (c) => {
   })
 })
 
+// 교육 타입별 상태 통계 API
+app.get('/api/education/applications/status', async (c) => {
+  const educationType = c.req.query('education_type')
+  
+  if (!educationType) {
+    return c.json({ error: 'education_type parameter is required' }, 400)
+  }
+  
+  // 전체 신청 수
+  const { results: totalResult } = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count
+    FROM education_applications
+    WHERE education_type = ?
+  `).bind(educationType).all()
+  
+  // 승인 대기 수
+  const { results: pendingResult } = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count
+    FROM education_applications
+    WHERE education_type = ? AND status = 'pending'
+  `).bind(educationType).all()
+  
+  // 진행 중 수
+  const { results: approvedResult } = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count
+    FROM education_applications
+    WHERE education_type = ? AND status = 'approved'
+  `).bind(educationType).all()
+  
+  // 완료 수
+  const { results: completedResult } = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count
+    FROM education_applications
+    WHERE education_type = ? AND status = 'completed'
+  `).bind(educationType).all()
+  
+  // 신청 목록 (최근 10개)
+  const { results: recentApplications } = await c.env.DB.prepare(`
+    SELECT *
+    FROM education_applications
+    WHERE education_type = ?
+    ORDER BY created_at DESC
+    LIMIT 10
+  `).bind(educationType).all()
+  
+  return c.json({
+    total: totalResult[0]?.count || 0,
+    pending: pendingResult[0]?.count || 0,
+    approved: approvedResult[0]?.count || 0,
+    completed: completedResult[0]?.count || 0,
+    recentApplications: recentApplications
+  })
+})
+
 // ===== 교육 커리큘럼 API =====
 
 // 교육 카테고리 목록 조회 (차공부, 공예공부)
