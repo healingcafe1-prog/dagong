@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "kr.co.dagong.twa",
+    "package_name": "kr.co.dagong",
     "sha256_cert_fingerprints": [
       "YOUR_SHA256_FINGERPRINT_HERE"
     ]

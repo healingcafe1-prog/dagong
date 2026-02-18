@@ -1,10 +1,11 @@
 {
-  "name": "한국 차 공예",
-  "short_name": "차공예",
-  "description": "한국 전통 차와 공예품을 생산자와 직거래하는 플랫폼",
+  "name": "다공 - 차와 공예의 직거래 플랫폼",
+  "short_name": "다공",
+  "description": "전통 차와 공예품을 생산자와 직접 거래하는 플랫폼. 전국의 차 생산지와 공예 작가를 만나보세요.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#f5f1e8",
+  "background_color": "#f5f7fa",
   "theme_color": "#7c9473",
   "orientation": "portrait-primary",
   "icons": [
@@ -62,19 +63,18 @@
       "src": "/static/screenshots/screenshot-mobile.png",
       "sizes": "540x720",
       "type": "image/png",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "다공 모바일 화면"
     },
     {
       "src": "/static/screenshots/screenshot-desktop.png",
       "sizes": "1920x1080",
       "type": "image/png",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "다공 데스크톱 화면"
     }
   ],
   "categories": ["shopping", "food", "lifestyle"],
   "lang": "ko-KR",
-  "dir": "ltr",
-  "iarc_rating_id": "",
-  "related_applications": [],
-  "prefer_related_applications": false
+  "dir": "ltr"
 }
