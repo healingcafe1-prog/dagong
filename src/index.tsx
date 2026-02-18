@@ -31,6 +31,13 @@ app.get('/naverf3735d7a56c13e617b246ff2b6e0da46.html', (c) => {
   })
 })
 
+// 구글 사이트 소유 확인 파일
+app.get('/googleee4e97dad940b617.html', (c) => {
+  return c.text('google-site-verification: googleee4e97dad940b617.html', 200, {
+    'Content-Type': 'text/html; charset=utf-8'
+  })
+})
+
 // robots.txt 서빙
 app.get('/robots.txt', (c) => {
   return c.text(`User-agent: *
