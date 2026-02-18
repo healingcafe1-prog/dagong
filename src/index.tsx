@@ -1376,8 +1376,513 @@ app.get('/products', (c) => {
 
 // 상품 등록 페이지 (반드시 /products/:id 앞에 위치)
 app.get('/products/new', (c) => {
-  // HTML이 너무 길어서 간단한 버전으로 제공
-  return c.html('<h1>Product Registration Form</h1><p>Coming soon...</p>')
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>상품 등록 - 다공</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          body {
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px 0;
+          }
+          .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+          }
+          .form-group {
+            margin-bottom: 25px;
+          }
+          .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+          }
+          .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+          }
+          .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4a90e2;
+          }
+          .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+          }
+          .required::after {
+            content: " *";
+            color: #e74c3c;
+          }
+          .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+          }
+          .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          }
+          .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+          }
+          .image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+          }
+          .image-preview {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+          }
+          .image-preview:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+          }
+          .image-preview img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+          }
+          .image-preview .upload-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #6c757d;
+          }
+          .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #e74c3c;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            z-index: 10;
+          }
+          .help-text {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 6px;
+          }
+          .error-text {
+            font-size: 13px;
+            color: #e74c3c;
+            margin-top: 6px;
+          }
+          .info-box {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+          }
+          .price-calculation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+          }
+          .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+          }
+          .price-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid #dee2e6;
+          }
+          .price-row .label {
+            color: #6c757d;
+          }
+          .price-row .value {
+            color: #2c3e50;
+            font-weight: 500;
+          }
+          .price-row:last-child .value {
+            color: #27ae60;
+          }
+        </style>
+    </head>
+    <body>
+        <div class="form-container">
+            <h1 style="font-size: 28px; font-weight: 700; color: #2c3e50; margin-bottom: 10px;">
+                <i class="fas fa-box"></i> 상품 등록
+            </h1>
+            <p style="color: #6c757d; margin-bottom: 30px;">
+                간편하게 상품을 등록하고 판매를 시작하세요
+            </p>
+
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i> 
+                <strong>등록 안내</strong><br>
+                • 상품 사진은 5~10장 필수입니다<br>
+                • 할인율은 20%~50% 범위에서 설정할 수 있습니다<br>
+                • 수수료(6.6%), 카드수수료(3.3%), 세금(3.3%) = 총 13.2%가 자동 계산됩니다
+            </div>
+
+            <form id="productForm">
+                <!-- 상품명 -->
+                <div class="form-group">
+                    <label class="required">상품명</label>
+                    <input type="text" name="name" id="name" placeholder="예: 제주 한라산 녹차 50g" required>
+                    <div class="help-text">고객이 알아보기 쉬운 상품명을 입력하세요</div>
+                </div>
+
+                <!-- 상품 설명 -->
+                <div class="form-group">
+                    <label class="required">상품 설명</label>
+                    <textarea name="description" id="description" placeholder="상품의 특징, 원산지, 제조 방법 등을 자세히 설명해주세요" required></textarea>
+                    <div class="help-text">상품에 대한 자세한 정보를 입력하세요</div>
+                </div>
+
+                <!-- 상품 사진 -->
+                <div class="form-group">
+                    <label class="required">상품 사진 (5~10장)</label>
+                    <div class="image-preview-container" id="imagePreviewContainer">
+                        <!-- 이미지 미리보기가 여기에 추가됩니다 -->
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" multiple style="display: none;">
+                    <button type="button" class="btn-primary" onclick="document.getElementById('imageInput').click()" style="margin-top: 15px; background: linear-gradient(135deg, #48c774 0%, #00b894 100%);">
+                        <i class="fas fa-camera"></i> 사진 추가
+                    </button>
+                    <div class="help-text" id="imageCountText">0장 선택됨 (최소 5장, 최대 10장)</div>
+                    <div class="error-text" id="imageError" style="display: none;"></div>
+                </div>
+
+                <!-- 카테고리 -->
+                <div class="form-group">
+                    <label class="required">카테고리</label>
+                    <select name="category_id" id="category_id" required>
+                        <option value="">카테고리 선택</option>
+                        <option value="1">차 (茶)</option>
+                        <option value="2">공예품</option>
+                        <option value="3">선물세트</option>
+                    </select>
+                </div>
+
+                <!-- 상품 타입 -->
+                <div class="form-group">
+                    <label class="required">상품 타입</label>
+                    <select name="product_type" id="product_type" required>
+                        <option value="">타입 선택</option>
+                        <option value="tea">차</option>
+                        <option value="craft">공예품</option>
+                        <option value="gift_set">선물세트</option>
+                        <option value="local">지역특산물</option>
+                    </select>
+                </div>
+
+                <!-- 가격 정보 -->
+                <div class="form-group">
+                    <label class="required">소비자가 (원)</label>
+                    <input type="number" name="consumer_price" id="consumer_price" placeholder="예: 25000" required min="1000">
+                    <div class="help-text">일반 소비자가격 (시장가격)</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">직거래가 (원)</label>
+                    <input type="number" name="direct_price" id="direct_price" placeholder="예: 20000" required min="1000">
+                    <div class="help-text">다공 플랫폼에서 판매할 가격</div>
+                </div>
+
+                <!-- 할인율 -->
+                <div class="form-group">
+                    <label class="required">할인율 (%)</label>
+                    <input type="number" name="discount_rate" id="discount_rate" value="30" required min="20" max="50">
+                    <div class="help-text">20% ~ 50% 범위에서 설정 가능</div>
+                    <div class="error-text" id="discountError" style="display: none;"></div>
+                </div>
+
+                <!-- 가격 계산 결과 -->
+                <div class="price-calculation" id="priceCalculation" style="display: none;">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">
+                        <i class="fas fa-calculator"></i> 수수료 계산
+                    </h3>
+                    <div class="price-row">
+                        <span class="label">직거래가</span>
+                        <span class="value" id="calcDirectPrice">0원</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="label">플랫폼 수수료 (6.6%)</span>
+                        <span class="value" id="calcPlatformFee">0원</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="label">카드 수수료 (3.3%)</span>
+                        <span class="value" id="calcCardFee">0원</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="label">세금 (3.3%)</span>
+                        <span class="value" id="calcTax">0원</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="label">총 수수료 (13.2%)</span>
+                        <span class="value" id="calcTotalFee">0원</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="label">판매자 수령액</span>
+                        <span class="value" id="calcProducerRevenue">0원</span>
+                    </div>
+                </div>
+
+                <!-- 배송비 -->
+                <div class="form-group">
+                    <label>배송비 (원)</label>
+                    <input type="number" name="shipping_fee" id="shipping_fee" value="3000" min="3000" max="5000">
+                    <div class="help-text">기본 3,000원 (3,000~5,000원 범위)</div>
+                </div>
+
+                <!-- 재고 수량 -->
+                <div class="form-group">
+                    <label>재고 수량</label>
+                    <input type="number" name="stock_quantity" id="stock_quantity" value="100" min="0">
+                    <div class="help-text">판매 가능한 재고 수량</div>
+                </div>
+
+                <!-- 무게 -->
+                <div class="form-group">
+                    <label>무게 (g)</label>
+                    <input type="number" name="weight" id="weight" placeholder="예: 50" min="1">
+                </div>
+
+                <!-- 원산지 -->
+                <div class="form-group">
+                    <label>원산지</label>
+                    <input type="text" name="origin" id="origin" placeholder="예: 제주도">
+                </div>
+
+                <!-- 등록 버튼 -->
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <i class="fas fa-check"></i> 상품 등록하기
+                </button>
+            </form>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+        <script>
+          let selectedImages = [];
+
+          // 이미지 업로드 처리
+          document.getElementById('imageInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+              if (selectedImages.length >= 10) {
+                showImageError('최대 10장까지 등록할 수 있습니다');
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                selectedImages.push({
+                  file: file,
+                  url: e.target.result
+                });
+                updateImagePreviews();
+              };
+              reader.readAsDataURL(file);
+            });
+
+            // 입력 초기화
+            e.target.value = '';
+          });
+
+          function updateImagePreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+
+            selectedImages.forEach((image, index) => {
+              const div = document.createElement('div');
+              div.className = 'image-preview';
+              div.innerHTML = \`
+                <img src="\${image.url}" alt="상품 이미지 \${index + 1}">
+                <button type="button" class="remove-image" onclick="removeImage(\${index})">
+                  <i class="fas fa-times"></i>
+                </button>
+              \`;
+              container.appendChild(div);
+            });
+
+            // 이미지 개수 업데이트
+            const countText = document.getElementById('imageCountText');
+            countText.textContent = \`\${selectedImages.length}장 선택됨 (최소 5장, 최대 10장)\`;
+
+            // 에러 메시지 체크
+            if (selectedImages.length < 5) {
+              showImageError('최소 5장 이상의 사진을 등록해주세요');
+            } else if (selectedImages.length > 10) {
+              showImageError('최대 10장까지 등록할 수 있습니다');
+            } else {
+              hideImageError();
+            }
+          }
+
+          function removeImage(index) {
+            selectedImages.splice(index, 1);
+            updateImagePreviews();
+          }
+
+          function showImageError(message) {
+            const errorEl = document.getElementById('imageError');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+          }
+
+          function hideImageError() {
+            document.getElementById('imageError').style.display = 'none';
+          }
+
+          // 할인율 검증
+          document.getElementById('discount_rate').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            const errorEl = document.getElementById('discountError');
+            
+            if (value < 20 || value > 50) {
+              errorEl.textContent = '할인율은 20% ~ 50% 범위에서 설정해주세요';
+              errorEl.style.display = 'block';
+            } else {
+              errorEl.style.display = 'none';
+            }
+          });
+
+          // 가격 계산
+          function calculateFees() {
+            const directPrice = parseFloat(document.getElementById('direct_price').value) || 0;
+            
+            if (directPrice <= 0) {
+              document.getElementById('priceCalculation').style.display = 'none';
+              return;
+            }
+
+            const platformFee = Math.round(directPrice * 0.066);
+            const cardFee = Math.round(directPrice * 0.033);
+            const tax = Math.round(directPrice * 0.033);
+            const totalFee = platformFee + cardFee + tax;
+            const producerRevenue = directPrice - totalFee;
+
+            document.getElementById('calcDirectPrice').textContent = directPrice.toLocaleString() + '원';
+            document.getElementById('calcPlatformFee').textContent = platformFee.toLocaleString() + '원';
+            document.getElementById('calcCardFee').textContent = cardFee.toLocaleString() + '원';
+            document.getElementById('calcTax').textContent = tax.toLocaleString() + '원';
+            document.getElementById('calcTotalFee').textContent = totalFee.toLocaleString() + '원';
+            document.getElementById('calcProducerRevenue').textContent = producerRevenue.toLocaleString() + '원';
+
+            document.getElementById('priceCalculation').style.display = 'block';
+          }
+
+          document.getElementById('direct_price').addEventListener('input', calculateFees);
+
+          // 폼 제출
+          document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // 이미지 검증
+            if (selectedImages.length < 5 || selectedImages.length > 10) {
+              alert('상품 사진은 5~10장 등록해야 합니다');
+              return;
+            }
+
+            // 할인율 검증
+            const discountRate = parseInt(document.getElementById('discount_rate').value);
+            if (discountRate < 20 || discountRate > 50) {
+              alert('할인율은 20% ~ 50% 범위에서 설정해주세요');
+              return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 등록 중...';
+
+            try {
+              // 이미지를 Base64로 변환 (실제로는 이미지 업로드 API 사용)
+              const imageUrls = selectedImages.map((img, index) => 
+                \`/images/products/\${Date.now()}-\${index}.jpg\`
+              );
+
+              const formData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                images: imageUrls,
+                category_id: parseInt(document.getElementById('category_id').value),
+                product_type: document.getElementById('product_type').value,
+                consumer_price: parseFloat(document.getElementById('consumer_price').value),
+                direct_price: parseFloat(document.getElementById('direct_price').value),
+                discount_rate: discountRate,
+                shipping_fee: parseInt(document.getElementById('shipping_fee').value) || 3000,
+                stock_quantity: parseInt(document.getElementById('stock_quantity').value) || 0,
+                weight: parseInt(document.getElementById('weight').value) || null,
+                origin: document.getElementById('origin').value || null
+              };
+
+              const response = await axios.post('/api/products', formData);
+
+              if (response.data.success) {
+                alert(\`상품이 등록되었습니다! (상품 ID: \${response.data.product_id})\`);
+                window.location.href = '/products';
+              } else {
+                throw new Error(response.data.message || '상품 등록 실패');
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('상품 등록에 실패했습니다: ' + (error.response?.data?.message || error.message));
+            } finally {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fas fa-check"></i> 상품 등록하기';
+            }
+          });
+        </script>
+    </body>
+    </html>
+  `)
 })
 
 // 상품 상세 페이지
