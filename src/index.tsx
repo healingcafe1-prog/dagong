@@ -1374,6 +1374,12 @@ app.get('/products', (c) => {
   )
 })
 
+// 상품 등록 페이지 (반드시 /products/:id 앞에 위치)
+app.get('/products/new', (c) => {
+  // HTML이 너무 길어서 간단한 버전으로 제공
+  return c.html('<h1>Product Registration Form</h1><p>Coming soon...</p>')
+})
+
 // 상품 상세 페이지
 app.get('/products/:id', (c) => {
   return c.render(
@@ -1617,6 +1623,310 @@ app.get('/login', (c) => {
                 <p><a href="/privacy" class="text-purple-600">개인정보처리방침</a>에 동의하게 됩니다</p>
             </div>
         </div>
+    </body>
+    </html>
+  `)
+})
+
+// 판매자 등록 페이지
+app.get('/seller/register', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>판매자 등록 - 다공</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          body {
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px 0;
+          }
+          .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 40px;
+          }
+          .form-group {
+            margin-bottom: 24px;
+          }
+          .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+          }
+          .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+          }
+          .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
+          .tab-button {
+            padding: 12px 24px;
+            background: #e5e7eb;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+          }
+          .tab-button.active {
+            background: #667eea;
+            color: white;
+          }
+          .tab-content {
+            display: none;
+          }
+          .tab-content.active {
+            display: block;
+          }
+          .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+          }
+          .btn-submit:hover {
+            background: #5568d3;
+          }
+          .required {
+            color: #ef4444;
+          }
+        </style>
+    </head>
+    <body>
+        <div class="form-container">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">판매자 정보 등록</h1>
+                <p class="text-gray-600">상품을 판매하기 위해 판매자 정보를 등록해주세요</p>
+            </div>
+
+            <!-- 판매자 타입 선택 -->
+            <div class="mb-8">
+                <div class="flex gap-2">
+                    <button type="button" class="tab-button active flex-1" data-tab="business" onclick="switchTab('business')">
+                        <i class="fas fa-building mr-2"></i>사업자
+                    </button>
+                    <button type="button" class="tab-button flex-1" data-tab="individual" onclick="switchTab('individual')">
+                        <i class="fas fa-user mr-2"></i>개인
+                    </button>
+                </div>
+            </div>
+
+            <form id="sellerForm">
+                <input type="hidden" id="seller_type" name="seller_type" value="business">
+
+                <!-- 공통 정보 -->
+                <div class="form-group">
+                    <label class="form-label">
+                        판매자명 <span class="required">*</span>
+                    </label>
+                    <input type="text" class="form-input" name="name" required placeholder="예: 제주 한라산 차농원">
+                </div>
+
+                <!-- 사업자 정보 -->
+                <div id="business-fields" class="tab-content active">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">사업자 정보</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            사업자등록번호 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="business_registration_number" placeholder="123-45-67890">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            상호명 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="business_name" placeholder="한라산차농원">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            대표자명 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="representative_name" placeholder="김제주">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">사업장 주소</label>
+                        <input type="text" class="form-input" name="business_address" placeholder="제주특별자치도 제주시 한라산로 123">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">사업장 전화번호</label>
+                        <input type="tel" class="form-input" name="business_phone" placeholder="064-123-4567">
+                    </div>
+                </div>
+
+                <!-- 개인 정보 -->
+                <div id="individual-fields" class="tab-content">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">개인 정보</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            주민등록번호 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="personal_id_number" placeholder="900101-1******">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            휴대폰 번호 <span class="required">*</span>
+                        </label>
+                        <input type="tel" class="form-input" name="mobile_phone" placeholder="010-1234-5678">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            이메일 <span class="required">*</span>
+                        </label>
+                        <input type="email" class="form-input" name="personal_email" placeholder="example@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            주소 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="personal_address" placeholder="전라남도 보성군 보성읍 차밭로 456">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">우편번호</label>
+                        <input type="text" class="form-input" name="personal_zipcode" placeholder="59450">
+                    </div>
+                </div>
+
+                <!-- 정산 계좌 정보 (공통) -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">정산 계좌 정보</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            은행명 <span class="required">*</span>
+                        </label>
+                        <select class="form-input" name="bank_name" required>
+                            <option value="">은행 선택</option>
+                            <option value="농협은행">농협은행</option>
+                            <option value="신한은행">신한은행</option>
+                            <option value="국민은행">국민은행</option>
+                            <option value="우리은행">우리은행</option>
+                            <option value="하나은행">하나은행</option>
+                            <option value="기업은행">기업은행</option>
+                            <option value="SC제일은행">SC제일은행</option>
+                            <option value="카카오뱅크">카카오뱅크</option>
+                            <option value="케이뱅크">케이뱅크</option>
+                            <option value="토스뱅크">토스뱅크</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            계좌번호 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="account_number" required placeholder="123-456-789012">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            예금주명 <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" name="account_holder" required placeholder="김제주">
+                    </div>
+                </div>
+
+                <!-- 안내 문구 -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <p class="text-sm text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        판매자 정보는 관리자 승인 후 상품 등록이 가능합니다. 승인까지 1-2일 소요될 수 있습니다.
+                    </p>
+                </div>
+
+                <!-- 제출 버튼 -->
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check mr-2"></i>판매자 정보 등록
+                </button>
+            </form>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+        <script>
+            // 탭 전환
+            function switchTab(tabName) {
+                // 버튼 활성화
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(\`[data-tab="\${tabName}"]\`).classList.add('active');
+
+                // 컨텐츠 표시
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(\`\${tabName}-fields\`).classList.add('active');
+
+                // hidden input 업데이트
+                document.getElementById('seller_type').value = tabName;
+            }
+
+            // 폼 제출
+            document.getElementById('sellerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                // 판매자 타입별 필수 필드 검증
+                const sellerType = data.seller_type;
+                
+                if (sellerType === 'business') {
+                    if (!data.business_registration_number || !data.business_name || !data.representative_name) {
+                        alert('사업자 필수 정보를 모두 입력해주세요');
+                        return;
+                    }
+                } else if (sellerType === 'individual') {
+                    if (!data.personal_id_number || !data.mobile_phone || !data.personal_email || !data.personal_address) {
+                        alert('개인 필수 정보를 모두 입력해주세요');
+                        return;
+                    }
+                }
+                
+                try {
+                    const response = await axios.post('/api/producers', data);
+                    
+                    if (response.data.success) {
+                        alert('판매자 정보가 등록되었습니다!\\n관리자 승인 후 상품을 등록하실 수 있습니다.');
+                        window.location.href = '/';
+                    }
+                } catch (error) {
+                    if (error.response) {
+                        alert('오류: ' + error.response.data.error);
+                    } else {
+                        alert('등록 중 오류가 발생했습니다: ' + error.message);
+                    }
+                }
+            });
+        </script>
     </body>
     </html>
   `)
