@@ -818,7 +818,8 @@ async function loadRegionsPage() {
     if (type) url += `?type=${type}`;
     
     const response = await axios.get(url);
-    const regions = response.data.regions;
+    // API가 배열 또는 { regions: [...] } 형식으로 반환 가능
+    const regions = Array.isArray(response.data) ? response.data : response.data.regions;
     
     const typeNames = {
       'tea': '차 산지',
