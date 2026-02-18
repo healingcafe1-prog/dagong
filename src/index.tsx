@@ -83,6 +83,41 @@ Sitemap: https://dagong.co.kr/sitemap.xml`, 200, {
   })
 })
 
+// PWA Manifest 서빙
+app.get('/manifest.json', (c) => {
+  return c.json({
+    name: '다공(茶工) - 차 생산자 직거래 플랫폼',
+    short_name: '다공',
+    description: '차 생산자와 소비자를 직접 연결하는 직거래 플랫폼. 차 직거래, 공예품, 체험 교육을 제공합니다.',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#059669',
+    orientation: 'portrait-primary',
+    scope: '/',
+    icons: [
+      { src: '/static/icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: '/static/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ],
+    categories: ['shopping', 'lifestyle', 'business'],
+    prefer_related_applications: false
+  })
+})
+
+// Digital Asset Links for Android TWA
+app.get('/.well-known/assetlinks.json', (c) => {
+  return c.json([{
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: {
+      namespace: 'android_app',
+      package_name: 'kr.co.dagong',
+      sha256_cert_fingerprints: [
+        '여기에_실제_SHA256_지문을_입력하세요'
+      ]
+    }
+  }])
+})
+
 // sitemap.xml 서빙 (간단 버전)
 app.get('/sitemap.xml', (c) => {
   const baseUrl = 'https://dagong.co.kr'
