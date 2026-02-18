@@ -1,167 +1,150 @@
 // Service Worker for 다공 PWA
-// Version: 1.0.0
-
 const CACHE_NAME = 'dagong-v1';
-const RUNTIME_CACHE = 'dagong-runtime';
+const RUNTIME_CACHE = 'dagong-runtime-v1';
 
-// 캐시할 정적 파일 목록
-const PRECACHE_URLS = [
+// 오프라인 시 보여줄 기본 페이지
+const OFFLINE_PAGE = '/offline.html';
+
+// 캐시할 정적 리소스
+const STATIC_ASSETS = [
   '/',
-  '/static/style.css',
+  '/offline.html',
+  '/manifest.json',
   '/static/app.js',
-  '/static/i18n.js',
-  '/static/producer-forms.js',
-  '/static/icons/icon-192x192.png',
-  '/static/icons/icon-512x512.png',
-  '/manifest.json'
+  'https://cdn.tailwindcss.com',
+  'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css',
+  'https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js'
 ];
 
-// 설치 이벤트: 정적 파일 캐싱
+// Service Worker 설치
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
+  console.log('[SW] Installing Service Worker');
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Precaching static assets');
-        return cache.addAll(PRECACHE_URLS);
+        console.log('[SW] Caching static assets');
+        return cache.addAll(STATIC_ASSETS);
       })
-      .then(() => self.skipWaiting())
+      .catch((error) => {
+        console.error('[SW] Cache installation failed:', error);
+      })
   );
+  
+  // 즉시 활성화
+  self.skipWaiting();
 });
 
-// 활성화 이벤트: 이전 캐시 정리
+// Service Worker 활성화
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating...');
+  console.log('[SW] Activating Service Worker');
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
+        cacheNames
+          .filter((cacheName) => {
+            // 오래된 캐시 삭제
+            return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
+          })
+          .map((cacheName) => {
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
-          }
-        })
+          })
       );
-    }).then(() => self.clients.claim())
+    })
   );
+  
+  // 모든 클라이언트를 즉시 제어
+  return self.clients.claim();
 });
 
-// Fetch 이벤트: 네트워크 우선, 캐시 폴백 전략
+// 네트워크 요청 가로채기
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // API 요청: 네트워크 우선
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // API 응답을 런타임 캐시에 저장
-          const responseClone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch(() => {
-          // 네트워크 실패 시 캐시에서 가져오기
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            // 캐시도 없으면 오프라인 응답
-            return new Response(
-              JSON.stringify({ error: '오프라인 상태입니다. 인터넷 연결을 확인해주세요.' }),
-              { 
-                status: 503,
-                headers: { 'Content-Type': 'application/json' }
-              }
-            );
-          });
-        })
-    );
+  // POST 요청은 캐시하지 않음
+  if (event.request.method !== 'GET') {
     return;
   }
 
-  // 정적 파일: 캐시 우선
-  if (url.pathname.startsWith('/static/') || 
-      url.pathname === '/' || 
-      url.pathname.endsWith('.css') || 
-      url.pathname.endsWith('.js')) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((cachedResponse) => {
+        // 캐시된 응답이 있으면 반환, 동시에 네트워크에서 업데이트
         if (cachedResponse) {
-          // 백그라운드에서 캐시 업데이트
-          fetch(request).then((response) => {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, response);
+          // Background fetch to update cache
+          fetch(event.request)
+            .then((networkResponse) => {
+              if (networkResponse && networkResponse.status === 200) {
+                caches.open(RUNTIME_CACHE).then((cache) => {
+                  cache.put(event.request, networkResponse.clone());
+                });
+              }
+            })
+            .catch(() => {
+              // Network error, use cached version
             });
-          }).catch(() => {});
+          
           return cachedResponse;
         }
-        
-        // 캐시 미스: 네트워크에서 가져오고 캐시에 저장
-        return fetch(request).then((response) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, response.clone());
-            return response;
-          });
-        });
-      })
-    );
-    return;
-  }
 
-  // 그 외: 네트워크 우선, 캐시 폴백
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        // 성공적인 응답을 런타임 캐시에 저장
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // 네트워크 실패 시 캐시에서 가져오기
-        return caches.match(request).then((cachedResponse) => {
-          return cachedResponse || new Response(
-            '오프라인 상태입니다. 인터넷 연결을 확인해주세요.',
-            { 
-              status: 503,
-              headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        // 캐시에 없으면 네트워크에서 가져오기
+        return fetch(event.request)
+          .then((networkResponse) => {
+            // 유효한 응답이면 캐시에 저장
+            if (networkResponse && networkResponse.status === 200) {
+              const responseToCache = networkResponse.clone();
+              
+              caches.open(RUNTIME_CACHE).then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
             }
-          );
-        });
+            
+            return networkResponse;
+          })
+          .catch(() => {
+            // 네트워크 오류 시 오프라인 페이지 반환
+            if (event.request.destination === 'document') {
+              return caches.match(OFFLINE_PAGE);
+            }
+          });
       })
   );
 });
 
-// 푸시 알림 이벤트 (향후 사용)
+// 백그라운드 동기화
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Background sync:', event.tag);
+  
+  if (event.tag === 'sync-data') {
+    event.waitUntil(
+      // 백그라운드에서 데이터 동기화
+      syncData()
+    );
+  }
+});
+
+// 푸시 알림
 self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Push received');
+  console.log('[SW] Push notification received');
+  
   const options = {
-    body: event.data ? event.data.text() : '새로운 알림이 도착했습니다.',
+    body: event.data ? event.data.text() : '새로운 알림이 있습니다',
     icon: '/static/icons/icon-192x192.png',
     badge: '/static/icons/icon-72x72.png',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    }
+    vibrate: [200, 100, 200],
+    tag: 'dagong-notification',
+    requireInteraction: true
   };
-  
+
   event.waitUntil(
     self.registration.showNotification('다공', options)
   );
 });
 
-// 알림 클릭 이벤트
+// 알림 클릭
 self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification clicked');
+  console.log('[SW] Notification clicked');
+  
   event.notification.close();
   
   event.waitUntil(
@@ -169,34 +152,13 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// 백그라운드 동기화 (향후 사용)
-self.addEventListener('sync', (event) => {
-  console.log('[Service Worker] Background sync:', event.tag);
-  if (event.tag === 'sync-cart') {
-    event.waitUntil(syncCart());
+// 데이터 동기화 함수
+async function syncData() {
+  try {
+    // 백그라운드에서 필요한 데이터 동기화
+    console.log('[SW] Syncing data...');
+    // 여기에 동기화 로직 추가
+  } catch (error) {
+    console.error('[SW] Sync failed:', error);
   }
-});
-
-async function syncCart() {
-  // 장바구니 동기화 로직 (향후 구현)
-  console.log('[Service Worker] Syncing cart...');
 }
-
-// 메시지 이벤트 (클라이언트와 통신)
-self.addEventListener('message', (event) => {
-  console.log('[Service Worker] Message received:', event.data);
-  
-  if (event.data.action === 'skipWaiting') {
-    self.skipWaiting();
-  }
-  
-  if (event.data.action === 'clearCache') {
-    event.waitUntil(
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
-        );
-      })
-    );
-  }
-});

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오프라인 - 다공</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
+        <!-- 아이콘 -->
+        <div class="mb-6">
+            <div class="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-wifi-slash text-4xl text-gray-400"></i>
+            </div>
+        </div>
+
+        <!-- 메시지 -->
+        <h1 class="text-2xl font-bold text-gray-900 mb-3">
+            인터넷 연결이 끊어졌습니다
+        </h1>
+        
+        <p class="text-gray-600 mb-6">
+            네트워크 연결을 확인하고 다시 시도해주세요.
+        </p>
+
+        <!-- 재시도 버튼 -->
+        <button onclick="location.reload()" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 mb-4">
+            <i class="fas fa-sync-alt mr-2"></i>
+            다시 시도
+        </button>
+
+        <!-- 홈으로 -->
+        <a href="/" 
+           class="block w-full text-gray-600 hover:text-gray-900 font-medium py-2 transition-colors">
+            <i class="fas fa-home mr-2"></i>
+            홈으로 이동
+        </a>
+
+        <!-- 연결 상태 표시 -->
+        <div id="connection-status" class="mt-6 p-3 rounded-lg bg-gray-50">
+            <p class="text-sm text-gray-500">
+                <i class="fas fa-circle text-red-500 mr-2 animate-pulse"></i>
+                오프라인 상태
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 네트워크 상태 감지
+        window.addEventListener('online', () => {
+            const status = document.getElementById('connection-status');
+            status.innerHTML = `
+                <p class="text-sm text-green-600">
+                    <i class="fas fa-circle text-green-500 mr-2"></i>
+                    연결됨 - 페이지를 새로고침하세요
+                </p>
+            `;
+            status.classList.remove('bg-gray-50');
+            status.classList.add('bg-green-50');
+            
+            // 2초 후 자동 새로고침
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        });
+
+        window.addEventListener('offline', () => {
+            const status = document.getElementById('connection-status');
+            status.innerHTML = `
+                <p class="text-sm text-gray-500">
+                    <i class="fas fa-circle text-red-500 mr-2 animate-pulse"></i>
+                    오프라인 상태
+                </p>
+            `;
+            status.classList.remove('bg-green-50');
+            status.classList.add('bg-gray-50');
+        });
+    </script>
+</body>
+</html>
