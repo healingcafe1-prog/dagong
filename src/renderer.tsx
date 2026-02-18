@@ -10,7 +10,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="description" content="다공 - 전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진을 줄여 합리적 가격으로 좋은 품질을 만나보세요." />
         
         {/* PWA 설정 */}
-        <meta name="theme-color" content="#7c9473" />
+        <meta name="theme-color" content="#059669" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -342,6 +342,9 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* Axios */}
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+        
+        {/* PWA 초기화 */}
+        <script src="/static/pwa-init.js"></script>
         
         {/* 앱 스크립트 */}
         <script src="/static/app.js"></script>
