@@ -183,10 +183,10 @@ app.get('/api/regions', async (c) => {
     params.push(type)
   }
   
-  query += ' ORDER BY display_order, id'
+  query += ' ORDER BY id'
   
   const { results } = await c.env.DB.prepare(query).bind(...params).all()
-  return c.json({ regions: results })
+  return c.json(results)
 })
 
 // 특정 지역 상세 조회 API
