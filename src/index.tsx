@@ -284,6 +284,178 @@ app.get('/api/producers/:id', async (c) => {
   return c.json({ producer, products })
 })
 
+// 판매자 정보 등록 (사업자/개인 구분)
+app.post('/api/producers', async (c) => {
+  const data = await c.req.json()
+  
+  // seller_type 검증: 'business' 또는 'individual'
+  const sellerType = data.seller_type || 'individual'
+  if (!['business', 'individual'].includes(sellerType)) {
+    return c.json({ error: 'seller_type은 business 또는 individual이어야 합니다' }, 400)
+  }
+  
+  // 사업자인 경우 필수 필드 검증
+  if (sellerType === 'business') {
+    if (!data.business_registration_number) {
+      return c.json({ error: '사업자등록번호는 필수입니다' }, 400)
+    }
+    if (!data.business_name) {
+      return c.json({ error: '상호명은 필수입니다' }, 400)
+    }
+    if (!data.representative_name) {
+      return c.json({ error: '대표자명은 필수입니다' }, 400)
+    }
+  }
+  
+  // 개인인 경우 필수 필드 검증
+  if (sellerType === 'individual') {
+    if (!data.personal_id_number) {
+      return c.json({ error: '주민등록번호는 필수입니다' }, 400)
+    }
+    if (!data.mobile_phone) {
+      return c.json({ error: '휴대폰 번호는 필수입니다' }, 400)
+    }
+    if (!data.personal_email) {
+      return c.json({ error: '이메일은 필수입니다' }, 400)
+    }
+  }
+  
+  // 공통 필수 필드
+  const accountHolder = data.account_holder_name || data.account_holder;
+  const accountNumber = data.bank_account_number || data.account_number;
+  
+  if (!data.bank_name || !accountNumber || !accountHolder) {
+    return c.json({ error: '은행명, 계좌번호, 예금주명은 필수입니다' }, 400)
+  }
+  
+  try {
+    const result = await c.env.DB.prepare(`
+      INSERT INTO producers (
+        name, region_id, producer_type, description, profile_image,
+        contact_phone, contact_email, address,
+        seller_type,
+        business_registration_number, business_name, representative_name,
+        business_address, business_phone,
+        personal_id_number, mobile_phone, personal_address, personal_zipcode, personal_email,
+        bank_name, account_number, account_holder,
+        is_verified
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      data.name,
+      data.region_id || null,
+      data.producer_type || 'both',
+      data.description || null,
+      data.profile_image || null,
+      data.phone || data.contact_phone || null,
+      data.email || data.contact_email || null,
+      data.address || null,
+      sellerType,
+      sellerType === 'business' ? (data.business_registration_number || null) : null,
+      sellerType === 'business' ? (data.business_name || null) : null,
+      sellerType === 'business' ? (data.representative_name || null) : null,
+      sellerType === 'business' ? (data.business_address || null) : null,
+      sellerType === 'business' ? (data.business_phone || null) : null,
+      sellerType === 'individual' ? (data.personal_id_number || null) : null,
+      sellerType === 'individual' ? (data.mobile_phone || null) : null,
+      sellerType === 'individual' ? (data.personal_address || null) : null,
+      sellerType === 'individual' ? (data.personal_zipcode || null) : null,
+      sellerType === 'individual' ? (data.personal_email || null) : null,
+      data.bank_name,
+      accountNumber,
+      accountHolder,
+      0 // is_verified: 기본값 0 (미인증)
+    ).run()
+    
+    return c.json({ 
+      success: true, 
+      producer_id: result.meta.last_row_id,
+      message: '판매자 정보가 등록되었습니다. 관리자 승인 후 상품 등록이 가능합니다.'
+    })
+  } catch (error: any) {
+    return c.json({ error: '판매자 등록 실패: ' + error.message }, 500)
+  }
+})
+
+// 판매자 정보 수정
+app.put('/api/producers/:id', async (c) => {
+  const producerId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // seller_type 검증 (변경 가능)
+  if (data.seller_type && !['business', 'individual'].includes(data.seller_type)) {
+    return c.json({ error: 'seller_type은 business 또는 individual이어야 합니다' }, 400)
+  }
+  
+  // 기존 판매자 정보 조회
+  const existingProducer = await c.env.DB.prepare(
+    'SELECT seller_type FROM producers WHERE id = ?'
+  ).bind(producerId).first()
+  
+  if (!existingProducer) {
+    return c.json({ error: '판매자를 찾을 수 없습니다' }, 404)
+  }
+  
+  const sellerType = data.seller_type || existingProducer.seller_type
+  
+  try {
+    await c.env.DB.prepare(`
+      UPDATE producers SET
+        name = COALESCE(?, name),
+        region_id = COALESCE(?, region_id),
+        producer_type = COALESCE(?, producer_type),
+        description = COALESCE(?, description),
+        profile_image = COALESCE(?, profile_image),
+        contact_phone = COALESCE(?, contact_phone),
+        contact_email = COALESCE(?, contact_email),
+        address = COALESCE(?, address),
+        seller_type = COALESCE(?, seller_type),
+        business_registration_number = ?,
+        business_name = ?,
+        representative_name = ?,
+        business_address = ?,
+        business_phone = ?,
+        personal_id_number = ?,
+        mobile_phone = ?,
+        personal_address = ?,
+        personal_zipcode = ?,
+        personal_email = ?,
+        bank_name = COALESCE(?, bank_name),
+        account_number = COALESCE(?, account_number),
+        account_holder = COALESCE(?, account_holder),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(
+      data.name || null,
+      data.region_id || null,
+      data.producer_type || null,
+      data.description || null,
+      data.profile_image || null,
+      data.phone || data.contact_phone || null,
+      data.email || data.contact_email || null,
+      data.address || null,
+      data.seller_type || null,
+      sellerType === 'business' ? data.business_registration_number : null,
+      sellerType === 'business' ? data.business_name : null,
+      sellerType === 'business' ? data.representative_name : null,
+      sellerType === 'business' ? data.business_address : null,
+      sellerType === 'business' ? data.business_phone : null,
+      sellerType === 'individual' ? data.personal_id_number : null,
+      sellerType === 'individual' ? data.mobile_phone : null,
+      sellerType === 'individual' ? data.personal_address : null,
+      sellerType === 'individual' ? data.personal_zipcode : null,
+      sellerType === 'individual' ? data.personal_email : null,
+      data.bank_name || null,
+      data.bank_account_number || data.account_number || null,
+      data.account_holder_name || data.account_holder || null,
+      producerId
+    ).run()
+    
+    return c.json({ success: true, message: '판매자 정보가 수정되었습니다.' })
+  } catch (error: any) {
+    return c.json({ error: '판매자 정보 수정 실패: ' + error.message }, 500)
+  }
+})
+
 // 상품 목록 조회 API
 app.get('/api/products', async (c) => {
   const type = c.req.query('type')
@@ -612,47 +784,90 @@ app.get('/api/producers/:id/experiences', async (c) => {
 app.post('/api/products', async (c) => {
   const data = await c.req.json()
   
+  // 이미지 개수 검증 (최소 5개, 최대 10개)
+  const images = data.images || []
+  if (images.length < 5) {
+    return c.json({ error: '상품 이미지는 최소 5개 이상 등록해야 합니다', min_images: 5 }, 400)
+  }
+  if (images.length > 10) {
+    return c.json({ error: '상품 이미지는 최대 10개까지 등록할 수 있습니다', max_images: 10 }, 400)
+  }
+  
+  // 할인율 검증 (20% ~ 50%)
+  const discountRate = data.discount_rate || 30
+  if (discountRate < 20 || discountRate > 50) {
+    return c.json({ error: '할인율은 20%에서 50% 사이여야 합니다', min: 20, max: 50 }, 400)
+  }
+  
   // 새로운 가격 필드 사용: consumer_price, direct_price
   // 하위 호환성을 위해 original_price, price도 유지
   const consumerPrice = data.consumer_price || data.original_price
   const directPrice = data.direct_price || data.price
-  const discountRate = data.discount_rate || 30
-  const commissionRate = 5.5
-  const commissionAmount = Math.round(directPrice * (commissionRate / 100))
-  const producerRevenue = directPrice - commissionAmount
+  
+  // 수수료 계산: 플랫폼 6.6% + 카드 3.3% + 세금 3.3% = 총 13.2%
+  const platformFeeRate = 6.6
+  const cardFeeRate = 3.3
+  const taxRate = 3.3
+  const totalFeeRate = 13.2
+  
+  const platformFeeAmount = Math.round(directPrice * (platformFeeRate / 100))
+  const cardFeeAmount = Math.round(directPrice * (cardFeeRate / 100))
+  const taxAmount = Math.round(directPrice * (taxRate / 100))
+  const totalFeeAmount = platformFeeAmount + cardFeeAmount + taxAmount
+  const producerRevenue = directPrice - totalFeeAmount
   
   const result = await c.env.DB.prepare(`
     INSERT INTO products (
       name, category_id, producer_id, description, 
       consumer_price, direct_price, original_price, price, discount_rate, 
-      shipping_fee, stock_quantity, commission_rate, commission_amount, producer_revenue,
+      shipping_fee, stock_quantity, 
+      platform_fee_rate, card_fee_rate, tax_rate, total_fee_rate,
+      platform_fee_amount, card_fee_amount, tax_amount, total_fee_amount, producer_revenue,
       main_image, product_type, weight, origin, is_featured
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     data.name,
     data.category_id,
     data.producer_id,
-    data.description,
+    data.description || null,
     consumerPrice,
     directPrice,
     consumerPrice, // 하위 호환성
     directPrice, // 하위 호환성
     discountRate,
     data.shipping_fee || 3000,
-    data.stock_quantity,
-    commissionRate,
-    commissionAmount,
+    data.stock_quantity || 0,
+    platformFeeRate,
+    cardFeeRate,
+    taxRate,
+    totalFeeRate,
+    platformFeeAmount,
+    cardFeeAmount,
+    taxAmount,
+    totalFeeAmount,
     producerRevenue,
     data.main_image || '/images/products/default.jpg',
-    data.product_type,
-    data.weight,
-    data.origin,
+    data.product_type || null,
+    data.weight || null,
+    data.origin || null,
     data.is_featured ? 1 : 0
   ).run()
   
+  const productId = result.meta.last_row_id
+  
+  // 상품 이미지 등록 (5~10개)
+  for (let i = 0; i < images.length; i++) {
+    await c.env.DB.prepare(`
+      INSERT INTO product_images (product_id, image_url, display_order)
+      VALUES (?, ?, ?)
+    `).bind(productId, images[i], i + 1).run()
+  }
+  
   return c.json({ 
     success: true, 
-    product_id: result.meta.last_row_id 
+    product_id: productId,
+    images_count: images.length,
+    message: '상품이 등록되었습니다'
   })
 })
 
@@ -661,20 +876,36 @@ app.put('/api/products/:id', async (c) => {
   const productId = c.req.param('id')
   const data = await c.req.json()
   
+  // 할인율 검증 (20% ~ 50%)
+  const discountRate = data.discount_rate || 30
+  if (discountRate < 20 || discountRate > 50) {
+    return c.json({ error: '할인율은 20%에서 50% 사이여야 합니다', min: 20, max: 50 }, 400)
+  }
+  
   const consumerPrice = data.consumer_price || data.original_price
   const directPrice = data.direct_price || data.price
-  const discountRate = data.discount_rate || 30
-  const commissionRate = 5.5
-  const commissionAmount = Math.round(directPrice * (commissionRate / 100))
-  const producerRevenue = directPrice - commissionAmount
+  
+  // 수수료 계산: 플랫폼 6.6% + 카드 3.3% + 세금 3.3% = 총 13.2%
+  const platformFeeRate = 6.6
+  const cardFeeRate = 3.3
+  const taxRate = 3.3
+  const totalFeeRate = 13.2
+  
+  const platformFeeAmount = Math.round(directPrice * (platformFeeRate / 100))
+  const cardFeeAmount = Math.round(directPrice * (cardFeeRate / 100))
+  const taxAmount = Math.round(directPrice * (taxRate / 100))
+  const totalFeeAmount = platformFeeAmount + cardFeeAmount + taxAmount
+  const producerRevenue = directPrice - totalFeeAmount
   
   await c.env.DB.prepare(`
     UPDATE products 
     SET name = ?, category_id = ?, description = ?,
         consumer_price = ?, direct_price = ?, original_price = ?, price = ?,
         discount_rate = ?, shipping_fee = ?, stock_quantity = ?,
-        commission_rate = ?, commission_amount = ?, producer_revenue = ?,
-        main_image = ?, weight = ?, origin = ?
+        platform_fee_rate = ?, card_fee_rate = ?, tax_rate = ?, total_fee_rate = ?,
+        platform_fee_amount = ?, card_fee_amount = ?, tax_amount = ?, total_fee_amount = ?,
+        producer_revenue = ?,
+        main_image = ?, weight = ?, origin = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).bind(
     data.name,
@@ -687,8 +918,14 @@ app.put('/api/products/:id', async (c) => {
     discountRate,
     data.shipping_fee || 3000,
     data.stock_quantity,
-    commissionRate,
-    commissionAmount,
+    platformFeeRate,
+    cardFeeRate,
+    taxRate,
+    totalFeeRate,
+    platformFeeAmount,
+    cardFeeAmount,
+    taxAmount,
+    totalFeeAmount,
     producerRevenue,
     data.main_image,
     data.weight,
@@ -696,7 +933,31 @@ app.put('/api/products/:id', async (c) => {
     productId
   ).run()
   
-  return c.json({ success: true })
+  // 이미지 업데이트 (있을 경우)
+  if (data.images && data.images.length > 0) {
+    // 이미지 개수 검증 (5~10개)
+    if (data.images.length < 5 || data.images.length > 10) {
+      return c.json({ 
+        error: '상품 이미지는 5개에서 10개 사이여야 합니다', 
+        min_images: 5, 
+        max_images: 10 
+      }, 400)
+    }
+    
+    // 기존 이미지 삭제
+    await c.env.DB.prepare('DELETE FROM product_images WHERE product_id = ?')
+      .bind(productId).run()
+    
+    // 새 이미지 등록
+    for (let i = 0; i < data.images.length; i++) {
+      await c.env.DB.prepare(`
+        INSERT INTO product_images (product_id, image_url, display_order)
+        VALUES (?, ?, ?)
+      `).bind(productId, data.images[i], i + 1).run()
+    }
+  }
+  
+  return c.json({ success: true, message: '상품 정보가 수정되었습니다' })
 })
 
 // 상품 삭제
@@ -2869,3 +3130,216 @@ app.get('/', (c) => {
 })
 
 export default app
+
+// ===== 주문 확인 및 정산 API =====
+
+// 구매확정 (수령 확인)
+app.post('/api/orders/:id/confirm', async (c) => {
+  const orderId = c.req.param('id')
+  const data = await c.req.json()
+  
+  // 주문 존재 확인
+  const order = await c.env.DB.prepare(
+    'SELECT * FROM orders WHERE id = ?'
+  ).bind(orderId).first()
+  
+  if (!order) {
+    return c.json({ error: '주문을 찾을 수 없습니다' }, 404)
+  }
+  
+  // 이미 확인된 주문인지 체크
+  const existing = await c.env.DB.prepare(
+    'SELECT * FROM order_confirmations WHERE order_id = ?'
+  ).bind(orderId).first()
+  
+  if (existing) {
+    return c.json({ error: '이미 구매확정된 주문입니다' }, 400)
+  }
+  
+  // 구매확정 등록 (confirmed_at + 3일 = settlement_due_date)
+  const confirmedAt = new Date()
+  const settlementDueDate = new Date(confirmedAt.getTime() + 3 * 24 * 60 * 60 * 1000)
+  
+  await c.env.DB.prepare(`
+    INSERT INTO order_confirmations (
+      order_id, confirmed_by, confirmed_at, confirmation_type,
+      settlement_due_date, settlement_status
+    ) VALUES (?, ?, ?, ?, ?, 'pending')
+  `).bind(
+    orderId,
+    data.user_id || null,
+    confirmedAt.toISOString(),
+    data.confirmation_type || 'manual',
+    settlementDueDate.toISOString()
+  ).run()
+  
+  // 주문 상태를 'delivered'로 업데이트
+  await c.env.DB.prepare(`
+    UPDATE orders SET order_status = 'delivered' WHERE id = ?
+  `).bind(orderId).run()
+  
+  // 상태 이력 추가
+  await c.env.DB.prepare(`
+    INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
+    VALUES (?, ?, 'delivered', ?, '구매확정')
+  `).bind(orderId, order.order_status, data.user_id || 'system').run()
+  
+  return c.json({ 
+    success: true, 
+    message: '구매확정이 완료되었습니다',
+    settlement_due_date: settlementDueDate.toISOString(),
+    settlement_info: '3일 이내에 판매자에게 정산됩니다'
+  })
+})
+
+// 정산 대기 목록 조회 (관리자용)
+app.get('/api/settlements/pending', async (c) => {
+  const { results } = await c.env.DB.prepare(`
+    SELECT 
+      oc.id as confirmation_id,
+      oc.order_id,
+      oc.confirmed_at,
+      oc.settlement_due_date,
+      oc.settlement_status,
+      o.order_number,
+      o.final_amount,
+      o.buyer_name,
+      SUM(oi.producer_revenue) as total_producer_revenue,
+      SUM(oi.commission_amount) as total_commission
+    FROM order_confirmations oc
+    JOIN orders o ON oc.order_id = o.id
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE oc.settlement_status = 'pending'
+    AND date(oc.settlement_due_date) <= date('now')
+    GROUP BY oc.id
+    ORDER BY oc.settlement_due_date ASC
+  `).all()
+  
+  return c.json({ settlements: results })
+})
+
+// 정산 처리 (관리자용)
+app.post('/api/settlements/:confirmationId/process', async (c) => {
+  const confirmationId = c.req.param('confirmationId')
+  const data = await c.req.json()
+  
+  // 구매확정 정보 조회
+  const confirmation = await c.env.DB.prepare(`
+    SELECT * FROM order_confirmations WHERE id = ?
+  `).bind(confirmationId).first()
+  
+  if (!confirmation) {
+    return c.json({ error: '구매확정 정보를 찾을 수 없습니다' }, 404)
+  }
+  
+  if (confirmation.settlement_status !== 'pending') {
+    return c.json({ error: '이미 처리된 정산입니다' }, 400)
+  }
+  
+  // 정산 상태 업데이트
+  await c.env.DB.prepare(`
+    UPDATE order_confirmations 
+    SET settlement_status = 'completed',
+        settlement_date = CURRENT_TIMESTAMP,
+        notes = ?
+    WHERE id = ?
+  `).bind(data.notes || '정산 완료', confirmationId).run()
+  
+  return c.json({ 
+    success: true, 
+    message: '정산이 완료되었습니다',
+    confirmation_id: confirmationId
+  })
+})
+
+// 생산자별 정산 내역 조회
+app.get('/api/settlements/producer/:producerId', async (c) => {
+  const producerId = c.req.param('producerId')
+  const status = c.req.query('status') || 'all'
+  const limit = parseInt(c.req.query('limit') || '50')
+  const offset = parseInt(c.req.query('offset') || '0')
+  
+  let query = `
+    SELECT 
+      oc.id as confirmation_id,
+      oc.order_id,
+      oc.confirmed_at,
+      oc.settlement_due_date,
+      oc.settlement_date,
+      oc.settlement_status,
+      o.order_number,
+      o.buyer_name,
+      oi.product_name,
+      oi.quantity,
+      oi.item_total,
+      oi.commission_amount,
+      oi.producer_revenue
+    FROM order_confirmations oc
+    JOIN orders o ON oc.order_id = o.id
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE oi.producer_id = ?
+  `
+  
+  const params: any[] = [producerId]
+  
+  if (status !== 'all') {
+    query += ' AND oc.settlement_status = ?'
+    params.push(status)
+  }
+  
+  query += ' ORDER BY oc.confirmed_at DESC LIMIT ? OFFSET ?'
+  params.push(limit, offset)
+  
+  const { results } = await c.env.DB.prepare(query).bind(...params).all()
+  
+  return c.json({ settlements: results })
+})
+
+// 정산 통계 (생산자용)
+app.get('/api/settlements/producer/:producerId/stats', async (c) => {
+  const producerId = c.req.param('producerId')
+  
+  // 정산 예정 금액
+  const pendingResult = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(DISTINCT oc.id) as pending_count,
+      SUM(oi.producer_revenue) as pending_amount
+    FROM order_confirmations oc
+    JOIN orders o ON oc.order_id = o.id
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE oi.producer_id = ?
+    AND oc.settlement_status = 'pending'
+  `).bind(producerId).first()
+  
+  // 정산 완료 금액 (이번 달)
+  const completedResult = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(DISTINCT oc.id) as completed_count,
+      SUM(oi.producer_revenue) as completed_amount
+    FROM order_confirmations oc
+    JOIN orders o ON oc.order_id = o.id
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE oi.producer_id = ?
+    AND oc.settlement_status = 'completed'
+    AND strftime('%Y-%m', oc.settlement_date) = strftime('%Y-%m', 'now')
+  `).bind(producerId).first()
+  
+  // 전체 정산 금액
+  const totalResult = await c.env.DB.prepare(`
+    SELECT 
+      COUNT(DISTINCT oc.id) as total_count,
+      SUM(oi.producer_revenue) as total_amount
+    FROM order_confirmations oc
+    JOIN orders o ON oc.order_id = o.id
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE oi.producer_id = ?
+    AND oc.settlement_status = 'completed'
+  `).bind(producerId).first()
+  
+  return c.json({
+    pending: pendingResult,
+    completed_this_month: completedResult,
+    total: totalResult
+  })
+})
+
