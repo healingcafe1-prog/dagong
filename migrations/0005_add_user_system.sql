@@ -10,9 +10,11 @@ CREATE TABLE IF NOT EXISTS users (
   is_active INTEGER DEFAULT 1,
   last_login_at DATETIME,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(provider, provider_id)
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- provider + provider_id 복합 유니크 인덱스
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_provider_unique ON users(provider, provider_id);
 
 -- 세션 테이블
 CREATE TABLE IF NOT EXISTS user_sessions (
