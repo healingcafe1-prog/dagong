@@ -2107,10 +2107,11 @@ async function loadEducationCurriculumPage() {
       }
     };
     
-    // 차공부, 공예공부, 다도교육으로 분류
+    // 차공부, 공예공부, 다도교육, 명상교육으로 분류
     const teaCurriculum = allCurriculum.filter(c => c.category_id === 2);
     const craftCurriculum = allCurriculum.filter(c => c.category_id === 3);
     const dadoCurriculum = allCurriculum.filter(c => c.category_id === 4);
+    const meditationCurriculum = allCurriculum.filter(c => c.category_id === 5);
     
     app.innerHTML = `
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -2138,6 +2139,10 @@ async function loadEducationCurriculumPage() {
           <button onclick="showTab('dado')" id="dadoTab" class="px-8 py-4 text-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 focus:outline-none">
             <i class="fas fa-spa mr-2"></i>
             다도교육
+          </button>
+          <button onclick="showTab('meditation')" id="meditationTab" class="px-8 py-4 text-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas fa-om mr-2"></i>
+            명상교육
           </button>
         </div>
 
@@ -2288,6 +2293,55 @@ async function loadEducationCurriculumPage() {
           </div>
         </div>
 
+        <!-- 명상교육 탭 내용 -->
+        <div id="meditationContent" class="tab-content hidden">
+          <div class="mb-8 p-6 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              <i class="fas fa-om text-indigo-500 mr-2"></i>
+              명상교육
+            </h2>
+            <p class="text-gray-700">
+              명상의 기초와 실천, 요가와 마음챙김을 배웁니다
+            </p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${meditationCurriculum.map((item, index) => `
+              <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex items-start justify-between mb-4">
+                    <div class="bg-indigo-100 p-3 rounded-lg">
+                      <i class="fas fa-praying-hands text-2xl text-indigo-500"></i>
+                    </div>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full ${getDifficultyColor(item.difficulty)}">
+                      ${getDifficultyLabel(item.difficulty)}
+                    </span>
+                  </div>
+                  
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">
+                    ${item.title}
+                  </h3>
+                  
+                  <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                    ${item.description}
+                  </p>
+                  
+                  <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fas fa-clock mr-2"></i>
+                    <span>${item.duration || '60분'}</span>
+                  </div>
+                  
+                  <a href="/education/curriculum/${item.id}" 
+                     class="block w-full text-center bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                    자세히 보기
+                    <i class="fas fa-arrow-right ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
         <!-- CTA 섹션 -->
         <div class="mt-16 text-center p-8 bg-gradient-to-r from-tea-green to-craft-blue rounded-lg text-white">
           <h2 class="text-3xl font-bold mb-4">다도교육 신청하기</h2>
@@ -2320,9 +2374,11 @@ window.showTab = function(tab) {
   const teaTab = document.getElementById('teaTab');
   const craftTab = document.getElementById('craftTab');
   const dadoTab = document.getElementById('dadoTab');
+  const meditationTab = document.getElementById('meditationTab');
   const teaContent = document.getElementById('teaContent');
   const craftContent = document.getElementById('craftContent');
   const dadoContent = document.getElementById('dadoContent');
+  const meditationContent = document.getElementById('meditationContent');
   
   // 모든 탭 초기화
   teaTab.classList.add('border-transparent', 'text-gray-500');
@@ -2331,9 +2387,12 @@ window.showTab = function(tab) {
   craftTab.classList.remove('border-craft-blue', 'text-craft-blue');
   dadoTab.classList.add('border-transparent', 'text-gray-500');
   dadoTab.classList.remove('border-purple-500', 'text-purple-500');
+  meditationTab.classList.add('border-transparent', 'text-gray-500');
+  meditationTab.classList.remove('border-indigo-500', 'text-indigo-500');
   teaContent.classList.add('hidden');
   craftContent.classList.add('hidden');
   dadoContent.classList.add('hidden');
+  meditationContent.classList.add('hidden');
   
   // 선택된 탭 활성화
   if (tab === 'tea') {
@@ -2348,6 +2407,10 @@ window.showTab = function(tab) {
     dadoTab.classList.add('border-purple-500', 'text-purple-500');
     dadoTab.classList.remove('border-transparent', 'text-gray-500');
     dadoContent.classList.remove('hidden');
+  } else if (tab === 'meditation') {
+    meditationTab.classList.add('border-indigo-500', 'text-indigo-500');
+    meditationTab.classList.remove('border-transparent', 'text-gray-500');
+    meditationContent.classList.remove('hidden');
   }
 }
 
