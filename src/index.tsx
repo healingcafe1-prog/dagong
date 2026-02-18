@@ -18,6 +18,34 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
+// 인증 미들웨어
+async function authMiddleware(c: any, next: any) {
+  const cookies = c.req.header('Cookie') || ''
+  const sessionMatch = cookies.match(/session=([^;]+)/)
+  
+  if (!sessionMatch) {
+    return c.json({ error: '로그인이 필요합니다' }, 401)
+  }
+  
+  const sessionToken = sessionMatch[1]
+  
+  // 세션 확인
+  const { results: sessions } = await c.env.DB.prepare(`
+    SELECT us.*, u.id as user_id, u.email, u.name, u.profile_image, u.role, u.provider
+    FROM user_sessions us
+    JOIN users u ON us.user_id = u.id
+    WHERE us.session_token = ? AND us.expires_at > datetime('now')
+  `).bind(sessionToken).all()
+  
+  if (sessions.length === 0) {
+    return c.json({ error: '로그인 세션이 만료되었습니다' }, 401)
+  }
+  
+  // 사용자 정보를 context에 저장
+  c.set('user', sessions[0])
+  await next()
+}
+
 // CORS 설정
 app.use('/api/*', cors())
 
@@ -284,9 +312,22 @@ app.get('/api/producers/:id', async (c) => {
   return c.json({ producer, products })
 })
 
-// 판매자 정보 등록 (사업자/개인 구분)
-app.post('/api/producers', async (c) => {
+// 판매자 정보 등록 (사업자/개인 구분) - 로그인 필수
+app.post('/api/producers', authMiddleware, async (c) => {
   const data = await c.req.json()
+  const user = c.get('user') as any
+  
+  // 이미 판매자 정보가 있는지 확인
+  const existingProducer = await c.env.DB.prepare(
+    'SELECT id FROM producers WHERE user_id = ?'
+  ).bind(user.user_id).first()
+  
+  if (existingProducer) {
+    return c.json({ 
+      error: '이미 판매자 정보가 등록되어 있습니다',
+      producer_id: (existingProducer as any).id 
+    }, 400)
+  }
   
   // seller_type 검증: 'business' 또는 'individual'
   const sellerType = data.seller_type || 'individual'
@@ -331,7 +372,7 @@ app.post('/api/producers', async (c) => {
   try {
     const result = await c.env.DB.prepare(`
       INSERT INTO producers (
-        name, region_id, producer_type, description, profile_image,
+        user_id, name, region_id, producer_type, description, profile_image,
         contact_phone, contact_email, address,
         seller_type,
         business_registration_number, business_name, representative_name,
@@ -339,8 +380,9 @@ app.post('/api/producers', async (c) => {
         personal_id_number, mobile_phone, personal_address, personal_zipcode, personal_email,
         bank_name, account_number, account_holder,
         is_verified
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
+      user.user_id,
       data.name,
       data.region_id || null,
       data.producer_type || 'both',
@@ -781,8 +823,22 @@ app.get('/api/producers/:id/experiences', async (c) => {
 })
 
 // 상품 등록
-app.post('/api/products', async (c) => {
+app.post('/api/products', authMiddleware, async (c) => {
   const data = await c.req.json()
+  const user = c.get('user') as any
+  
+  // 판매자 정보 확인
+  const producer = await c.env.DB.prepare(
+    'SELECT id FROM producers WHERE user_id = ? AND is_verified = 1'
+  ).bind(user.user_id).first()
+  
+  if (!producer) {
+    return c.json({ 
+      error: '판매자 정보가 없거나 승인되지 않았습니다. 먼저 판매자 정보를 등록하고 승인을 받아주세요.'
+    }, 403)
+  }
+  
+  const producerId = (producer as any).id
   
   // 이미지 개수 검증 (최소 5개, 최대 10개)
   const images = data.images || []
@@ -828,7 +884,7 @@ app.post('/api/products', async (c) => {
   `).bind(
     data.name,
     data.category_id,
-    data.producer_id,
+    producerId, // 로그인한 사용자의 판매자 ID 사용
     data.description || null,
     consumerPrice,
     directPrice,
@@ -1468,11 +1524,102 @@ app.get('/mypage/orders/:id', (c) => {
 
 // 로그인 페이지
 app.get('/login', (c) => {
-  return c.render(
-    <div id="app">
-      <div class="loading">로딩 중...</div>
-    </div>
-  )
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>다공 - 로그인</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+          }
+          .social-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+          }
+          .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+          }
+          .google-btn {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+          }
+          .naver-btn {
+            background: #03C75A;
+            color: white;
+          }
+          .kakao-btn {
+            background: #FEE500;
+            color: #000;
+          }
+        </style>
+    </head>
+    <body>
+        <div class="login-card">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">다공</h1>
+                <p class="text-gray-600">간편하게 로그인하고 시작하세요</p>
+            </div>
+            
+            <div class="space-y-4">
+                <a href="/auth/google" class="social-btn google-btn">
+                    <i class="fab fa-google text-xl"></i>
+                    구글로 계속하기
+                </a>
+                
+                <a href="/auth/naver" class="social-btn naver-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.6 0H6.4v20h7.2V0zM10 10L6.4 0v10H10z"/>
+                        <path d="M13.6 10v10L10 10h3.6z"/>
+                    </svg>
+                    네이버로 계속하기
+                </a>
+                
+                <a href="/auth/kakao" class="social-btn kakao-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 0C4.477 0 0 3.58 0 8c0 2.827 1.875 5.31 4.688 6.72-.195.715-.7 2.61-.81 3.026-.128.495.182.489.385.355.164-.106 2.537-1.733 3.49-2.387.738.102 1.496.156 2.247.156 5.523 0 10-3.58 10-8S15.523 0 10 0z"/>
+                    </svg>
+                    카카오로 계속하기
+                </a>
+            </div>
+            
+            <div class="mt-8 text-center text-sm text-gray-500">
+                <p>로그인하면 다공의 <a href="/terms" class="text-purple-600">이용약관</a> 및</p>
+                <p><a href="/privacy" class="text-purple-600">개인정보처리방침</a>에 동의하게 됩니다</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `)
 })
 
 // 구글 로그인 시작
@@ -1775,6 +1922,12 @@ app.get('/api/auth/me', async (c) => {
   }
   
   const session = sessions[0] as any
+  
+  // 판매자 정보 확인
+  const producer = await c.env.DB.prepare(
+    'SELECT id, name, seller_type, is_verified FROM producers WHERE user_id = ?'
+  ).bind(session.user_id).first()
+  
   return c.json({
     user: {
       id: session.user_id,
@@ -1782,7 +1935,13 @@ app.get('/api/auth/me', async (c) => {
       name: session.name,
       profile_image: session.profile_image,
       role: session.role,
-      provider: session.provider
+      provider: session.provider,
+      producer: producer ? {
+        id: (producer as any).id,
+        name: (producer as any).name,
+        seller_type: (producer as any).seller_type,
+        is_verified: (producer as any).is_verified
+      } : null
     }
   })
 })
