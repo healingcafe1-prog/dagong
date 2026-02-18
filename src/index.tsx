@@ -1521,36 +1521,7 @@ app.get('/products/new', (c) => {
             border-radius: 8px;
             margin-bottom: 25px;
           }
-          .price-calculation {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 15px;
-          }
-          .price-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #dee2e6;
-          }
-          .price-row:last-child {
-            border-bottom: none;
-            font-weight: 600;
-            font-size: 16px;
-            margin-top: 10px;
-            padding-top: 15px;
-            border-top: 2px solid #dee2e6;
-          }
-          .price-row .label {
-            color: #6c757d;
-          }
-          .price-row .value {
-            color: #2c3e50;
-            font-weight: 500;
-          }
-          .price-row:last-child .value {
-            color: #27ae60;
-          }
+
         </style>
     </head>
     <body>
@@ -1567,7 +1538,7 @@ app.get('/products/new', (c) => {
                 <strong>등록 안내</strong><br>
                 • 상품 사진은 5~10장 필수입니다<br>
                 • 할인율은 20%~50% 범위에서 설정할 수 있습니다<br>
-                • 수수료(6.6%), 카드수수료(3.3%), 세금(3.3%) = 총 13.2%가 자동 계산됩니다
+                • 판매 수수료는 정산서에 명시됩니다
             </div>
 
             <form id="productForm">
@@ -1641,37 +1612,6 @@ app.get('/products/new', (c) => {
                     <input type="number" name="discount_rate" id="discount_rate" value="30" required min="20" max="50">
                     <div class="help-text">20% ~ 50% 범위에서 설정 가능</div>
                     <div class="error-text" id="discountError" style="display: none;"></div>
-                </div>
-
-                <!-- 가격 계산 결과 -->
-                <div class="price-calculation" id="priceCalculation" style="display: none;">
-                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">
-                        <i class="fas fa-calculator"></i> 수수료 계산
-                    </h3>
-                    <div class="price-row">
-                        <span class="label">직거래가</span>
-                        <span class="value" id="calcDirectPrice">0원</span>
-                    </div>
-                    <div class="price-row">
-                        <span class="label">플랫폼 수수료 (6.6%)</span>
-                        <span class="value" id="calcPlatformFee">0원</span>
-                    </div>
-                    <div class="price-row">
-                        <span class="label">카드 수수료 (3.3%)</span>
-                        <span class="value" id="calcCardFee">0원</span>
-                    </div>
-                    <div class="price-row">
-                        <span class="label">세금 (3.3%)</span>
-                        <span class="value" id="calcTax">0원</span>
-                    </div>
-                    <div class="price-row">
-                        <span class="label">총 수수료 (13.2%)</span>
-                        <span class="value" id="calcTotalFee">0원</span>
-                    </div>
-                    <div class="price-row">
-                        <span class="label">판매자 수령액</span>
-                        <span class="value" id="calcProducerRevenue">0원</span>
-                    </div>
                 </div>
 
                 <!-- 배송비 -->
@@ -1795,32 +1735,6 @@ app.get('/products/new', (c) => {
           });
 
           // 가격 계산
-          function calculateFees() {
-            const directPrice = parseFloat(document.getElementById('direct_price').value) || 0;
-            
-            if (directPrice <= 0) {
-              document.getElementById('priceCalculation').style.display = 'none';
-              return;
-            }
-
-            const platformFee = Math.round(directPrice * 0.066);
-            const cardFee = Math.round(directPrice * 0.033);
-            const tax = Math.round(directPrice * 0.033);
-            const totalFee = platformFee + cardFee + tax;
-            const producerRevenue = directPrice - totalFee;
-
-            document.getElementById('calcDirectPrice').textContent = directPrice.toLocaleString() + '원';
-            document.getElementById('calcPlatformFee').textContent = platformFee.toLocaleString() + '원';
-            document.getElementById('calcCardFee').textContent = cardFee.toLocaleString() + '원';
-            document.getElementById('calcTax').textContent = tax.toLocaleString() + '원';
-            document.getElementById('calcTotalFee').textContent = totalFee.toLocaleString() + '원';
-            document.getElementById('calcProducerRevenue').textContent = producerRevenue.toLocaleString() + '원';
-
-            document.getElementById('priceCalculation').style.display = 'block';
-          }
-
-          document.getElementById('direct_price').addEventListener('input', calculateFees);
-
           // 폼 제출
           document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
