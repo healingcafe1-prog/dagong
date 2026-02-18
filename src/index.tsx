@@ -1537,8 +1537,7 @@ app.get('/products/new', (c) => {
                 <i class="fas fa-info-circle"></i> 
                 <strong>등록 안내</strong><br>
                 • 상품 사진은 5~10장 필수입니다<br>
-                • 할인율은 20%~50% 범위에서 설정할 수 있습니다<br>
-                • 판매 수수료는 정산서에 명시됩니다
+                • 할인율은 20%~50% 범위에서 설정할 수 있습니다
             </div>
 
             <form id="productForm">
