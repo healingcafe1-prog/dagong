@@ -49,7 +49,8 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="naver-site-verification" content="51a0658e89bc8816eeb448bf53b1862b86609662" />
         <meta property="article:publisher" content="https://dagong.co.kr" />
         
-
+        {/* 구글 검색 콘솔 소유권 확인 */}
+        <meta name="google-site-verification" content="IzmnLr0Ef5YPLCDrk8fFiJQvvbAqx11JgpvLb5cqaU0" />
         
         {/* TailwindCSS */}
         <script src="https://cdn.tailwindcss.com"></script>
