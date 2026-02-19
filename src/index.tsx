@@ -4318,3 +4318,89 @@ app.get('/api/settlements/producer/:producerId/stats', async (c) => {
   })
 })
 
+// 개인정보처리방침 페이지 (Google Play Console 필수)
+app.get('/privacy', (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>개인정보처리방침 - 다공(茶工)</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 py-12">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">개인정보처리방침</h1>
+                
+                <div class="prose max-w-none">
+                    <p class="text-gray-600 mb-4">
+                        <strong>시행일자:</strong> 2026년 2월 19일
+                    </p>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">1. 개인정보의 수집 및 이용</h2>
+                    <p class="text-gray-700 mb-4">
+                        다공(茶工)은 사용자의 개인정보를 별도로 수집하지 않습니다. 
+                        본 앱은 Progressive Web App(PWA) 형태로, 웹사이트를 래핑한 구조입니다.
+                    </p>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">2. 수집하는 정보</h2>
+                    <p class="text-gray-700 mb-4">
+                        다공(茶工)은 다음과 같은 방식으로 최소한의 정보를 처리합니다:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                        <li>쿠키 및 로컬 스토리지를 사용한 앱 설정 저장</li>
+                        <li>상품 검색 및 필터링을 위한 임시 데이터 저장</li>
+                        <li>서비스 개선을 위한 익명화된 사용 통계</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">3. 개인정보의 보관 및 파기</h2>
+                    <p class="text-gray-700 mb-4">
+                        본 앱은 사용자의 개인정보를 서버에 저장하지 않으며, 
+                        브라우저의 로컬 스토리지에만 임시 저장됩니다. 
+                        사용자가 브라우저 캐시를 삭제하면 모든 데이터가 즉시 삭제됩니다.
+                    </p>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">4. 제3자 제공</h2>
+                    <p class="text-gray-700 mb-4">
+                        다공(茶工)은 사용자의 개인정보를 제3자에게 제공하지 않습니다.
+                    </p>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">5. 사용자의 권리</h2>
+                    <p class="text-gray-700 mb-4">
+                        사용자는 언제든지:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                        <li>브라우저 설정에서 쿠키 및 로컬 스토리지 삭제 가능</li>
+                        <li>앱 삭제를 통해 모든 저장된 데이터 제거 가능</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">6. 개인정보처리방침 변경</h2>
+                    <p class="text-gray-700 mb-4">
+                        본 방침은 법령 및 정책 변경에 따라 수정될 수 있으며, 
+                        변경 시 웹사이트를 통해 공지합니다.
+                    </p>
+
+                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">7. 문의</h2>
+                    <p class="text-gray-700 mb-4">
+                        개인정보처리방침에 대한 문의사항이 있으시면 아래로 연락 주시기 바랍니다:
+                    </p>
+                    <ul class="list-none text-gray-700 mb-4 space-y-2">
+                        <li><strong>서비스명:</strong> 다공(茶工)</li>
+                        <li><strong>웹사이트:</strong> <a href="https://dagong-bi1.pages.dev/" class="text-green-600 hover:underline">https://dagong-bi1.pages.dev/</a></li>
+                    </ul>
+                </div>
+
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <a href="/" class="text-green-600 hover:text-green-700 font-medium">
+                        ← 홈으로 돌아가기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+  `)
+})
+
