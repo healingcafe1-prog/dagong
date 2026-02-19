@@ -650,27 +650,34 @@ app.get('/api/categories', async (c) => {
 
 // 이벤트 목록 조회 API
 app.get('/api/events', async (c) => {
-  const status = c.req.query('status') // upcoming, ongoing, completed, cancelled
-  const limit = c.req.query('limit') || '10'
-  
-  let query = `SELECT * FROM events`
-  const params: (string)[] = []
-  
-  // 상태 필터링 (기본값: upcoming)
-  if (status) {
-    query += ' WHERE status = ?'
-    params.push(status)
-  } else {
-    query += ` WHERE status IN ('upcoming', 'ongoing')`
+  try {
+    const status = c.req.query('status')
+    const limitParam = c.req.query('limit')
+    const limit = limitParam ? parseInt(limitParam) : 10
+    
+    let query = `SELECT * FROM events`
+    const params: (string | number)[] = []
+    
+    // 상태 필터링 (기본값: upcoming, ongoing)
+    if (status) {
+      query += ' WHERE status = ?'
+      params.push(status)
+    } else {
+      query += ` WHERE status IN ('upcoming', 'ongoing')`
+    }
+    
+    // 날짜순 정렬 (최신순)
+    query += ' ORDER BY event_date DESC LIMIT ?'
+    params.push(limit)
+    
+    const { results } = await c.env.DB.prepare(query).bind(...params).all()
+    
+    return c.json({ events: results || [] })
+  } catch (error) {
+    console.error('Events API error:', error)
+    // 에러 발생 시 빈 배열 반환 (홈페이지가 로드되도록)
+    return c.json({ events: [] })
   }
-  
-  // 날짜순 정렬 (최신순)
-  query += ' ORDER BY event_date DESC LIMIT ?'
-  params.push(limit)
-  
-  const { results } = await c.env.DB.prepare(query).bind(...params).all()
-  
-  return c.json({ events: results || [] })
 })
 
 // 특정 이벤트 상세 조회 API
