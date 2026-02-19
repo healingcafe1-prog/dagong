@@ -650,36 +650,27 @@ app.get('/api/categories', async (c) => {
 
 // 이벤트 목록 조회 API
 app.get('/api/events', async (c) => {
-  const month = c.req.query('month')  // 1-12월 또는 'all'
-  const type = c.req.query('type')    // discount, season, holiday, special 등
-  const all = c.req.query('all')      // 'true'면 날짜 필터 무시 (관리자용)
+  const status = c.req.query('status') // upcoming, ongoing, completed, cancelled
+  const limit = c.req.query('limit') || '10'
   
-  let query = `SELECT * FROM events WHERE is_active = 1`
-  const params: (string | number)[] = []
+  let query = `SELECT * FROM events`
+  const params: (string)[] = []
   
-  // 날짜 필터링 (all=true가 아닐 때만)
-  if (all !== 'true') {
-    query += ` AND date('now') BETWEEN date(start_date) AND date(end_date)`
+  // 상태 필터링 (기본값: upcoming)
+  if (status) {
+    query += ' WHERE status = ?'
+    params.push(status)
+  } else {
+    query += ` WHERE status IN ('upcoming', 'ongoing')`
   }
   
-  // 월별 필터링
-  if (month && month !== 'all') {
-    query += ' AND month = ?'
-    params.push(parseInt(month))
-  }
-  
-  // 이벤트 타입 필터링
-  if (type) {
-    query += ' AND event_type = ?'
-    params.push(type)
-  }
-  
-  // 우선순위 높은 순, 시작일 최신 순
-  query += ' ORDER BY priority DESC, start_date DESC'
+  // 날짜순 정렬 (최신순)
+  query += ' ORDER BY event_date DESC LIMIT ?'
+  params.push(limit)
   
   const { results } = await c.env.DB.prepare(query).bind(...params).all()
   
-  return c.json({ events: results })
+  return c.json({ events: results || [] })
 })
 
 // 특정 이벤트 상세 조회 API
@@ -694,14 +685,7 @@ app.get('/api/events/:id', async (c) => {
     return c.json({ error: '이벤트를 찾을 수 없습니다' }, 404)
   }
   
-  // 이벤트 상품 목록
-  const { results: products } = await c.env.DB.prepare(`
-    SELECT p.* FROM event_products ep
-    LEFT JOIN products p ON ep.product_id = p.id
-    WHERE ep.event_id = ?
-  `).bind(id).all()
-  
-  return c.json({ event, products })
+  return c.json({ event })
 })
 
 // 관광지 목록 조회 API
