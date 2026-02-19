@@ -1,195 +1,206 @@
-# 🎉 배포 성공! Cloudflare Pages 배포 완료
+# 🎉 배포 완료 및 다음 단계
 
-생성일시: 2026-02-06 09:28 UTC  
-상태: **✅ 배포 완료!**
+## ✅ 배포 성공!
 
----
+**배포 URL:**
+- 🌐 **최신 배포**: https://9af8db16.dagong-bi1.pages.dev
+- 🏠 **프로덕션**: https://dagong-bi1.pages.dev
 
-## 🎊 축하합니다! 배포 성공!
-
-### ✅ 배포 완료된 URL
-
-**프로덕션 URL**:
-- 🌐 **https://dagong-bi1.pages.dev** ✅
-- 🌐 **https://51392856.dagong-bi1.pages.dev** ✅
-
-**커스텀 도메인** (설정 필요):
-- 🌐 **https://dagong.co.kr** (DNS 연결 필요)
+**배포 정보:**
+- 업로드된 파일: 30개 (9개 새로운 파일, 21개 기존)
+- 프로젝트 이름: `dagong`
+- D1 바인딩: ✅ 추가 완료 (DB → webapp-production)
 
 ---
 
-## ✅ 테스트 결과
+## ⚠️ D1 데이터베이스 마이그레이션 필요
 
-### **1. 네이버 서치어드바이저 HTML 파일**
-- ✅ **정상 작동**: https://dagong-bi1.pages.dev/naverf3735d7a56c13e617b246ff2b6e0da46.html
-- ✅ **내용 확인**: `naver-site-verification: naverf3735d7a56c13e617b246ff2b6e0da46.html`
+사이트는 정상 배포되었지만, **프로덕션 D1 데이터베이스에 테이블이 아직 생성되지 않았습니다.**
 
-### **2. Sitemap.xml**
-- ✅ **정상 작동**: https://dagong-bi1.pages.dev/sitemap.xml
-- ✅ **18개 URL 포함**: 홈, 상품, 지역, 생산자 등
+### 🔧 해결 방법: Dashboard에서 마이그레이션 실행
 
-### **3. Robots.txt**
-- ✅ **정상 작동**: https://dagong-bi1.pages.dev/robots.txt
-- ✅ **Sitemap 위치 명시**: https://dagong.co.kr/sitemap.xml
+#### 옵션 1: Cloudflare Dashboard D1 콘솔 사용 (추천)
+
+1. **Cloudflare Dashboard 접속**
+   - https://dash.cloudflare.com/
+
+2. **D1 데이터베이스 선택**
+   - 왼쪽 메뉴: **Workers & Pages** → **D1**
+   - `webapp-production` 데이터베이스 클릭
+
+3. **콘솔 탭으로 이동**
+   - **Console** 탭 클릭
+
+4. **마이그레이션 SQL 실행**
+   - 아래 SQL을 복사해서 콘솔에 붙여넣기:
+
+```sql
+-- 0001_initial_schema.sql
+CREATE TABLE IF NOT EXISTS products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  price INTEGER NOT NULL,
+  producer_id INTEGER NOT NULL,
+  region_id INTEGER,
+  category TEXT CHECK(category IN ('tea', 'craft')) NOT NULL,
+  image_url TEXT,
+  stock INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (producer_id) REFERENCES producers(id),
+  FOREIGN KEY (region_id) REFERENCES regions(id)
+);
+
+CREATE TABLE IF NOT EXISTS producers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  region_id INTEGER,
+  contact TEXT,
+  image_url TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (region_id) REFERENCES regions(id)
+);
+
+CREATE TABLE IF NOT EXISTS regions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS experiences (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  producer_id INTEGER NOT NULL,
+  region_id INTEGER,
+  price INTEGER NOT NULL,
+  duration TEXT,
+  max_participants INTEGER,
+  image_url TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (producer_id) REFERENCES producers(id),
+  FOREIGN KEY (region_id) REFERENCES regions(id)
+);
+
+CREATE TABLE IF NOT EXISTS education_applications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  organization TEXT,
+  organization_type TEXT CHECK(organization_type IN ('school', 'company', 'nonprofit', 'government', 'community', 'other')),
+  participants INTEGER NOT NULL,
+  preferred_date TEXT NOT NULL,
+  education_type TEXT CHECK(education_type IN ('tea_ceremony', 'tea_tasting', 'tea_making', 'meditation', 'craft_workshop', 'farm_visit', 'custom')) NOT NULL,
+  message TEXT,
+  status TEXT CHECK(status IN ('pending', 'confirmed', 'cancelled')) DEFAULT 'pending',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  event_date TEXT NOT NULL,
+  location TEXT,
+  max_participants INTEGER,
+  current_participants INTEGER DEFAULT 0,
+  price INTEGER,
+  image_url TEXT,
+  status TEXT CHECK(status IN ('upcoming', 'ongoing', 'completed', 'cancelled')) DEFAULT 'upcoming',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+CREATE INDEX IF NOT EXISTS idx_products_region ON products(region_id);
+CREATE INDEX IF NOT EXISTS idx_products_producer ON products(producer_id);
+CREATE INDEX IF NOT EXISTS idx_producers_region ON producers(region_id);
+CREATE INDEX IF NOT EXISTS idx_experiences_producer ON experiences(producer_id);
+CREATE INDEX IF NOT EXISTS idx_experiences_region ON experiences(region_id);
+CREATE INDEX IF NOT EXISTS idx_education_status ON education_applications(status);
+CREATE INDEX IF NOT EXISTS idx_events_date ON events(event_date);
+CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
+```
+
+5. **Execute** 버튼 클릭
+
+6. **샘플 데이터 추가** (선택 사항)
+   - `/home/user/webapp/migrations/` 폴더의 샘플 데이터 SQL 파일들을 실행
 
 ---
 
-## 🚀 다음 단계: GitHub 자동 배포 설정
+#### 옵션 2: API 토큰에 D1 권한 추가 후 CLI 사용
 
-이제 **GitHub와 Cloudflare Pages를 연동**하면 완벽합니다!
+현재 API 토큰에는 D1 권한이 없습니다. 권한을 추가하려면:
 
-### **연동 방법**
+1. **API 토큰 수정**
+   - https://dash.cloudflare.com/profile/api-tokens
+   - 생성한 토큰 클릭
+   - **Edit** 클릭
+   - 권한 추가: **Account** → **D1** → **Edit**
+   - **Save** 클릭
 
-#### **1단계: Cloudflare Dashboard 열기**
-👉 https://dash.cloudflare.com
-
-#### **2단계: Workers & Pages로 이동**
-- 왼쪽 사이드바에서 **"Workers & Pages"** 클릭
-- 또는 직접 링크: https://dash.cloudflare.com/?to=/:account/workers-and-pages
-
-#### **3단계: dagong 프로젝트 선택**
-- **"dagong"** 프로젝트 클릭
-
-#### **4단계: GitHub 연동**
-1. **"Settings"** 탭 클릭
-2. **"Builds & deployments"** 클릭
-3. **"Source"** 섹션 찾기
-4. **"Connect to Git"** 또는 **"Connect GitHub"** 클릭
-5. **저장소 선택**: `healingcafe1-prog/dagong`
-6. **Production branch**: `main` 입력
-7. **빌드 설정**:
+2. **마이그레이션 실행**
+   ```bash
+   cd /home/user/webapp
+   export CLOUDFLARE_API_TOKEN="U7FtTc6Eh3aGNP9mlgZZf8lhlyFBV4QLPDnSxBjo"
+   npx wrangler d1 migrations apply webapp-production --remote
    ```
-   Build command: npm run build
-   Build output directory: dist
-   Root directory: (비워둠)
-   ```
-8. **"Save"** 또는 **"Connect"** 클릭
 
 ---
 
-## ✨ 연동 완료 후
+## 🔍 현재 상태 확인
 
-### **앞으로 배포는 이렇게:**
-
+### 사이트 접속 테스트:
 ```bash
-# 코드 수정
-git add .
-git commit -m "변경사항"
-git push
+# 홈페이지 (정상)
+curl -I https://dagong-bi1.pages.dev/
 
-# 자동으로 Cloudflare Pages 배포! 🚀
+# API (현재 오류 - 데이터베이스 테이블 없음)
+curl https://dagong-bi1.pages.dev/api/products
 ```
 
-**또는 저에게:**
-```
-"배포해줘"
-```
-라고만 하시면 제가:
-1. ✅ Git commit
-2. ✅ Git push
-3. ✅ 자동 배포 확인
+### 예상 오류:
+- API 요청 시: `no such table: products` 또는 빈 배열 `[]`
 
 ---
 
-## 🔗 dagong.co.kr 커스텀 도메인 설정
+## 📋 다음 단계
 
-현재 **dagong.co.kr DNS 문제**가 있습니다. 해결 방법:
-
-### **1단계: Cloudflare Dashboard**
-1. **Workers & Pages** → **dagong** 프로젝트
-2. **"Custom domains"** 탭
-3. **"Add domain"** 클릭
-4. **Domain**: `dagong.co.kr` 입력
-5. **"Continue"** 클릭
-
-### **2단계: DNS 설정 확인**
-1. **Cloudflare DNS** 페이지로 이동
-2. **dagong.co.kr** 도메인 선택
-3. **DNS Records** 확인:
-   ```
-   Type: CNAME
-   Name: @ (또는 dagong.co.kr)
-   Target: dagong-bi1.pages.dev
-   Proxy status: Proxied (주황색 구름)
-   ```
-
----
-
-## 🎯 네이버 서치어드바이저 등록
-
-### **지금 바로 등록 가능!**
-
-#### **1단계: 네이버 소유 확인**
-1. https://searchadvisor.naver.com 로그인
-2. **"웹마스터 도구" → "사이트 관리"**
-3. **"dagong.co.kr"** (또는 "www.dagong.co.kr") 선택
-4. **"HTML 파일 업로드"** 방식 선택
-5. 확인 URL:
-   ```
-   https://dagong-bi1.pages.dev/naverf3735d7a56c13e617b246ff2b6e0da46.html
-   ```
-   또는 (DNS 설정 후):
-   ```
-   https://dagong.co.kr/naverf3735d7a56c13e617b246ff2b6e0da46.html
-   ```
-6. **"소유확인"** 클릭 ✅
-
-#### **2단계: Sitemap 제출**
-1. **"요청" → "사이트맵 제출"**
-2. **Sitemap URL**:
-   ```
-   https://dagong.co.kr/sitemap.xml
-   ```
-   또는 (임시):
-   ```
-   https://dagong-bi1.pages.dev/sitemap.xml
-   ```
-3. **"확인"** 클릭 ✅
-
----
-
-## 📊 현재 상태
-
-| 작업 | 상태 | 비고 |
-|------|------|------|
-| **Cloudflare Pages 배포** | ✅ 완료 | https://dagong-bi1.pages.dev |
-| **네이버 HTML 파일** | ✅ 작동 | /naverf3735d7a56c13e617b246ff2b6e0da46.html |
-| **Sitemap.xml** | ✅ 작동 | 18개 URL 포함 |
-| **Robots.txt** | ✅ 작동 | Sitemap 위치 명시 |
-| **GitHub 저장소** | ✅ 완료 | https://github.com/healingcafe1-prog/dagong |
-| **GitHub 자동 배포** | ⏳ 연동 필요 | 위 가이드 참고 |
-| **dagong.co.kr 도메인** | ⚠️ DNS 문제 | 커스텀 도메인 설정 필요 |
-| **네이버 소유 확인** | ⏳ 진행 가능 | 지금 바로 가능! |
+1. ✅ **사이트 배포 완료**
+2. ⏳ **D1 마이그레이션 실행** (위 방법 중 선택)
+3. ⏳ **샘플 데이터 추가** (선택 사항)
+4. ✅ **사이트 정상 작동 확인**
+5. 🔍 **검색 엔진 등록**
+   - Google Search Console
+   - Naver Search Advisor
+   - Daum 검색
+6. 📱 **Android 앱 등록**
 
 ---
 
 ## 🔗 유용한 링크
 
-- **배포된 사이트**: https://dagong-bi1.pages.dev
-- **GitHub 저장소**: https://github.com/healingcafe1-prog/dagong
-- **Cloudflare Dashboard**: https://dash.cloudflare.com
-- **Workers & Pages**: https://dash.cloudflare.com/?to=/:account/workers-and-pages
-- **네이버 서치어드바이저**: https://searchadvisor.naver.com
+- **Cloudflare Dashboard**: https://dash.cloudflare.com/
+- **D1 데이터베이스**: https://dash.cloudflare.com/ → Workers & Pages → D1 → webapp-production
+- **프로젝트 페이지**: https://dash.cloudflare.com/ → Workers & Pages → dagong
+- **프로덕션 사이트**: https://dagong-bi1.pages.dev/
 
 ---
 
-## 🎉 다음 단계
+## 💡 팁
 
-1. ✅ **GitHub 자동 배포 연동** (3분, 위 가이드 참고)
-2. ✅ **dagong.co.kr 커스텀 도메인 설정** (2분)
-3. ✅ **네이버 서치어드바이저 등록** (2분, 지금 바로 가능!)
-
-**모든 설정을 완료하시면 완전한 자동 배포 시스템 완성!** 🚀
+- **Dashboard 방법**이 가장 간단합니다 (복사-붙여넣기만)
+- CLI 방법을 사용하려면 API 토큰에 D1 권한 추가 필요
+- 마이그레이션 후 사이트가 즉시 정상 작동합니다
+- 샘플 데이터는 선택 사항 (테스트용)
 
 ---
 
-## 💬 문의
-
-진행 중 문제가 있거나 도움이 필요하시면 언제든 말씀해주세요!
-
-- "GitHub 연동 도와줘"
-- "DNS 설정 확인해줘"
-- "네이버 등록 가이드"
-- "배포해줘" (코드 수정 후)
-
-**축하합니다! 배포 성공!** 🎊
+**생성일**: 2026-02-19
+**배포 ID**: 9af8db16
+**상태**: 사이트 배포 완료, D1 마이그레이션 대기 중
