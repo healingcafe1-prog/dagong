@@ -75,10 +75,15 @@ app.get('/googleee4e97dad940b617.html', (c) => {
 
 // robots.txt 서빙
 app.get('/robots.txt', (c) => {
+  // 요청의 호스트를 기반으로 사이트맵 URL 생성
+  const protocol = c.req.header('x-forwarded-proto') || 'https'
+  const host = c.req.header('host') || 'dagong-bi1.pages.dev'
+  const sitemapUrl = `${protocol}://${host}/sitemap.xml`
+  
   return c.text(`User-agent: *
 Allow: /
 
-Sitemap: https://dagong.co.kr/sitemap.xml`, 200, {
+Sitemap: ${sitemapUrl}`, 200, {
     'Content-Type': 'text/plain; charset=utf-8'
   })
 })
@@ -120,7 +125,10 @@ app.get('/.well-known/assetlinks.json', (c) => {
 
 // sitemap.xml 서빙 (간단 버전)
 app.get('/sitemap.xml', (c) => {
-  const baseUrl = 'https://dagong.co.kr'
+  // 요청의 호스트를 기반으로 baseUrl 동적 생성
+  const protocol = c.req.header('x-forwarded-proto') || 'https'
+  const host = c.req.header('host') || 'dagong-bi1.pages.dev'
+  const baseUrl = `${protocol}://${host}`
   const today = new Date().toISOString().split('T')[0]
   
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
