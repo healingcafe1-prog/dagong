@@ -1,0 +1,58 @@
+╔═══════════════════════════════════════════════════════════╗
+║       📋 Cloudflare Console에 복사하는 방법              ║
+╚═══════════════════════════════════════════════════════════╝
+
+1️⃣ 파일 열기
+   파일 위치: /home/user/webapp/PRODUCTION_DB_UPDATE.sql
+   총 줄 수: 284줄
+
+2️⃣ 전체 선택 및 복사
+   방법 1: 마우스로 전체 드래그 → Ctrl+C
+   방법 2: Ctrl+A (전체 선택) → Ctrl+C (복사)
+   방법 3: 파일을 텍스트 에디터로 열기 → 전체 선택 → 복사
+
+3️⃣ Cloudflare Dashboard 접속
+   URL: https://dash.cloudflare.com/
+   로그인 → Workers & Pages → D1 → webapp-production
+
+4️⃣ Console 탭 열기
+   상단 탭에서 "Console" 클릭
+
+5️⃣ SQL 붙여넣기
+   큰 입력창에 Ctrl+V로 붙여넣기
+   284줄이 모두 붙여넣어졌는지 확인
+
+6️⃣ 실행
+   "Execute" 버튼 클릭
+   처리 완료까지 대기 (약 1-2분)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ 업데이트되는 데이터:
+
+기본 데이터:
+  • 지역 17개
+  • 카테고리 31개
+  • 생산자 2개
+  • 제품 50개
+  • 이벤트 27개
+  • 체험 프로그램 12개
+
+교육 데이터:
+  • 교육 카테고리 5개
+  • 차공부 6개
+  • 공예공부 9개
+  • 다도교육 7개
+  • 명상교육 7개
+
+총 커리큘럼: 29개
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 업데이트 확인:
+
+제품: https://dagong-bi1.pages.dev/api/products
+이벤트: https://dagong-bi1.pages.dev/api/events
+체험: https://dagong-bi1.pages.dev/api/experiences
+교육 카테고리: https://dagong-bi1.pages.dev/api/education/categories
+교육 커리큘럼: https://dagong-bi1.pages.dev/api/education/curriculum
