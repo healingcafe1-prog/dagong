@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = OFF;
+
 DELETE FROM education_curriculum;
 DELETE FROM education_categories;
 DELETE FROM experiences;
@@ -55,9 +57,9 @@ INSERT INTO categories (id, name, type, description, display_order, created_at) 
 (30, '인테리어', 'local', '인테리어 소품', 14, '2026-02-18 12:18:13'),
 (31, '문화상품', 'local', '문화/예술 상품', 15, '2026-02-18 12:18:13');
 
-INSERT INTO producers (id, name, region, description, contact, created_at) VALUES 
-(1, '박수공', '제주도', '제주 한라산 유기농 차 농원', '064-123-4567', '2026-02-18 12:18:13'),
-(2, '제주 한라산 차농원', '제주도', '3대째 이어온 전통 차 농원', '064-456-7890', '2026-02-18 12:18:13');
+INSERT INTO producers (id, name, region_id, producer_type, description, contact_phone, created_at) VALUES 
+(1, '박수공', 1, 'tea', '제주 한라산 유기농 차 농원', '064-123-4567', '2026-02-18 12:18:13'),
+(2, '제주 한라산 차농원', 1, 'tea', '3대째 이어온 전통 차 농원', '064-456-7890', '2026-02-18 12:18:13');
 
 INSERT INTO products (id, name, category_id, producer_id, description, consumer_price, direct_price, shipping_fee, stock_quantity, main_image, product_type, weight, origin, is_featured, is_available, view_count, created_at) VALUES 
 (1, '제주 한라산 유기농 녹차', 1, 1, '청정 제주에서 자란 프리미엄 유기농 녹차', 35000.00, 28000.00, 3000.00, 100, '/images/products/tea1.jpg', 'tea', 100.00, '제주도', 1, 1, 150, '2026-02-18 12:18:13'),
@@ -192,3 +194,5 @@ INSERT INTO education_curriculum (id, category_id, title, description, content, 
 (28, 5, '명상의 종류와 실천', '다양한 명상법', '호흡명상, 선명상, 위빠사나 등', '150분', 'intermediate', 2, '/images/curriculum/meditation_types.jpg', '2026-02-18 13:59:11'),
 (29, 5, '명상의 정의와 원리', '명상의 본질과 작용 원리', '명상이 뇌와 신체에 미치는 영향', '60분', 'beginner', 2, '/images/curriculum/meditation_principle.jpg', '2026-02-18 13:59:11'),
 (30, 5, '일상 속 명상 실천', '바쁜 일상 속 명상 적용', '짧은 시간으로 하는 실용적 명상법', '45분', 'beginner', 3, '/images/curriculum/daily_meditation.jpg', '2026-02-18 13:59:11');
+
+PRAGMA foreign_keys = ON;

@@ -1,0 +1,100 @@
+[
+  {
+    "results": [
+      {
+        "id": 1,
+        "title": "차밭 체험과 수제차 만들기",
+        "region_id": 5,
+        "producer_id": 1,
+        "experience_type": "tea_tasting",
+        "description": "차밭을 거닐며 차를 수확하고 직접 차를 만들어보는 체험",
+        "duration": "3시간",
+        "price": 50000,
+        "max_participants": 20,
+        "main_image": "/images/experiences/tea-farm.jpg",
+        "is_available": 1,
+        "created_at": "2026-02-18 12:29:51",
+        "original_price": 70000,
+        "discount_rate": 30,
+        "commission_rate": 9.9,
+        "commission_amount": null,
+        "producer_revenue": null
+      },
+      {
+        "id": 2,
+        "title": "전통 다도 예절 배우기",
+        "region_id": 10,
+        "producer_id": 4,
+        "experience_type": "tea_ceremony",
+        "description": "한국 전통 다도의 예절과 작법을 배우는 시간",
+        "duration": "2시간",
+        "price": 40000,
+        "max_participants": 15,
+        "main_image": "/images/experiences/tea-ceremony.jpg",
+        "is_available": 1,
+        "created_at": "2026-02-18 12:29:54",
+        "original_price": 55000,
+        "discount_rate": 30,
+        "commission_rate": 9.9,
+        "commission_amount": null,
+        "producer_revenue": null
+      },
+      {
+        "id": 3,
+        "title": "도자기 찻잔 만들기",
+        "region_id": 10,
+        "producer_id": 4,
+        "experience_type": "craft_workshop",
+        "description": "나만의 찻잔을 직접 만들어보는 도예 체험",
+        "duration": "4시간",
+        "price": 60000,
+        "max_participants": 10,
+        "main_image": "/images/experiences/pottery.jpg",
+        "is_available": 1,
+        "created_at": "2026-02-18 12:29:56",
+        "original_price": 85000,
+        "discount_rate": 30,
+        "commission_rate": 9.9,
+        "commission_amount": null,
+        "producer_revenue": null
+      },
+      {
+        "id": 4,
+        "title": "공방 투어 및 차 블렌딩",
+        "region_id": 1,
+        "producer_id": 3,
+        "experience_type": "workshop_visit",
+        "description": "공방을 둘러보고 다양한 차를 블렌딩하는 체험",
+        "duration": "2시간",
+        "price": 45000,
+        "max_participants": 12,
+        "main_image": "/images/experiences/tea-blending.jpg",
+        "is_available": 1,
+        "created_at": "2026-02-18 12:29:59",
+        "original_price": 60000,
+        "discount_rate": 30,
+        "commission_rate": 9.9,
+        "commission_amount": null,
+        "producer_revenue": null
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "ICN",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.2743
+      },
+      "duration": 0.2743,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 274432,
+      "rows_read": 4,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]
