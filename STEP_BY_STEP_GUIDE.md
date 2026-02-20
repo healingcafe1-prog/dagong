@@ -39,19 +39,31 @@
 
 ---
 
-#### STEP 3: 선물 + 지역특산품 (생성 예정)
+#### STEP 3: 선물 + 지역특산품 (1분)
 ```
-파일: STEP3_GIFT_LOCAL.sql (곧 생성)
+파일: STEP3_GIFT_LOCAL.sql
 내용: 선물세트 15개 + 지역특산품 33개
 ```
 
+1. GitHub에서 SQL 복사:
+   https://github.com/healingcafe1-prog/dagong/blob/main/STEP3_GIFT_LOCAL.sql
+2. **Raw 버튼 클릭** → 전체 선택 → 복사
+3. 콘솔에 붙여넣기 → **Execute** 클릭
+4. "STEP 3 완료" 메시지 확인
+
 ---
 
-#### STEP 4: 체험 프로그램 (생성 예정)
+#### STEP 4: 체험 프로그램 (1분)
 ```
-파일: STEP4_EXPERIENCES.sql (곧 생성)
+파일: STEP4_EXPERIENCES.sql
 내용: 체험 프로그램 14개
 ```
+
+1. GitHub에서 SQL 복사:
+   https://github.com/healingcafe1-prog/dagong/blob/main/STEP4_EXPERIENCES.sql
+2. **Raw 버튼 클릭** → 전체 선택 → 복사
+3. 콘솔에 붙여넣기 → **Execute** 클릭
+4. "STEP 4 완료" 메시지 확인
 
 ---
 
@@ -61,18 +73,28 @@
 |------|------|------|------|
 | STEP 1 | STEP1_BASIC_DATA.sql | 지역 17 + 카테고리 27 + 생산자 13 | ✅ 준비됨 |
 | STEP 2 | STEP2_TEA_CRAFT.sql | 차 20 + 공예 23 | ✅ 준비됨 |
-| STEP 3 | STEP3_GIFT_LOCAL.sql | 선물 15 + 지역특산 33 | ⏳ 생성 중 |
-| STEP 4 | STEP4_EXPERIENCES.sql | 체험 14 | ⏳ 생성 중 |
+| STEP 3 | STEP3_GIFT_LOCAL.sql | 선물 15 + 지역특산 33 | ✅ 준비됨 |
+| STEP 4 | STEP4_EXPERIENCES.sql | 체험 14 | ✅ 준비됨 |
 
 ---
 
-## 🎯 현재 실행 가능한 단계
+## 🎯 지금 바로 실행 가능!
 
-### 지금 바로 실행: STEP 1 + STEP 2
+### 전체 복구 순서 (총 4분)
 
-1. **STEP 1 실행** (지역, 카테고리, 생산자)
-2. **STEP 2 실행** (차 제품, 공예품)
-3. **STEP 3, 4 대기** (곧 생성됨)
+1. **STEP 1 실행** (1분) - 지역 17 + 카테고리 27 + 생산자 13
+2. **STEP 2 실행** (1분) - 차 제품 20 + 공예품 23
+3. **STEP 3 실행** (1분) - 선물세트 15 + 지역특산품 33
+4. **STEP 4 실행** (1분) - 체험 프로그램 14
+
+### 복구 완료 후 데이터
+- ✅ 지역: 17개
+- ✅ 카테고리: 27개
+- ✅ 생산자: 13개
+- ✅ 제품: 91개 (차 20 + 공예 23 + 선물 15 + 지역특산 33)
+- ✅ 체험: 14개
+- ✅ 교육: 30개 (이미 완료)
+- ✅ 이벤트: 27개 (이미 완료)
 
 ---
 
