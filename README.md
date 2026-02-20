@@ -30,15 +30,21 @@
 
 ---
 
-## 📊 현재 데이터 상태 (2026-02-18)
+## 📊 현재 데이터 상태 (2026-02-20)
 
-### ✅ 로컬 개발 환경
+### ✅ 프로덕션 환경 (최신)
+- **URL**: https://dagong-bi1.pages.dev/
 - **카테고리**: 27개 (차 7, 공예 11, 선물 4, 특산물 5)
 - **지역**: 17개 (차산지 8, 공예산지 9)
-- **이벤트**: 27개 (12개월 연중 행사)
-- **상품**: 1개 (샘플 데이터)
-- **판매자**: 2개 (개인 1, 사업자 1)
+- **생산자**: 5개
+- **이벤트**: 27개 (1월~12월 연중 행사) ✅
+- **지역특산품**: 17개 (정상 표시)
+- **체험 프로그램**: 4개 → 5개 (복구 중)
+- **교육과정**: 16개 → 30개 (복구 중)
+
+### 🔧 로컬 개발 환경
 - **로컬 서버**: http://localhost:3000
+- **데이터**: 로컬 SQLite 사용 (--local 플래그)
 
 ### 🎯 새로 구현된 기능
 1. **소셜 로그인**
@@ -65,10 +71,10 @@
    - 총 수수료: 13.2%
    - 판매자 수령액 = 직거래가 - 총 수수료
 
-### ⚠️ 프로덕션 환경
-- **URL**: https://dagong-bi1.pages.dev/
-- **데이터**: 업데이트 필요 (카테고리 1개, 지역 1개, 이벤트 0개)
-- **배포 가이드**: [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) 참조
+### 📝 데이터 관리
+- **통합 데이터 파일**: [MASTER_DATA.sql](./MASTER_DATA.sql)
+- **복구 가이드**: [DATA_RESTORE_FINAL.md](./DATA_RESTORE_FINAL.md)
+- **이벤트 복원 성공**: [EVENT_RESTORATION_SUCCESS.md](./EVENT_RESTORATION_SUCCESS.md)
 
 ---
 
@@ -140,7 +146,13 @@ npx wrangler d1 execute webapp-production --local --command="UPDATE producers SE
 
 ## 📚 주요 문서
 
+### 배포 및 데이터 관리
+- [MASTER_DATA.sql](./MASTER_DATA.sql) - 🔥 통합 데이터 관리 SQL (체험·교육 포함)
+- [DATA_RESTORE_FINAL.md](./DATA_RESTORE_FINAL.md) - 체험교육 데이터 복구 가이드
+- [EVENT_RESTORATION_SUCCESS.md](./EVENT_RESTORATION_SUCCESS.md) - 이벤트 복원 성공 보고서
 - [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) - 프로덕션 배포 가이드
+
+### 기능 설명
 - [MONTHLY_EVENTS.md](./MONTHLY_EVENTS.md) - 월별 이벤트 시스템 설명
 - [SEO_GUIDE.md](./SEO_GUIDE.md) - 검색엔진 최적화 가이드
 
