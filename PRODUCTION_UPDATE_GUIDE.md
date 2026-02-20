@@ -1,130 +1,209 @@
-# 프로덕션 데이터베이스 업데이트 가이드
+# 🚀 프로덕션 데이터 업데이트 가이드
 
-## 📅 작성일: 2026-02-19
+## ⚠️ 현재 상황
+- **로컬 환경**: 78개 제품, 5개 체험, 30개 교육, 27개 이벤트 ✅
+- **프로덕션 환경**: 17개 제품, 4개 체험, 0개 이벤트 ❌
 
-## 🎯 목적
-로컬 샌드박스의 최신 데이터(50개 제품, 27개 이벤트, 12개 체험)를 프로덕션 D1으로 동기화
-
-## 📊 현재 상황
-- **로컬 DB**: 제품 50개, 이벤트 27개, 체험 12개
-- **프로덕션 DB**: 제품 17개, 이벤트 0개, 체험 0개
-
-## 🚀 업데이트 방법
-
-### 1단계: Cloudflare 대시보드 접속
-1. https://dash.cloudflare.com/ 접속
-2. **Workers & Pages** 클릭
-3. **D1** 클릭
-4. **webapp-production** 데이터베이스 선택
-
-### 2단계: Console 탭 열기
-1. **Console** 탭 클릭
-2. SQL 입력창 확인
-
-### 3단계: SQL 파일 내용 복사
-1. 아래 링크에서 SQL 파일 다운로드:
-   ```
-   /home/user/webapp/production_data_full.sql
-   ```
-
-2. 파일 내용 전체 복사 (약 162줄)
-
-### 4단계: SQL 실행
-1. Cloudflare Console에 SQL 붙여넣기
-2. **Execute** 버튼 클릭
-3. 완료 메시지 확인
-
-### 5단계: 확인
-프로덕션 사이트에서 확인:
-```bash
-# 제품 확인
-curl https://dagong-bi1.pages.dev/api/products | jq 'length'
-# 예상 결과: 50
-
-# 이벤트 확인  
-curl https://dagong-bi1.pages.dev/api/events | jq 'length'
-# 예상 결과: 27
-
-# 체험 프로그램 확인
-curl https://dagong-bi1.pages.dev/api/experiences | jq 'length'
-# 예상 결과: 12
-```
-
-## 📋 업데이트될 데이터
-
-### 제품 (50개)
-**차류 (Tea):**
-- 녹차: 제주 한라산 녹차, 하동 야생 녹차, 보성 우전 녹차 등
-- 백차: 백모단, 백호은침, 수미 백차 등
-- 청차: 철관음, 대만 동정오룡차, 무이암차 대홍포 등
-- 황차: 군산황아, 몽정황아, 곽산황대차 등
-- 홍차: 정산소종, 기문홍차, 대길령 등
-- 발효차: 운남 보이차, 흑차, 육보차 등
-
-**공예품 (Craft):**
-- 찻잔, 다관, 차판, 다기세트 등
-
-**선물세트 (Gift):**
-- 명절 선물세트, 기념일 선물세트 등
-
-**지역특산품 (Local):**
-- 제주 녹차 초콜릿, 보성 녹차 쿠키, 하동 차 비누 등
-
-### 이벤트 (27개)
-**월별 이벤트 (1월~12월):**
-- 1월: 신년 대할인, 설날 선물세트 특가
-- 2월: 발렌타인데이 특별 할인
-- 3월: 봄맞이 새차 출시
-- 4월: 곡우차 예약 판매
-- 5월: 어린이날/어버이날 선물세트
-- 6월: 여름 특선 차류
-- 7월: 여름 휴가 세트
-- 8월: 광복절 특별 행사
-- 9월: 추석 선물세트, 가을 신차 출시
-- 10월: 가을 단풍 투어
-- 11월: 김장 선물세트
-- 12월: 크리스마스/연말 선물세트
-
-**상시 이벤트:**
-- 베스트셀러 기획전
-- 신규 회원 할인
-- 프리미엄 다기 전시회
-
-### 체험 프로그램 (12개)
-- 보성 녹차밭 힐링 투어
-- 하동 야생차 체험
-- 제주 차밭 트레킹
-- 전통 다도 체험
-- 차 블렌딩 클래스
-- 도자기 찻잔 만들기
-- 차 명상 프로그램
-- 계절별 차 만들기
-- 차와 음식 페어링
-- 어린이 차 문화 교실
-- 차 소믈리에 입문 과정
-- 프리미엄 다도 마스터 클래스
-
-## ⏱️ 예상 소요 시간
-- SQL 실행: 약 5분
-- 데이터 확인: 약 2분
-- **총 소요 시간: 약 7분**
-
-## ⚠️ 주의사항
-1. SQL 실행 전 **반드시 백업** 권장
-2. SQL 문법 오류 시 Cloudflare Console에서 에러 메시지 확인
-3. 실행 후 프로덕션 사이트에서 데이터 정상 표시 확인
-
-## 🔗 관련 링크
-- Cloudflare Dashboard: https://dash.cloudflare.com/
-- 프로덕션 사이트: https://dagong-bi1.pages.dev/
-- 제품 페이지: https://dagong-bi1.pages.dev/products?type=tea
-- 이벤트 페이지: https://dagong-bi1.pages.dev/events
-- 체험 페이지: https://dagong-bi1.pages.dev/experiences
+**프로덕션 D1 데이터베이스에 MASTER_SEED.sql을 실행해야 합니다.**
 
 ---
 
-**완료 후 다음 단계:**
-1. ✅ 검색엔진 등록 확인
-2. ✅ 프로덕션 데이터 업데이트
-3. 🔄 Google Play Store 앱 배포
-4. 🔄 커스텀 도메인 연결 (dagong.co.kr)
+## 📝 방법 1: Cloudflare Dashboard (가장 쉬움) ⭐
+
+### 단계별 가이드
+
+#### 1단계: MASTER_SEED.sql 내용 복사
+다음 URL을 열어서 **전체 내용을 복사**하세요:
+```
+https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/MASTER_SEED.sql
+```
+
+또는 로컬에서 복사:
+```bash
+cat /home/user/webapp/MASTER_SEED.sql
+```
+
+#### 2단계: Cloudflare Dashboard 접속
+1. https://dash.cloudflare.com/ 접속
+2. 로그인
+
+#### 3단계: D1 데이터베이스 Console 열기
+1. 좌측 메뉴에서 **Workers & Pages** 클릭
+2. 상단 탭에서 **D1** 클릭
+3. **webapp-production** 데이터베이스 클릭
+4. 상단 탭에서 **Console** 클릭
+
+#### 4단계: SQL 실행
+1. Console 화면의 SQL 입력창에 MASTER_SEED.sql 내용 전체를 붙여넣기
+2. **Execute** 버튼 클릭
+3. 실행 완료까지 약 5-10초 대기
+
+#### 5단계: 확인
+실행이 완료되면 다음 쿼리로 확인:
+
+```sql
+SELECT COUNT(*) FROM products;
+-- 결과: 78
+
+SELECT COUNT(*) FROM experiences;
+-- 결과: 5
+
+SELECT COUNT(*) FROM events;
+-- 결과: 27
+
+SELECT COUNT(*) FROM education_curriculum;
+-- 결과: 30
+```
+
+---
+
+## 📝 방법 2: Wrangler CLI (터미널)
+
+```bash
+cd /home/user/webapp
+
+# Cloudflare 인증 (이미 설정되어 있어야 함)
+npx wrangler whoami
+
+# 프로덕션 데이터베이스에 SQL 실행
+npx wrangler d1 execute webapp-production --file=MASTER_SEED.sql --remote
+```
+
+---
+
+## ✅ 업데이트 후 확인
+
+### 프로덕션 API 테스트
+```bash
+# 제품 수 확인 (78개 예상)
+curl https://dagong-bi1.pages.dev/api/products?limit=100 | jq '.products | length'
+
+# 지역특산품 확인 (33개 예상)
+curl "https://dagong-bi1.pages.dev/api/products?limit=100" | jq '[.products[] | select(.category_id == 17 or .category_id == 18 or .category_id == 19 or .category_id == 20 or .category_id == 31)] | length'
+
+# 체험 프로그램 확인 (5개 예상)
+curl https://dagong-bi1.pages.dev/api/experiences?limit=100 | jq '.experiences | length'
+
+# 이벤트 확인 (27개 예상)
+curl https://dagong-bi1.pages.dev/api/events?limit=50 | jq '.events | length'
+
+# 교육 커리큘럼 확인 (30개 예상)
+curl https://dagong-bi1.pages.dev/api/education/curriculum?limit=50 | jq '.curriculum | length'
+```
+
+### 브라우저에서 확인
+```
+https://dagong-bi1.pages.dev/api/products?limit=100
+https://dagong-bi1.pages.dev/api/experiences
+https://dagong-bi1.pages.dev/api/events?limit=50
+https://dagong-bi1.pages.dev/api/education/curriculum
+```
+
+---
+
+## 🔧 코드 배포 (이미 완료됨)
+
+이벤트 API가 수정되었으므로 코드도 재배포해야 합니다:
+
+```bash
+cd /home/user/webapp
+
+# 빌드
+npm run build
+
+# 프로덕션 배포
+npx wrangler pages deploy dist --project-name dagong-bi1
+```
+
+배포 완료 후 URL이 표시됩니다:
+```
+✨ Deployment complete!
+  Preview URL: https://[랜덤ID].dagong-bi1.pages.dev
+  Production URL: https://dagong-bi1.pages.dev
+```
+
+---
+
+## 📊 예상 결과
+
+### 업데이트 전
+- 제품: 17개
+- 지역특산품: 3개
+- 체험: 4개
+- 이벤트: 0개
+
+### 업데이트 후
+- 제품: **78개** ✅
+- 지역특산품: **33개** ✅
+- 체험: **5개** ✅
+- 이벤트: **27개** ✅
+- 교육: **30개** ✅
+
+---
+
+## ⚠️ 주의사항
+
+1. **MASTER_SEED.sql 실행 시 기존 데이터가 삭제됩니다**
+   - 파일 내부에 `DELETE FROM` 문이 포함되어 있음
+   - 백업이 필요한 경우 먼저 Export 수행
+
+2. **외래키 제약 조건**
+   - MASTER_SEED.sql이 자동으로 처리함
+   - `PRAGMA foreign_keys = OFF/ON` 포함
+
+3. **실행 시간**
+   - 약 5-10초 소요
+   - 네트워크 상태에 따라 다를 수 있음
+
+---
+
+## 🆘 문제 해결
+
+### 문제 1: 외래키 오류 발생
+**증상**: FOREIGN KEY constraint failed
+
+**해결**:
+1. Console에서 먼저 실행:
+```sql
+PRAGMA foreign_keys = OFF;
+```
+2. MASTER_SEED.sql 실행
+3. 마지막에 실행:
+```sql
+PRAGMA foreign_keys = ON;
+```
+
+### 문제 2: Wrangler 인증 오류
+**증상**: Not authenticated
+
+**해결**:
+```bash
+# API 키 재설정
+cd /home/user/webapp
+npx wrangler login
+
+# 또는
+export CLOUDFLARE_API_TOKEN="your-api-token"
+```
+
+### 문제 3: 일부 데이터만 삽입됨
+**증상**: 78개 대신 적은 수만 삽입됨
+
+**해결**:
+1. Console에서 전체 내용이 붙여넣어졌는지 확인
+2. SQL 파일이 끝까지 실행되었는지 확인
+3. 오류 메시지 확인 후 해당 부분 수정
+
+---
+
+## 📞 도움이 필요하시면
+
+GitHub Issue에 문의하시거나, 다음 정보를 제공해주세요:
+1. 실행한 SQL 명령
+2. 발생한 오류 메시지
+3. 현재 데이터 개수 (SELECT COUNT(*) 결과)
+
+---
+
+**마지막 업데이트**: 2026-02-20  
+**작성자**: AI Assistant
