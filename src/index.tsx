@@ -1318,23 +1318,34 @@ app.get('/api/categories', async (c) => {
 // 이벤트 목록 조회 API
 app.get('/api/events', async (c) => {
   try {
-    const status = c.req.query('status')
+    const active = c.req.query('active')
+    const month = c.req.query('month')
     const limitParam = c.req.query('limit')
-    const limit = limitParam ? parseInt(limitParam) : 10
+    const limit = limitParam ? parseInt(limitParam) : 30
     
     let query = `SELECT * FROM events`
     const params: (string | number)[] = []
+    let whereAdded = false
     
-    // 상태 필터링 (기본값: upcoming, ongoing)
-    if (status) {
-      query += ' WHERE status = ?'
-      params.push(status)
-    } else {
-      query += ` WHERE status IN ('upcoming', 'ongoing')`
+    // 활성 상태 필터링
+    if (active === 'true' || active === undefined) {
+      query += ' WHERE is_active = 1'
+      whereAdded = true
+    } else if (active === 'false') {
+      query += ' WHERE is_active = 0'
+      whereAdded = true
     }
     
-    // 날짜순 정렬 (최신순)
-    query += ' ORDER BY event_date DESC LIMIT ?'
+    // 월별 필터링
+    if (month) {
+      query += whereAdded ? ' AND' : ' WHERE'
+      query += ' month = ?'
+      params.push(parseInt(month))
+      whereAdded = true
+    }
+    
+    // 우선순위와 월 순으로 정렬
+    query += ' ORDER BY month ASC, priority DESC, start_date ASC LIMIT ?'
     params.push(limit)
     
     const { results } = await c.env.DB.prepare(query).bind(...params).all()
