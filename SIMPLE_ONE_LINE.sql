@@ -1,119 +1,39 @@
-# 🚨 Cloudflare D1 콘솔 복구 가이드
+-- =============================================
+-- 간단 복구: 한 줄씩 복사해서 실행하세요
+-- =============================================
 
-## ❌ 잘못된 방법
-```
-> https://github.com/healingcafe1-prog/dagong/blob/main/PART1_producers_experiences.sql
-```
-→ **GitHub URL을 직접 붙여넣으면 안 됩니다!**
-
----
-
-## ✅ 올바른 방법
-
-### 1단계: Cloudflare D1 콘솔 열기
-```
-https://dash.cloudflare.com/
-→ Workers & Pages
-→ D1
-→ webapp-production
-→ Console 탭 클릭
-```
-
-### 2단계: 아래 SQL을 **한 줄씩** 복사해서 실행
-
----
-
-## 📦 생산자 8개 추가
-
-```sql
+-- 1. 생산자 8개 추가
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (6, '제주 다원명가', 1, 'tea', '제주 화산토 유기농 녹차', '3대째 차 농가', 'jejutea@example.com', '064-123-4567', '제주 서귀포시', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (7, '제주 차향', 1, 'tea', '제주 전통 발효차', '자연 발효', 'chahyang@example.com', '064-234-5678', '제주 제주시', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (8, '광주 도예공방', 10, 'craft', '전통 백자', '30년 경력', 'gwangjupot@example.com', '031-123-4567', '경기 광주시', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (9, '이천 도자예술촌', 10, 'craft', '청자 백자', '이천 전통', 'icheon@example.com', '031-234-5678', '경기 이천시', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (10, '담양 죽세공예', 11, 'craft', '대나무 공예', '전통 죽세', 'damyang@example.com', '061-123-4567', '전남 담양군', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (11, '통영 나전칠기', 12, 'craft', '나전칠기', '전통 나전', 'tongyeong@example.com', '055-123-4567', '경남 통영시', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (12, '평창 농특산', 13, 'tea', '고랭지 특산물', '청정 재배', 'pyeongchang@example.com', '033-123-4567', '강원 평창군', '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (13, '장흥 정남진차', 14, 'tea', '정남진 청태전', '전통 발효차', 'jangheung@example.com', '061-234-5678', '전남 장흥군', '2024-01-01 00:00:00');
-```
 
-**확인:**
-```sql
-SELECT COUNT(*) FROM producers;
-```
-→ 결과: **13** ✅
+-- 확인: SELECT COUNT(*) FROM producers;
+-- 결과: 13
 
----
-
-## 🎯 체험 프로그램 6개 추가
-
-```sql
+-- 2. 체험 프로그램 6개 추가
 INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (5, '하동 야생차 체험', 2, 2, 'tea_experience', '야생차밭 체험', '3시간', 45000, 15, 1, '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (6, '보성 차밭 투어', 5, 1, 'farm_tour', '보성 녹차밭 관람', '2시간', 30000, 20, 1, '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (7, '제주 다도 체험', 1, 6, 'tea_ceremony', '전통 다례 배우기', '2시간', 40000, 10, 1, '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (8, '이천 도자기 만들기', 10, 9, 'craft_workshop', '물레 체험', '3시간', 50000, 12, 1, '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (9, '담양 대나무 공예', 11, 10, 'craft_workshop', '죽세 공예', '2시간', 35000, 15, 1, '2024-01-01 00:00:00');
-```
 
-```sql
 INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (10, '제주 차 만들기', 1, 7, 'tea_experience', '차 제조 체험', '4시간', 60000, 10, 1, '2024-01-01 00:00:00');
-```
 
-**확인:**
-```sql
-SELECT COUNT(*) FROM experiences;
-```
-→ 결과: **10** ✅
-
----
-
-## 📝 중요 사항
-
-1. **한 줄씩 실행**: 각 INSERT 문을 하나씩 복사 → 붙여넣기 → 실행
-2. **URL 직접 붙이면 안 됨**: GitHub URL이 아닌 **SQL 내용**을 복사
-3. **확인 필수**: 각 섹션 끝에 COUNT 쿼리로 확인
-4. **에러 무시**: `INSERT OR IGNORE`는 중복 시 무시함
-
----
-
-## 🔗 다음 단계
-
-생산자와 체험이 완료되면 다음 파일 실행:
-- 차 제품 13개
-- 공예품 19개  
-- 선물세트 17개
-- 지역특산품 30개
-
-각각 동일한 방식으로 한 줄씩 실행하면 됩니다.
+-- 확인: SELECT COUNT(*) FROM experiences;
+-- 결과: 10
