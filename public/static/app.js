@@ -1,3 +1,36 @@
+// ===== 캐시 강제 제거 함수 =====
+window.forceClearCache = async function() {
+  console.log('🔄 강제 캐시 제거 시작...');
+  
+  try {
+    // 1. Service Worker 언레지스터
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+        console.log('✅ Service Worker 제거됨');
+      }
+    }
+    
+    // 2. 모든 캐시 제거
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('✅ 모든 캐시 제거됨:', cacheNames);
+    }
+    
+    // 3. localStorage 제거 (필요시)
+    // localStorage.clear();
+    
+    // 4. 강제 새로고침
+    console.log('✅ 페이지 강제 새로고침...');
+    window.location.reload(true);
+  } catch (error) {
+    console.error('❌ 캐시 제거 중 오류:', error);
+    alert('캐시 제거 중 오류가 발생했습니다. 브라우저 설정에서 수동으로 캐시를 제거해주세요.');
+  }
+};
+
 // ===== 유틸리티 함수 =====
 
 // 가격 포맷팅
@@ -2121,9 +2154,13 @@ async function loadEducationCurriculumPage() {
             <i class="fas fa-graduation-cap text-tea-green mr-3"></i>
             다도교육 커리큘럼
           </h1>
-          <p class="text-lg text-gray-600">
+          <p class="text-lg text-gray-600 mb-4">
             차와 공예에 대한 체계적인 교육 프로그램을 만나보세요
           </p>
+          <button onclick="window.forceClearCache()" class="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-md transition-colors">
+            <i class="fas fa-sync-alt mr-2"></i>
+            🔄 최신 데이터 불러오기
+          </button>
         </div>
 
         <!-- 탭 네비게이션 -->
