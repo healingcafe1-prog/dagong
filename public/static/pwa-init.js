@@ -1,21 +1,26 @@
 // PWA Initialization Script
-// This script registers the service worker and handles PWA installation
+// Service Worker DISABLED - 캐시 문제 해결을 위해 임시 비활성화
 
-// Check if service workers are supported
+// 기존 Service Worker 제거
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/service-worker.js')
-      .then((registration) => {
-        console.log('Service Worker registered successfully:', registration.scope);
-        
-        // Check for updates periodically
-        setInterval(() => {
-          registration.update();
-        }, 60000); // Check every minute
-      })
-      .catch((error) => {
-        console.log('Service Worker registration failed:', error);
-      });
+  window.addEventListener('load', async () => {
+    // 모든 등록된 Service Worker 제거
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      await registration.unregister();
+      console.log('🧹 Service Worker 제거됨:', registration.scope);
+    }
+    
+    // 모든 캐시 제거
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        await caches.delete(name);
+        console.log('🧹 캐시 제거됨:', name);
+      }
+    }
+    
+    console.log('✅ PWA 캐시 완전 제거 완료');
   });
 }
 
