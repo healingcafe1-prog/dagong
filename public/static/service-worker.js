@@ -1,5 +1,5 @@
 // Service Worker for PWA
-const CACHE_NAME = 'dagong-v1';
+const CACHE_NAME = 'dagong-v2-20260221';
 const urlsToCache = [
   '/',
   '/static/app.js',
