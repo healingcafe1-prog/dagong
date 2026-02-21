@@ -10,6 +10,31 @@ set -e
 echo "🔄 다공(茶工) 교육 데이터 복원 시작..."
 echo ""
 
+# 백업 버전 선택
+echo "복원할 백업 버전을 선택하세요:"
+echo "1) V4 (최신) - 한국 차 공예품 전문 카페 창업 가이드 포함"
+echo "2) V3 - 다도교육 14개 항목 완성본"
+echo "3) V2 - 초기 버전"
+read -p "선택 (1, 2, 또는 3): " version_choice
+
+if [ "$version_choice" = "1" ]; then
+    BACKUP_FILE="MASTER_BACKUP_EDUCATION_V4.sql"
+    VERSION_NAME="V4 (최신)"
+elif [ "$version_choice" = "2" ]; then
+    BACKUP_FILE="MASTER_BACKUP_EDUCATION_V3.sql"
+    VERSION_NAME="V3"
+elif [ "$version_choice" = "3" ]; then
+    BACKUP_FILE="MASTER_BACKUP_EDUCATION_V2.sql"
+    VERSION_NAME="V2"
+else
+    echo "❌ 잘못된 선택입니다."
+    exit 1
+fi
+
+echo ""
+echo "선택한 버전: $VERSION_NAME"
+echo ""
+
 # 복원 대상 선택
 echo "복원 대상을 선택하세요:"
 echo "1) 로컬 DB (--local)"
@@ -37,11 +62,11 @@ else
 fi
 
 echo ""
-echo "📋 $TARGET_NAME DB 복원 중..."
+echo "📋 $TARGET_NAME DB를 $VERSION_NAME으로 복원 중..."
 echo ""
 
 # 마스터 백업 적용
-npx wrangler d1 execute webapp-production $TARGET --file=MASTER_BACKUP_EDUCATION.sql
+npx wrangler d1 execute webapp-production $TARGET --file=$BACKUP_FILE
 
 echo ""
 echo "✅ 복원 완료!"
