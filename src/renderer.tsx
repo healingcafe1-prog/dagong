@@ -346,8 +346,8 @@ export const renderer = jsxRenderer(({ children }) => {
         {/* PWA 초기화 */}
         <script src="/static/pwa-init.js"></script>
         
-        {/* 앱 스크립트 */}
-        <script src="/static/app.js"></script>
+        {/* 앱 스크립트 - 캐시 무효화를 위한 타임스탬프 추가 */}
+        <script src={`/static/app.js?v=${Date.now()}`}></script>
         <script src="/static/education-status.js"></script>
         <script src="/static/producer-forms.js"></script>
         <script src="/static/mobile.js"></script>
