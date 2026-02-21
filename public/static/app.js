@@ -2252,7 +2252,7 @@ async function loadEducationCurriculumPage() {
               다도교육
             </h2>
             <p class="text-gray-700">
-              다도의 의미와 역사, 명상과 인성교육을 배웁니다
+              다도의 의미와 역사, 방법을 배우며 다도가 인성교육에 도움이 되는 가치를 배웁니다
             </p>
           </div>
           
