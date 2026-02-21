@@ -1,138 +1,38 @@
-// Service Worker for PWA
-const CACHE_NAME = 'dagong-v3-force-update';
-const urlsToCache = [
-  '/',
-  '/static/app.js',
-  '/static/styles.css',
-  '/static/manifest.json'
-];
+// Service Worker - DISABLED (캐시 문제 해결을 위해 임시 비활성화)
+// 이전 Service Worker를 언레지스터하고 캐시를 제거
 
-// Install event - cache essential files
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
-  // Force the waiting service worker to become the active service worker
+  console.log('🚫 Service Worker 비활성화 모드 - 즉시 활성화');
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('🧹 Service Worker 활성화 - 모든 캐시 제거 중...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+          console.log('❌ 캐시 삭제:', cacheName);
+          return caches.delete(cacheName);
         })
       );
+    }).then(() => {
+      console.log('✅ 모든 캐시 제거 완료');
+      // 모든 클라이언트를 새로고침
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          console.log('🔄 클라이언트 새로고침:', client.url);
+          client.navigate(client.url);
+        });
+      });
     })
   );
-  // Claim clients immediately
   return self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch 이벤트 - 모든 요청을 네트워크로 전달 (캐시 사용 안 함)
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
-
-  // Skip chrome-extension and other non-http requests
-  if (!event.request.url.startsWith('http')) {
-    return;
-  }
-
-  // Network-first strategy for app.js to always get latest version
-  if (event.request.url.includes('/static/app.js')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Clone and cache the fresh response
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
-
-  // Cache-first strategy for other resources
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          // Cache specific resources only
-          if (event.request.url.includes('/static/') || 
-              event.request.url.includes('/api/')) {
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-          }
-
-          return response;
-        });
-      })
-      .catch(() => {
-        // Return offline page if available
-        return caches.match('/offline.html');
-      })
-  );
-});
-
-// Push notification event
-self.addEventListener('push', (event) => {
-  const options = {
-    body: event.data ? event.data.text() : '새로운 소식이 있습니다',
-    icon: '/static/icons/icon-192x192.png',
-    badge: '/static/icons/icon-72x72.png',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    }
-  };
-
-  event.waitUntil(
-    self.registration.showNotification('다공(茶工)', options)
-  );
-});
-
-// Notification click event
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.openWindow('/')
-  );
+  console.log('🌐 네트워크 요청:', event.request.url);
+  // 캐시를 사용하지 않고 직접 네트워크에서 가져오기
+  event.respondWith(fetch(event.request));
 });
