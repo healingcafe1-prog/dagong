@@ -2110,8 +2110,8 @@ async function loadEducationCurriculumPage() {
     // 차공부, 공예공부, 다도교육, 명상교육으로 분류
     const teaCurriculum = allCurriculum.filter(c => c.category_id === 2);
     const craftCurriculum = allCurriculum.filter(c => c.category_id === 3);
-    const dadoCurriculum = allCurriculum.filter(c => c.category_id === 4);
-    const meditationCurriculum = allCurriculum.filter(c => c.category_id === 5);
+    const dadoCurriculum = allCurriculum.filter(c => c.category_id === 1);  // 다도교육 = category_id 1
+    const meditationCurriculum = allCurriculum.filter(c => c.category_id === 4);  // 명상교육 = category_id 4
     
     app.innerHTML = `
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
