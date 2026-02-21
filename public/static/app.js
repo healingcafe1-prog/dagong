@@ -4278,15 +4278,25 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
 });
 
-// ===== PWA Service Worker 등록 =====
+// ===== PWA Service Worker - DISABLED =====
+// Service Worker 완전 비활성화 - 캐시 문제 해결
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('✅ Service Worker 등록 성공:', registration.scope);
-      })
-      .catch((error) => {
-        console.log('❌ Service Worker 등록 실패:', error);
-      });
+  window.addEventListener('load', async () => {
+    // 모든 Service Worker 제거
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      await registration.unregister();
+      console.log('🧹 Service Worker 제거:', registration.scope);
+    }
+    
+    // 모든 캐시 제거
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        await caches.delete(name);
+        console.log('🧹 캐시 제거:', name);
+      }
+    }
+    console.log('✅ 캐시 제거 완료');
   });
 }

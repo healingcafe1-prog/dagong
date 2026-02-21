@@ -59,35 +59,26 @@ function showInstallPromotion() {
   });
 }
 
-// ===== Service Worker 등록 =====
+// ===== Service Worker - DISABLED =====
+// Service Worker 완전 비활성화 - 캐시 문제 해결
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        console.log('[SW] Registered successfully:', registration.scope);
-        
-        // 업데이트 확인
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          console.log('[SW] New version found');
-          
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showUpdateNotification();
-            }
-          });
-        });
-      })
-      .catch((err) => {
-        console.error('[SW] Registration failed:', err);
-      });
-      
-    // 업데이트 확인 (1시간마다)
-    setInterval(() => {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (reg) reg.update();
-      });
-    }, 60 * 60 * 1000);
+  window.addEventListener('load', async () => {
+    // 모든 Service Worker 제거
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    for (const registration of registrations) {
+      await registration.unregister();
+      console.log('[SW] 제거됨:', registration.scope);
+    }
+    
+    // 모든 캐시 제거
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        await caches.delete(name);
+        console.log('[Cache] 제거됨:', name);
+      }
+    }
+    console.log('[SW] 캐시 제거 완료');
   });
 }
 
