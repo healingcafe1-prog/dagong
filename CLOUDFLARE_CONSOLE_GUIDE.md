@@ -1,119 +1,144 @@
-# 🚨 Cloudflare D1 콘솔 복구 가이드
+# 🚀 Cloudflare D1 Console 실행 가이드
 
-## ❌ 잘못된 방법
-```
-> https://github.com/healingcafe1-prog/dagong/blob/main/PART1_producers_experiences.sql
-```
-→ **GitHub URL을 직접 붙여넣으면 안 됩니다!**
+## ❌ 발생한 문제
+Cloudflare D1 Console은 **여러 개의 SQL 문을 한 번에 실행할 수 없습니다**.
+따라서 각 UPDATE 문을 **개별적으로** 실행해야 합니다.
 
 ---
 
-## ✅ 올바른 방법
+## ✅ 해결 방법 2가지
 
-### 1단계: Cloudflare D1 콘솔 열기
-```
-https://dash.cloudflare.com/
-→ Workers & Pages
-→ D1
-→ webapp-production
-→ Console 탭 클릭
+### **방법 1: Wrangler CLI 사용 (추천 ⭐)**
+
+터미널에서 한 번에 실행:
+
+```bash
+# 1. Cloudflare API 토큰 설정
+export CLOUDFLARE_API_TOKEN='your-token-here'
+
+# 2. 배포 스크립트 실행
+cd /home/user/webapp
+./DEPLOY_TO_PRODUCTION.sh
 ```
 
-### 2단계: 아래 SQL을 **한 줄씩** 복사해서 실행
+**배포 스크립트는 자동으로:**
+- Step 1 (다도교육 콘텐츠 보강) 실행
+- Step 2 (카테고리 설명 수정) 실행
+- 결과 확인
 
 ---
 
-## 📦 생산자 8개 추가
+### **방법 2: Cloudflare D1 Console에서 수동 실행**
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (6, '제주 다원명가', 1, 'tea', '제주 화산토 유기농 녹차', '3대째 차 농가', 'jejutea@example.com', '064-123-4567', '제주 서귀포시', '2024-01-01 00:00:00');
-```
+#### 📋 Step 1: 다도교육 콘텐츠 보강 (6개 파일)
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (7, '제주 차향', 1, 'tea', '제주 전통 발효차', '자연 발효', 'chahyang@example.com', '064-234-5678', '제주 제주시', '2024-01-01 00:00:00');
-```
+아래 링크를 **순서대로** 하나씩 클릭하여 실행하세요:
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (8, '광주 도예공방', 10, 'craft', '전통 백자', '30년 경력', 'gwangjupot@example.com', '031-123-4567', '경기 광주시', '2024-01-01 00:00:00');
-```
+1. **ID 17 업데이트** - 차 힐링 테라피 전문가 과정
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/CONSOLE_STEP1_UPDATE_17.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (9, '이천 도자예술촌', 10, 'craft', '청자 백자', '이천 전통', 'icheon@example.com', '031-234-5678', '경기 이천시', '2024-01-01 00:00:00');
-```
+2. **ID 19 업데이트** - 차 가공식품 개발 실무
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/CONSOLE_STEP1_UPDATE_19.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (10, '담양 죽세공예', 11, 'craft', '대나무 공예', '전통 죽세', 'damyang@example.com', '061-123-4567', '전남 담양군', '2024-01-01 00:00:00');
-```
+3. **ID 23 업데이트** - 차 카페 창업 완벽 가이드
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/CONSOLE_STEP1_UPDATE_23.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (11, '통영 나전칠기', 12, 'craft', '나전칠기', '전통 나전', 'tongyeong@example.com', '055-123-4567', '경남 통영시', '2024-01-01 00:00:00');
-```
+4. **ID 25 업데이트** - 차 수출입 무역 실무
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/CONSOLE_STEP1_UPDATE_25.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (12, '평창 농특산', 13, 'tea', '고랭지 특산물', '청정 재배', 'pyeongchang@example.com', '033-123-4567', '강원 평창군', '2024-01-01 00:00:00');
-```
+5. **ID 27 업데이트** - 차 문화 관광 해설사 양성
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/CONSOLE_STEP1_UPDATE_27.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
-```sql
-INSERT OR IGNORE INTO producers (id, name, region_id, producer_type, description, story, contact_email, contact_phone, address, created_at) VALUES (13, '장흥 정남진차', 14, 'tea', '정남진 청태전', '전통 발효차', 'jangheung@example.com', '061-234-5678', '전남 장흥군', '2024-01-01 00:00:00');
-```
-
-**확인:**
-```sql
-SELECT COUNT(*) FROM producers;
-```
-→ 결과: **13** ✅
-
----
-
-## 🎯 체험 프로그램 6개 추가
-
-```sql
-INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (5, '하동 야생차 체험', 2, 2, 'tea_experience', '야생차밭 체험', '3시간', 45000, 15, 1, '2024-01-01 00:00:00');
-```
-
-```sql
-INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (6, '보성 차밭 투어', 5, 1, 'farm_tour', '보성 녹차밭 관람', '2시간', 30000, 20, 1, '2024-01-01 00:00:00');
-```
-
-```sql
-INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (7, '제주 다도 체험', 1, 6, 'tea_ceremony', '전통 다례 배우기', '2시간', 40000, 10, 1, '2024-01-01 00:00:00');
-```
-
-```sql
-INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (8, '이천 도자기 만들기', 10, 9, 'craft_workshop', '물레 체험', '3시간', 50000, 12, 1, '2024-01-01 00:00:00');
-```
-
-```sql
-INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (9, '담양 대나무 공예', 11, 10, 'craft_workshop', '죽세 공예', '2시간', 35000, 15, 1, '2024-01-01 00:00:00');
-```
-
-```sql
-INSERT OR IGNORE INTO experiences (id, title, region_id, producer_id, experience_type, description, duration, price, max_participants, is_available, created_at) VALUES (10, '제주 차 만들기', 1, 7, 'tea_experience', '차 제조 체험', '4시간', 60000, 10, 1, '2024-01-01 00:00:00');
-```
-
-**확인:**
-```sql
-SELECT COUNT(*) FROM experiences;
-```
-→ 결과: **10** ✅
+6. **ID 29 업데이트** - 차 소믈리에 (차 품평 전문가)
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/CONSOLE_STEP1_UPDATE_29.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
 ---
 
-## 📝 중요 사항
+#### 📋 Step 2: 카테고리 설명 수정
 
-1. **한 줄씩 실행**: 각 INSERT 문을 하나씩 복사 → 붙여넣기 → 실행
-2. **URL 직접 붙이면 안 됨**: GitHub URL이 아닌 **SQL 내용**을 복사
-3. **확인 필수**: 각 섹션 끝에 COUNT 쿼리로 확인
-4. **에러 무시**: `INSERT OR IGNORE`는 중복 시 무시함
+7. **카테고리 설명 수정**
+   ```
+   https://raw.githubusercontent.com/healingcafe1-prog/dagong/main/PRODUCTION_UPDATE_STEP2.sql
+   ```
+   → Raw 내용 복사 → D1 Console 붙여넣기 → **Execute** 클릭
 
 ---
 
-## 🔗 다음 단계
+## ✅ 실행 순서 요약
 
-생산자와 체험이 완료되면 다음 파일 실행:
-- 차 제품 13개
-- 공예품 19개  
-- 선물세트 17개
-- 지역특산품 30개
+1. ✅ CONSOLE_STEP1_UPDATE_17.sql (차 힐링 테라피)
+2. ✅ CONSOLE_STEP1_UPDATE_19.sql (차 가공식품)
+3. ✅ CONSOLE_STEP1_UPDATE_23.sql (차 카페 창업)
+4. ✅ CONSOLE_STEP1_UPDATE_25.sql (차 수출입)
+5. ✅ CONSOLE_STEP1_UPDATE_27.sql (차 문화 관광)
+6. ✅ CONSOLE_STEP1_UPDATE_29.sql (차 소믈리에)
+7. ✅ PRODUCTION_UPDATE_STEP2.sql (카테고리 설명)
 
-각각 동일한 방식으로 한 줄씩 실행하면 됩니다.
+---
+
+## 🔍 확인 방법
+
+모든 실행이 완료되면:
+1. https://dagong-bi1.pages.dev/education 접속
+2. **다도교육** 카테고리 클릭
+3. 13개 항목 확인
+4. 각 항목의 콘텐츠가 풍부한지 확인
+
+---
+
+## 📚 업데이트 내용
+
+### 다도교육 콘텐츠 보강 (6개)
+- ID 17: 차 힐링 테라피 전문가 과정 (1,017 bytes)
+- ID 19: 차 가공식품 개발 실무 (706 bytes)
+- ID 23: 차 카페 창업 완벽 가이드 (751 bytes)
+- ID 25: 차 수출입 무역 실무 (701 bytes)
+- ID 27: 차 문화 관광 해설사 양성 (760 bytes)
+- ID 29: 차 소믈리에 (차 품평 전문가) (1,100 bytes)
+
+### 카테고리 설명 수정
+- 다도교육: "다도의 의미와 역사, 방법을 배우며 다도가 인성교육에 도움이 되는 가치를 배웁니다"
+- 명상교육: "명상의 기초와 실천, 요가와 마음챙김을 배웁니다"
+
+---
+
+## 🎯 최종 결과
+
+| 카테고리 | 항목 수 | 상태 |
+|---------|--------|------|
+| 다도교육 | 13 | ✅ |
+| 차공부 | 12 | ✅ |
+| 공예공부 | 8 | ✅ |
+| 명상교육 | 12 | ✅ |
+| 체험 프로그램 | 20 | ✅ |
+| 제품 | 120 | ✅ |
+| 이벤트 | 27 | ✅ |
+| **총계** | **212** | **✅** |
+
+---
+
+## 💡 팁
+
+- 각 SQL 실행 후 **"✅ Successfully executed"** 메시지 확인
+- 에러 발생 시 다시 실행하거나 문의
+- 모든 실행 완료 후 웹사이트에서 확인
+
+**🎉 모두 실행 완료하시면 알려주세요!**
