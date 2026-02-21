@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Worker 제거</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #b91c1c;
+        }
+        .success {
+            background: #059669;
+        }
+        .success:hover {
+            background: #047857;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .success-msg {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .info {
+            background: #dbeafe;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+        pre {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Service Worker 캐시 제거</h1>
+        <p>이 페이지는 Service Worker와 모든 캐시를 제거합니다.</p>
+        
+        <div id="swInfo"></div>
+        
+        <button onclick="clearServiceWorker()">🗑️ Service Worker 제거</button>
+        <button onclick="clearAllCaches()">💾 모든 캐시 삭제</button>
+        <button onclick="clearEverything()" class="success">🔥 모두 제거 + 새로고침</button>
+        
+        <div id="status"></div>
+        
+        <hr style="margin: 30px 0;">
+        
+        <h2>📋 수동 제거 방법</h2>
+        <ol>
+            <li><strong>F12</strong> 키를 눌러 개발자 도구 열기</li>
+            <li><strong>Application</strong> 탭 클릭</li>
+            <li>왼쪽 메뉴에서 <strong>Service Workers</strong> 섹션 선택</li>
+            <li>등록된 Service Worker의 <strong>Unregister</strong> 버튼 클릭</li>
+            <li><strong>Storage</strong> → <strong>Clear site data</strong> 클릭</li>
+            <li><strong>F5</strong> 키로 새로고침</li>
+        </ol>
+    </div>
+
+    <script>
+        // 등록된 Service Worker 확인
+        async function checkServiceWorkers() {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                const infoDiv = document.getElementById('swInfo');
+                
+                if (registrations.length > 0) {
+                    infoDiv.innerHTML = `
+                        <div class="info">
+                            <strong>⚠️ 등록된 Service Worker: ${registrations.length}개</strong>
+                            <pre>${registrations.map((r, i) => `${i+1}. ${r.scope}`).join('\n')}</pre>
+                        </div>
+                    `;
+                } else {
+                    infoDiv.innerHTML = `
+                        <div class="success-msg">
+                            <strong>✅ 등록된 Service Worker가 없습니다.</strong>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Service Worker 제거
+        async function clearServiceWorker() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'info';
+            statusDiv.innerHTML = '🔄 Service Worker 제거 중...';
+
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                    
+                    statusDiv.className = 'success-msg';
+                    statusDiv.innerHTML = `✅ Service Worker ${registrations.length}개 제거 완료!`;
+                    
+                    setTimeout(() => {
+                        checkServiceWorkers();
+                    }, 1000);
+                } else {
+                    statusDiv.className = 'error';
+                    statusDiv.innerHTML = '❌ 이 브라우저는 Service Worker를 지원하지 않습니다.';
+                }
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+
+        // 모든 캐시 삭제
+        async function clearAllCaches() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'info';
+            statusDiv.innerHTML = '🔄 캐시 삭제 중...';
+
+            try {
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                    }
+                    
+                    statusDiv.className = 'success-msg';
+                    statusDiv.innerHTML = `✅ 캐시 ${cacheNames.length}개 삭제 완료!<pre>${cacheNames.join('\n')}</pre>`;
+                } else {
+                    statusDiv.className = 'error';
+                    statusDiv.innerHTML = '❌ 이 브라우저는 Cache API를 지원하지 않습니다.';
+                }
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+
+        // 모두 제거하고 새로고침
+        async function clearEverything() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'info';
+            statusDiv.innerHTML = '🔄 모든 캐시 및 Service Worker 제거 중...';
+
+            try {
+                // Service Worker 제거
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+
+                // 모든 캐시 삭제
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                    }
+                }
+
+                // localStorage 및 sessionStorage 삭제
+                localStorage.clear();
+                sessionStorage.clear();
+
+                statusDiv.className = 'success-msg';
+                statusDiv.innerHTML = '✅ 모든 데이터 삭제 완료! 3초 후 새로고침됩니다...';
+
+                // 3초 후 원래 페이지로 이동
+                setTimeout(() => {
+                    window.location.href = 'https://3000-i1cjrhuxghhqe7nryfah2-18e660f9.sandbox.gensparksite.com/education/curriculum';
+                }, 3000);
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+
+        // 페이지 로드 시 Service Worker 확인
+        checkServiceWorkers();
+    </script>
+</body>
+</html>
