@@ -1,5 +1,5 @@
 // Service Worker for PWA
-const CACHE_NAME = 'dagong-v2-20260221';
+const CACHE_NAME = 'dagong-v3-force-update';
 const urlsToCache = [
   '/',
   '/static/app.js',
@@ -50,6 +50,28 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Network-first strategy for app.js to always get latest version
+  if (event.request.url.includes('/static/app.js')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Clone and cache the fresh response
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for other resources
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
