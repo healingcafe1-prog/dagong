@@ -2192,17 +2192,23 @@ app.get('/', async (c) => {
               </div>
               <span class="category-label">📍 지역별</span>
             </a>
-            <a href="/experiences" class="category-item">
+            <a href="/education/curriculum" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-experience.svg" alt="체험·교육" class="category-image" />
+                <img src="/static/images/category-education.svg" alt="다도교육" class="category-image" />
               </div>
-              <span class="category-label">🎓 체험·교육</span>
+              <span class="category-label">🎓 다도교육</span>
             </a>
             <a href="/events" class="category-item">
               <div class="category-image-wrapper">
                 <img src="/static/images/category-event.svg" alt="이벤트" class="category-image" />
               </div>
               <span class="category-label">🎉 이벤트</span>
+            </a>
+            <a href="/experiences" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-experience.svg" alt="체험" class="category-image" />
+              </div>
+              <span class="category-label">🏃 체험</span>
             </a>
             <a href="/producers" class="category-item">
               <div class="category-image-wrapper">
