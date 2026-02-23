@@ -860,3 +860,83 @@ a:active,
     font-size: 12px;
   }
 }
+
+/* ===== 모바일 헤더 ===== */
+.mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #7c9473;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.mobile-logo i {
+  font-size: 24px;
+}
+
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-header-icon {
+  position: relative;
+  color: #333;
+  font-size: 20px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.mobile-header-icon:active {
+  background: rgba(124, 148, 115, 0.1);
+}
+
+.mobile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #7c9473;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #e74c3c;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* PC에서는 모바일 헤더 숨김 */
+@media (min-width: 768px) {
+  .mobile-header {
+    display: none;
+  }
+}

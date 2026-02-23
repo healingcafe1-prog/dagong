@@ -2149,6 +2149,26 @@ app.get('/', async (c) => {
     
     return c.render(
       <div id="app" class="mobile-app">
+        {/* 모바일 전용 헤더 */}
+        <div class="mobile-header">
+          <a href="/" class="mobile-logo">
+            <i class="fas fa-leaf"></i>
+            <span>다공</span>
+          </a>
+          <div class="mobile-header-actions">
+            <a href="/cart" class="mobile-header-icon">
+              <i class="fas fa-shopping-cart"></i>
+              <span id="mobileCartCount" class="cart-badge" style="display: none;">0</span>
+            </a>
+            <a href="/login" id="mobileLoginBtn" class="mobile-header-icon">
+              <i class="fas fa-user"></i>
+            </a>
+            <div id="mobileUserMenu" class="mobile-header-icon" style="display: none;">
+              <img id="mobileUserAvatar" src="" alt="프로필" class="mobile-avatar"/>
+            </div>
+          </div>
+        </div>
+        
         {/* 모바일 히어로 섹션 */}
         <div class="mobile-hero">
           <div class="hero-content">
@@ -2215,6 +2235,12 @@ app.get('/', async (c) => {
                 <img src="/static/images/category-education.svg" alt="다도교육" class="category-image" />
               </div>
               <span class="category-label">🎓 다도교육</span>
+            </a>
+            <a href="/products/new" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-register.svg" alt="상품등록" class="category-image" />
+              </div>
+              <span class="category-label">📝 상품등록</span>
             </a>
           </div>
         </div>
