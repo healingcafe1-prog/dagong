@@ -2297,7 +2297,34 @@ app.get('/products', (c) => {
 })
 
 // 상품 등록 페이지 (반드시 /products/:id 앞에 위치)
-app.get('/products/new', (c) => {
+// 상품 등록 페이지 (인증 필요)
+app.get('/products/new', async (c) => {
+  // 쿠키에서 세션 확인
+  const cookies = c.req.header('Cookie') || ''
+  const sessionMatch = cookies.match(/session=([^;]+)/)
+  
+  if (!sessionMatch) {
+    // 로그인 안 됨 - 로그인 페이지로 리다이렉트
+    return c.redirect('/login?redirect=/products/new')
+  }
+  
+  const sessionToken = sessionMatch[1]
+  
+  // 세션 유효성 확인
+  const { results: sessions } = await c.env.DB.prepare(`
+    SELECT us.*, u.id as user_id, u.email, u.name, u.role
+    FROM user_sessions us
+    JOIN users u ON us.user_id = u.id
+    WHERE us.session_token = ? AND us.expires_at > datetime('now')
+  `).bind(sessionToken).all()
+  
+  if (sessions.length === 0) {
+    // 세션 만료 - 로그인 페이지로 리다이렉트
+    return c.redirect('/login?redirect=/products/new')
+  }
+  
+  const user = sessions[0]
+  
   return c.html(`
     <!DOCTYPE html>
     <html lang="ko">
@@ -2443,6 +2470,51 @@ app.get('/products/new', (c) => {
             border-radius: 8px;
             margin-bottom: 25px;
           }
+          .seller-type-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+          }
+          .seller-type-option {
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+          }
+          .seller-type-option:hover {
+            border-color: #4a90e2;
+            background: #f8f9fa;
+          }
+          .seller-type-option.selected {
+            border-color: #4a90e2;
+            background: #f0f4ff;
+          }
+          .seller-type-option input[type="radio"] {
+            display: none;
+  }
+          .seller-type-option .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #4a90e2;
+          }
+          .seller-type-option .title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+          }
+          .seller-type-option .description {
+            font-size: 13px;
+            color: #6c757d;
+          }
+          .conditional-field {
+            display: none;
+          }
+          .conditional-field.show {
+            display: block;
+          }
 
         </style>
     </head>
@@ -2463,6 +2535,64 @@ app.get('/products/new', (c) => {
             </div>
 
             <form id="productForm">
+                <!-- 판매자 유형 -->
+                <div class="form-group">
+                    <label class="required">판매자 유형</label>
+                    <div class="seller-type-container">
+                        <label class="seller-type-option" id="businessOption">
+                            <input type="radio" name="seller_type" value="business" required>
+                            <div class="icon">🏢</div>
+                            <div class="title">사업자</div>
+                            <div class="description">사업자등록증이 있는 경우</div>
+                        </label>
+                        <label class="seller-type-option" id="individualOption">
+                            <input type="radio" name="seller_type" value="individual" required>
+                            <div class="icon">👤</div>
+                            <div class="title">일반인</div>
+                            <div class="description">개인 판매자</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 사업자 정보 (사업자만) -->
+                <div class="form-group conditional-field" id="businessFields">
+                    <label class="required">사업자등록번호</label>
+                    <input type="text" name="business_number" id="business_number" placeholder="000-00-00000" maxlength="12">
+                    <div class="help-text">하이픈(-)을 포함하여 입력하세요</div>
+                </div>
+
+                <!-- 계좌 정보 (공통) -->
+                <div class="form-group conditional-field" id="accountFields">
+                    <label class="required">은행명</label>
+                    <select name="bank_name" id="bank_name">
+                        <option value="">은행 선택</option>
+                        <option value="KB국민은행">KB국민은행</option>
+                        <option value="신한은행">신한은행</option>
+                        <option value="우리은행">우리은행</option>
+                        <option value="하나은행">하나은행</option>
+                        <option value="NH농협은행">NH농협은행</option>
+                        <option value="IBK기업은행">IBK기업은행</option>
+                        <option value="카카오뱅크">카카오뱅크</option>
+                        <option value="토스뱅크">토스뱅크</option>
+                        <option value="케이뱅크">케이뱅크</option>
+                        <option value="SC제일은행">SC제일은행</option>
+                        <option value="새마을금고">새마을금고</option>
+                        <option value="신협">신협</option>
+                    </select>
+                </div>
+
+                <div class="form-group conditional-field" id="accountNumberField">
+                    <label class="required">계좌번호</label>
+                    <input type="text" name="account_number" id="account_number" placeholder="숫자만 입력" maxlength="20">
+                    <div class="help-text">하이픈(-) 없이 숫자만 입력하세요</div>
+                </div>
+
+                <div class="form-group conditional-field" id="accountHolderField">
+                    <label class="required">예금주명</label>
+                    <input type="text" name="account_holder" id="account_holder" placeholder="예금주 이름">
+                    <div class="help-text">계좌의 예금주 이름을 입력하세요</div>
+                </div>
+
                 <!-- 상품명 -->
                 <div class="form-group">
                     <label class="required">상품명</label>
@@ -2572,6 +2702,60 @@ app.get('/products/new', (c) => {
         <script>
           let selectedImages = [];
 
+          // 판매자 유형 선택 처리
+          const businessOption = document.getElementById('businessOption');
+          const individualOption = document.getElementById('individualOption');
+          const businessFields = document.getElementById('businessFields');
+          const accountFields = document.getElementById('accountFields');
+          const accountNumberField = document.getElementById('accountNumberField');
+          const accountHolderField = document.getElementById('accountHolderField');
+
+          document.querySelectorAll('input[name="seller_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+              // 스타일 업데이트
+              businessOption.classList.remove('selected');
+              individualOption.classList.remove('selected');
+              
+              if (this.value === 'business') {
+                businessOption.classList.add('selected');
+                businessFields.classList.add('show');
+                document.getElementById('business_number').required = true;
+              } else if (this.value === 'individual') {
+                individualOption.classList.add('selected');
+                businessFields.classList.remove('show');
+                document.getElementById('business_number').required = false;
+                document.getElementById('business_number').value = '';
+              }
+              
+              // 계좌 정보 필드 표시
+              accountFields.classList.add('show');
+              accountNumberField.classList.add('show');
+              accountHolderField.classList.add('show');
+              document.getElementById('bank_name').required = true;
+              document.getElementById('account_number').required = true;
+              document.getElementById('account_holder').required = true;
+            });
+          });
+
+          // 사업자등록번호 포맷팅 (000-00-00000)
+          document.getElementById('business_number').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 10) value = value.substr(0, 10);
+            
+            if (value.length > 5) {
+              value = value.substr(0, 3) + '-' + value.substr(3, 2) + '-' + value.substr(5);
+            } else if (value.length > 3) {
+              value = value.substr(0, 3) + '-' + value.substr(3);
+            }
+            
+            e.target.value = value;
+          });
+
+          // 계좌번호 숫자만 입력
+          document.getElementById('account_number').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          });
+
           // 이미지 업로드 처리
           document.getElementById('imageInput').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
@@ -2655,10 +2839,35 @@ app.get('/products/new', (c) => {
             }
           });
 
-          // 가격 계산
           // 폼 제출
           document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // 판매자 유형 확인
+            const sellerType = document.querySelector('input[name="seller_type"]:checked');
+            if (!sellerType) {
+              alert('판매자 유형을 선택해주세요');
+              return;
+            }
+
+            // 계좌 정보 확인
+            const bankName = document.getElementById('bank_name').value;
+            const accountNumber = document.getElementById('account_number').value;
+            const accountHolder = document.getElementById('account_holder').value;
+            
+            if (!bankName || !accountNumber || !accountHolder) {
+              alert('계좌 정보를 모두 입력해주세요');
+              return;
+            }
+
+            // 사업자인 경우 사업자등록번호 확인
+            if (sellerType.value === 'business') {
+              const businessNumber = document.getElementById('business_number').value;
+              if (!businessNumber || businessNumber.length !== 12) {
+                alert('사업자등록번호를 정확히 입력해주세요 (000-00-00000)');
+                return;
+              }
+            }
 
             // 이미지 검증
             if (selectedImages.length < 5 || selectedImages.length > 10) {
@@ -2684,6 +2893,13 @@ app.get('/products/new', (c) => {
               );
 
               const formData = {
+                // 판매자 정보
+                seller_type: document.querySelector('input[name="seller_type"]:checked').value,
+                business_number: document.getElementById('business_number').value || null,
+                bank_name: document.getElementById('bank_name').value,
+                account_number: document.getElementById('account_number').value,
+                account_holder: document.getElementById('account_holder').value,
+                // 상품 정보
                 name: document.getElementById('name').value,
                 description: document.getElementById('description').value,
                 images: imageUrls,
