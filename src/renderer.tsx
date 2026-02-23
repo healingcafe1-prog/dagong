@@ -101,6 +101,10 @@ export const renderer = jsxRenderer(({ children }) => {
       <body class="bg-tea-cream min-h-screen">
         {/* 모바일 상단 카테고리 바 (모바일 전용) */}
         <div class="md:hidden bg-white border-b border-gray-200 sticky top-16 z-40" id="mobileCategoryBar" style="display: none;">
+          {/* 버전 표시 - 캐시 확인용 */}
+          <div class="bg-green-600 text-white text-center py-1 text-xs font-bold">
+            ✅ 모바일 UI v2.0 - 업데이트 완료! {new Date().toLocaleString('ko-KR')}
+          </div>
           <div class="horizontal-scroll px-4 py-3">
             <a href="/" class="inline-flex flex-col items-center justify-center min-w-20 px-3">
               <div class="w-12 h-12 bg-gradient-to-br from-tea-green to-green-600 rounded-full flex items-center justify-center mb-1">
