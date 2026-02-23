@@ -2129,7 +2129,7 @@ const isMobile = (userAgent: string) => {
 
 // 홈 페이지
 app.get('/', async (c) => {
-  const userAgent = c.req.header('user-agent') || ''
+  const userAgent = c.req.header('User-Agent') || ''
   const mobile = isMobile(userAgent)
   
   // 모바일 사용자
@@ -2164,51 +2164,51 @@ app.get('/', async (c) => {
           <div class="category-grid-visual">
             <a href="/products?type=tea" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-tea.jpg" alt="한국차" class="category-image" />
+                <img src="/static/images/category-tea.svg" alt="한국차" class="category-image" />
               </div>
-              <span class="category-label">한국차</span>
+              <span class="category-label">🍵 한국차</span>
             </a>
             <a href="/products?type=craft" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-craft.jpg" alt="공예품" class="category-image" />
+                <img src="/static/images/category-craft.svg" alt="공예품" class="category-image" />
               </div>
-              <span class="category-label">공예품</span>
+              <span class="category-label">🎨 공예품</span>
             </a>
             <a href="/products?type=gift_set" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-gift.jpg" alt="선물세트" class="category-image" />
+                <img src="/static/images/category-gift.svg" alt="선물세트" class="category-image" />
               </div>
-              <span class="category-label">선물세트</span>
+              <span class="category-label">🎁 선물세트</span>
             </a>
             <a href="/products?type=local" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-local.jpg" alt="지역특산물" class="category-image" />
+                <img src="/static/images/category-local.svg" alt="지역특산물" class="category-image" />
               </div>
-              <span class="category-label">지역특산물</span>
+              <span class="category-label">🌾 지역특산물</span>
             </a>
             <a href="/regions" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-region.jpg" alt="지역별" class="category-image" />
+                <img src="/static/images/category-region.svg" alt="지역별" class="category-image" />
               </div>
-              <span class="category-label">지역별</span>
+              <span class="category-label">📍 지역별</span>
             </a>
             <a href="/experiences" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-experience.jpg" alt="체험·교육" class="category-image" />
+                <img src="/static/images/category-experience.svg" alt="체험·교육" class="category-image" />
               </div>
-              <span class="category-label">체험·교육</span>
+              <span class="category-label">🎓 체험·교육</span>
             </a>
             <a href="/events" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-event.jpg" alt="이벤트" class="category-image" />
+                <img src="/static/images/category-event.svg" alt="이벤트" class="category-image" />
               </div>
-              <span class="category-label">이벤트</span>
+              <span class="category-label">🎉 이벤트</span>
             </a>
             <a href="/producers" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-producer.jpg" alt="생산자" class="category-image" />
+                <img src="/static/images/category-producer.svg" alt="생산자" class="category-image" />
               </div>
-              <span class="category-label">생산자</span>
+              <span class="category-label">👨‍🌾 생산자</span>
             </a>
           </div>
         </div>
