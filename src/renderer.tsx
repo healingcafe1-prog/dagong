@@ -353,6 +353,30 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* 메인 콘텐츠 */}
         <main class="min-h-screen">
+          {/* JavaScript 비활성화 시 안내 */}
+          <noscript>
+            <div class="max-w-2xl mx-auto mt-10 p-6 bg-yellow-50 border-2 border-yellow-400 rounded-lg shadow-lg">
+              <div class="text-center mb-4">
+                <i class="fas fa-exclamation-triangle text-5xl text-yellow-600"></i>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">JavaScript가 비활성화되어 있습니다</h2>
+              <p class="text-gray-700 mb-4 text-center text-sm">이 웹사이트는 정상 작동을 위해 JavaScript가 필요합니다.</p>
+              <div class="space-y-2 bg-white p-4 rounded text-sm">
+                <p class="font-semibold text-gray-800">해결 방법:</p>
+                <p class="text-gray-700">1️⃣ <strong>Instagram에서 접속 중이라면:</strong></p>
+                <p class="text-gray-600 ml-4">• 상단 우측 메뉴 (⋯) → "브라우저에서 열기" 클릭</p>
+                <p class="text-gray-600 ml-4">• 또는 URL을 복사하여 Chrome/Safari에서 직접 열기</p>
+                <p class="text-gray-700 mt-3">2️⃣ <strong>일반 브라우저 사용:</strong></p>
+                <p class="text-gray-600 ml-4">• Chrome, Safari, Firefox 등의 브라우저로 접속</p>
+                <p class="text-gray-600 ml-4">• 브라우저 설정에서 JavaScript 활성화</p>
+              </div>
+              <div class="mt-4 text-center">
+                <a href="https://dagong.co.kr" class="inline-block px-6 py-3 bg-tea-green text-white rounded-lg font-medium">
+                  일반 브라우저로 열기 →
+                </a>
+              </div>
+            </div>
+          </noscript>
           {children}
         </main>
         

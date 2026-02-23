@@ -2122,13 +2122,106 @@ app.get('/api/education/curriculum/:id', async (c) => {
 
 // ===== 프론트엔드 페이지 라우트 =====
 
-// 홈 페이지
-app.get('/', (c) => {
-  return c.render(
-    <div id="app">
-      <div class="loading">로딩 중...</div>
-    </div>
-  )
+// 홈 페이지 (SSR with actual data)
+app.get('/', async (c) => {
+  try {
+    // 서버에서 데이터 가져오기
+    const { results: products } = await c.env.DB.prepare(`
+      SELECT p.*, c.name as category_name, pr.name as producer_name, r.name as region_name
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN producers pr ON p.producer_id = pr.id
+      LEFT JOIN regions r ON pr.region_id = r.id
+      WHERE p.is_featured = 1 AND p.is_available = 1
+      ORDER BY p.created_at DESC
+      LIMIT 8
+    `).all()
+
+    // 상품 카드 HTML 생성
+    const productCards = products.map((product: any) => (
+      <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+        <a href={`/products/${product.id}`}>
+          <div class="aspect-square overflow-hidden bg-gray-100">
+            <img 
+              src={product.main_image || '/images/placeholder.jpg'} 
+              alt={product.name}
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
+          <div class="p-4">
+            <div class="text-xs text-gray-500 mb-1">{product.category_name}</div>
+            <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-lg font-bold text-tea-green">{product.price?.toLocaleString()}원</span>
+                {product.original_price && product.original_price > product.price && (
+                  <div class="text-xs text-gray-400 line-through">{product.original_price.toLocaleString()}원</div>
+                )}
+              </div>
+              {product.discount_rate > 0 && (
+                <span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">{product.discount_rate}%</span>
+              )}
+            </div>
+          </div>
+        </a>
+      </div>
+    ))
+
+    return c.render(
+      <div id="app">
+        {/* 히어로 섹션 */}
+        <section class="bg-gradient-to-br from-tea-green via-green-600 to-green-700 text-white py-12 md:py-20">
+          <div class="container mx-auto px-4 text-center">
+            <div class="max-w-3xl mx-auto">
+              <i class="fas fa-leaf text-5xl md:text-6xl mb-6 animate-bounce"></i>
+              <h1 class="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
+                한국 차 문화,<br class="md:hidden" /> 우리가 함께 쓰는 새로운 문화 혁명
+              </h1>
+              <p class="text-lg md:text-xl mb-6 md:mb-8 opacity-90">
+                생산자와 소비자, 함께 만드는 천년의 가치
+              </p>
+              <p class="text-sm md:text-base mb-8 md:mb-10 opacity-80">
+                당신의 선택이 한국 차 문화를 살립니다
+              </p>
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/products?type=tea" class="px-6 md:px-8 py-3 md:py-4 bg-white text-tea-green rounded-full font-bold hover:bg-gray-100 transition text-sm md:text-base">
+                  <i class="fas fa-mug-hot mr-2"></i>차 둘러보기
+                </a>
+                <a href="/products?type=craft" class="px-6 md:px-8 py-3 md:py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-tea-green transition text-sm md:text-base">
+                  <i class="fas fa-palette mr-2"></i>공예품 보기
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 추천 상품 */}
+        <section class="py-8 md:py-12">
+          <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl md:text-2xl font-bold text-gray-800">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>추천 상품
+              </h2>
+              <a href="/products" class="text-tea-green hover:text-green-700 font-medium text-sm md:text-base">
+                전체보기 <i class="fas fa-chevron-right ml-1"></i>
+              </a>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+              {productCards}
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+  } catch (error) {
+    console.error('Home page error:', error)
+    return c.render(
+      <div id="app">
+        <div class="loading">로딩 중...</div>
+      </div>
+    )
+  }
 })
 
 // 상품 목록 페이지
