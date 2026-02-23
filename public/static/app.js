@@ -572,9 +572,9 @@ async function loadProductsPage() {
     const products = productsRes.data.products;
     const categories = categoriesRes.data.categories;
     
-    // 말차, 발효차 제외 (PC 버전)
+    // 말차만 제외 (PC 버전) - 발효차는 유지
     const filteredCategories = categories.filter(cat => 
-      cat.name !== '말차' && cat.name !== '발효차'
+      cat.name !== '말차'
     );
     
     const typeNames = {
