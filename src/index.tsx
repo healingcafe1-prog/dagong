@@ -2158,24 +2158,57 @@ app.get('/', async (c) => {
           </div>
         </div>
         
-        {/* 카테고리 그리드 */}
+        {/* 카테고리 그리드 - 컬리 스타일 */}
         <div class="category-section">
-          <div class="category-grid">
-            <a href="/products?type=tea" class="category-card">
-              <div class="category-icon">🍵</div>
-              <span class="category-name">한국차</span>
+          <h2 class="category-title">카테고리</h2>
+          <div class="category-grid-visual">
+            <a href="/products?type=tea" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-tea.jpg" alt="한국차" class="category-image" />
+              </div>
+              <span class="category-label">한국차</span>
             </a>
-            <a href="/products?type=craft" class="category-card">
-              <div class="category-icon">🎨</div>
-              <span class="category-name">공예품</span>
+            <a href="/products?type=craft" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-craft.jpg" alt="공예품" class="category-image" />
+              </div>
+              <span class="category-label">공예품</span>
             </a>
-            <a href="/products?type=gift_set" class="category-card">
-              <div class="category-icon">🎁</div>
-              <span class="category-name">선물세트</span>
+            <a href="/products?type=gift_set" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-gift.jpg" alt="선물세트" class="category-image" />
+              </div>
+              <span class="category-label">선물세트</span>
             </a>
-            <a href="/products?type=local" class="category-card">
-              <div class="category-icon">🌾</div>
-              <span class="category-name">특산물</span>
+            <a href="/products?type=local" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-local.jpg" alt="지역특산물" class="category-image" />
+              </div>
+              <span class="category-label">지역특산물</span>
+            </a>
+            <a href="/regions" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-region.jpg" alt="지역별" class="category-image" />
+              </div>
+              <span class="category-label">지역별</span>
+            </a>
+            <a href="/experiences" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-experience.jpg" alt="체험·교육" class="category-image" />
+              </div>
+              <span class="category-label">체험·교육</span>
+            </a>
+            <a href="/events" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-event.jpg" alt="이벤트" class="category-image" />
+              </div>
+              <span class="category-label">이벤트</span>
+            </a>
+            <a href="/producers" class="category-item">
+              <div class="category-image-wrapper">
+                <img src="/static/images/category-producer.jpg" alt="생산자" class="category-image" />
+              </div>
+              <span class="category-label">생산자</span>
             </a>
           </div>
         </div>
