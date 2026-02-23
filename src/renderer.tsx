@@ -27,15 +27,18 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="Yeti" content="index, follow" />
         <link rel="canonical" href="https://dagong.co.kr/" />
         
-        {/* Open Graph (소셜 미디어 공유) */}
+        {/* Open Graph (소셜 미디어 공유) - 인스타그램/페이스북 최적화 */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="다공" />
         <meta property="og:title" content="다공 - 차와 공예의 직거래 플랫폼 | 생산자 직거래로 합리적 가격에" />
         <meta property="og:description" content="전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진 없이 생산자에게 직접 구매하세요. 보성녹차, 하동녹차, 제주녹차부터 전통 도자기, 목공예까지 - 소비자가 대비 최대 50% 절약!" />
         <meta property="og:url" content="https://dagong.co.kr/" />
-        <meta property="og:image" content="https://dagong.co.kr/static/icons/icon-512x512.png" />
-        <meta property="og:image:width" content="512" />
-        <meta property="og:image:height" content="512" />
+        <meta property="og:image" content="https://dagong.co.kr/static/images/og-image.svg" />
+        <meta property="og:image:secure_url" content="https://dagong.co.kr/static/images/og-image.svg" />
+        <meta property="og:image:type" content="image/svg+xml" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="다공 - 전통 차와 공예품 직거래 플랫폼" />
         <meta property="og:locale" content="ko_KR" />
         
         {/* Twitter Card */}
@@ -43,7 +46,8 @@ export const renderer = jsxRenderer(({ children }) => {
         <meta name="twitter:site" content="@dagong_kr" />
         <meta name="twitter:title" content="다공 - 차와 공예의 직거래 플랫폼" />
         <meta name="twitter:description" content="전통 차와 공예품을 생산자와 직거래하는 플랫폼. 중간마진 없이 합리적 가격으로 좋은 품질을 만나보세요." />
-        <meta name="twitter:image" content="https://dagong.co.kr/static/icons/icon-512x512.png" />
+        <meta name="twitter:image" content="https://dagong.co.kr/static/images/og-image.svg" />
+        <meta name="twitter:image:alt" content="다공 - 전통 차와 공예품 직거래 플랫폼" />
         
         {/* 네이버 검색 최적화 */}
         <meta name="naver-site-verification" content="f11ecb16c2e4f26cad74ad0e413c0f008f805086" />
