@@ -324,7 +324,13 @@ if (path === '/login') {
 }
 // 홈 페이지
 else if (path === '/') {
-  loadHomePage();
+  // 모바일 앱이 이미 SSR로 렌더링되어 있으면 스킵
+  const appDiv = document.getElementById('app');
+  if (appDiv && appDiv.classList.contains('mobile-app')) {
+    console.log('✅ 모바일 SSR 페이지 감지 - JavaScript 렌더링 스킵');
+  } else {
+    loadHomePage();
+  }
 }
 // 상품 목록 페이지
 else if (path === '/products') {
