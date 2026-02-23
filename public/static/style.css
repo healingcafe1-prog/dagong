@@ -862,7 +862,12 @@ a:active,
 }
 
 /* ===== 모바일 헤더 ===== */
-.mobile-app nav {
+/* 모바일 페이지임을 body에 표시 */
+body.mobile-page nav {
+  display: none !important;
+}
+
+body.mobile-page footer {
   display: none !important;
 }
 

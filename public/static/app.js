@@ -63,6 +63,13 @@ function formatDate(dateString) {
 
 // DOM이 준비된 후 실행
 document.addEventListener('DOMContentLoaded', () => {
+  // 모바일 페이지 감지 - mobile-app 클래스가 있으면 body에 mobile-page 클래스 추가
+  const appDiv = document.getElementById('app');
+  if (appDiv && appDiv.classList.contains('mobile-app')) {
+    document.body.classList.add('mobile-page');
+    console.log('✅ 모바일 페이지 모드 활성화');
+  }
+  
   // 모바일 메뉴 토글
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
