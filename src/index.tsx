@@ -2156,9 +2156,6 @@ app.get('/', async (c) => {
             <span>다공</span>
           </a>
           <div class="mobile-header-actions">
-            <button id="mobileLangBtn" class="mobile-lang-btn">
-              <i class="fas fa-globe"></i>
-            </button>
             <a href="/cart" class="mobile-header-icon">
               <i class="fas fa-shopping-cart"></i>
               <span id="mobileCartCount" class="cart-badge" style="display: none;">0</span>
@@ -2169,6 +2166,10 @@ app.get('/', async (c) => {
             <div id="mobileUserMenu" class="mobile-header-icon" style="display: none;">
               <img id="mobileUserAvatar" src="" alt="프로필" class="mobile-avatar"/>
             </div>
+            <div class="mobile-header-divider"></div>
+            <button id="mobileLangBtn" class="mobile-lang-btn">
+              <i class="fas fa-globe"></i>
+            </button>
           </div>
         </div>
         

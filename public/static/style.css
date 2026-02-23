@@ -799,7 +799,7 @@ a:active,
   border-radius: 10px;
   overflow: hidden;
   background: white;
-  border: 1px solid #e5e5e5;
+  border: 1.5px solid #d0d0d0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease;
 }
@@ -807,6 +807,7 @@ a:active,
 .category-item:active {
   transform: scale(0.96);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-color: #7c9473;
 }
 
 /* 카테고리 이미지 래퍼 - 크기 더 축소 */
@@ -951,10 +952,22 @@ body.mobile-page footer {
   height: 40px;
   border-radius: 50%;
   transition: background 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .mobile-lang-btn:active {
   background: rgba(124, 148, 115, 0.1);
+}
+
+/* 모바일 헤더 구분선 */
+.mobile-header-divider {
+  width: 1px;
+  height: 24px;
+  background: #e0e0e0;
+  margin: 0 4px;
 }
 
 /* 언어 선택 모달 */
