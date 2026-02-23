@@ -2167,6 +2167,9 @@ app.get('/', async (c) => {
               <img id="mobileUserAvatar" src="" alt="프로필" class="mobile-avatar"/>
             </div>
             <div class="mobile-header-divider"></div>
+            <button id="mobileCategoryBtn" class="mobile-header-icon">
+              <i class="fas fa-bars"></i>
+            </button>
             <button id="mobileLangBtn" class="mobile-lang-btn">
               <i class="fas fa-globe"></i>
             </button>
@@ -2211,6 +2214,90 @@ app.get('/', async (c) => {
                 </div>
                 <span class="mobile-lang-option-code">JA</span>
               </button>
+            </div>
+          </div>
+        </div>
+        
+        {/* 모바일 카테고리 메뉴 모달 */}
+        <div id="mobileCategoryModal" class="mobile-lang-modal">
+          <div class="mobile-lang-content">
+            <div class="mobile-lang-header">
+              <h3 class="mobile-lang-title">카테고리</h3>
+              <button id="mobileCategoryClose" class="mobile-lang-close">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="mobile-category-list">
+              <a href="/products?type=tea" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🍵</span>
+                  <span class="mobile-category-text">한국차</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/products?type=craft" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🎨</span>
+                  <span class="mobile-category-text">공예품</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/products?type=gift_set" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🎁</span>
+                  <span class="mobile-category-text">선물세트</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/products?type=local" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🌾</span>
+                  <span class="mobile-category-text">지역특산물</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/regions" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">📍</span>
+                  <span class="mobile-category-text">지역별</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/producers" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">👨‍🌾</span>
+                  <span class="mobile-category-text">생산자</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/events" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🎉</span>
+                  <span class="mobile-category-text">이벤트</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/experiences" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🏃</span>
+                  <span class="mobile-category-text">체험</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/education/curriculum" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">🎓</span>
+                  <span class="mobile-category-text">다도교육</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
+              <a href="/products/new" class="mobile-category-option">
+                <div class="mobile-category-option-left">
+                  <span class="mobile-category-icon">📝</span>
+                  <span class="mobile-category-text">상품등록</span>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+              </a>
             </div>
           </div>
         </div>

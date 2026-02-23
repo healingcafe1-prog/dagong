@@ -1078,6 +1078,60 @@ body.mobile-page footer {
   font-weight: 600;
 }
 
+/* 모바일 카테고리 리스트 */
+.mobile-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-category-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f8f8f8;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.mobile-category-option:active {
+  background: #7c9473;
+  border-color: #7c9473;
+  transform: scale(0.98);
+}
+
+.mobile-category-option:active .mobile-category-text {
+  color: white;
+}
+
+.mobile-category-option:active .fa-chevron-right {
+  color: white;
+}
+
+.mobile-category-option-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-category-icon {
+  font-size: 24px;
+}
+
+.mobile-category-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.mobile-category-option .fa-chevron-right {
+  font-size: 14px;
+  color: #999;
+}
+
 .cart-badge {
   position: absolute;
   top: 4px;

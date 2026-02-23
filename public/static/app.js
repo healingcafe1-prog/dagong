@@ -86,7 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileLangClose = document.getElementById('mobileLangClose');
   const mobileLangButtons = document.querySelectorAll('button[data-lang-mobile]');
   
-  // 모달 열기
+  // 모바일 카테고리 버튼
+  const mobileCategoryBtn = document.getElementById('mobileCategoryBtn');
+  const mobileCategoryModal = document.getElementById('mobileCategoryModal');
+  const mobileCategoryClose = document.getElementById('mobileCategoryClose');
+  
+  // 언어 모달 열기
   if (mobileLangBtn && mobileLangModal) {
     mobileLangBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -94,18 +99,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // 모달 닫기 버튼
+  // 언어 모달 닫기 버튼
   if (mobileLangClose && mobileLangModal) {
     mobileLangClose.addEventListener('click', () => {
       mobileLangModal.classList.remove('show');
     });
   }
   
-  // 모달 배경 클릭 시 닫기
+  // 언어 모달 배경 클릭 시 닫기
   if (mobileLangModal) {
     mobileLangModal.addEventListener('click', (e) => {
       if (e.target === mobileLangModal) {
         mobileLangModal.classList.remove('show');
+      }
+    });
+  }
+  
+  // 카테고리 모달 열기
+  if (mobileCategoryBtn && mobileCategoryModal) {
+    mobileCategoryBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      mobileCategoryModal.classList.add('show');
+    });
+  }
+  
+  // 카테고리 모달 닫기 버튼
+  if (mobileCategoryClose && mobileCategoryModal) {
+    mobileCategoryClose.addEventListener('click', () => {
+      mobileCategoryModal.classList.remove('show');
+    });
+  }
+  
+  // 카테고리 모달 배경 클릭 시 닫기
+  if (mobileCategoryModal) {
+    mobileCategoryModal.addEventListener('click', (e) => {
+      if (e.target === mobileCategoryModal) {
+        mobileCategoryModal.classList.remove('show');
       }
     });
   }
