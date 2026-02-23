@@ -2122,280 +2122,22 @@ app.get('/api/education/curriculum/:id', async (c) => {
 
 // ===== 프론트엔드 페이지 라우트 =====
 
-// 홈 페이지 (SSR with actual data)
-app.get('/', async (c) => {
-  try {
-    // 서버에서 데이터 가져오기 (초기 20개 상품 표시)
-    const { results: products } = await c.env.DB.prepare(`
-      SELECT p.*, c.name as category_name, pr.name as producer_name, r.name as region_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN producers pr ON p.producer_id = pr.id
-      LEFT JOIN regions r ON pr.region_id = r.id
-      WHERE p.is_available = 1
-      ORDER BY p.created_at DESC
-      LIMIT 20
-    `).all()
-
-    // 상품 카드 HTML 생성
-    const productCards = products.map((product: any) => (
-      <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-        <a href={`/products/${product.id}`}>
-          <div class="aspect-square overflow-hidden bg-gray-100">
-            <img 
-              src={product.main_image || '/images/placeholder.jpg'} 
-              alt={product.name}
-              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              loading="lazy"
-            />
-          </div>
-          <div class="p-4">
-            <div class="text-xs text-gray-500 mb-1">{product.category_name}</div>
-            <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-lg font-bold text-tea-green">{product.price?.toLocaleString()}원</span>
-                {product.original_price && product.original_price > product.price && (
-                  <div class="text-xs text-gray-400 line-through">{product.original_price.toLocaleString()}원</div>
-                )}
-              </div>
-              {product.discount_rate > 0 && (
-                <span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">{product.discount_rate}%</span>
-              )}
-            </div>
-          </div>
-        </a>
-      </div>
-    ))
-
-    return c.render(
-      <div id="app">
-        {/* 히어로 섹션 */}
-        <section class="bg-gradient-to-br from-tea-green via-green-600 to-green-700 text-white py-12 md:py-20">
-          <div class="container mx-auto px-4 text-center">
-            <div class="max-w-3xl mx-auto">
-              <i class="fas fa-leaf text-5xl md:text-6xl mb-6 animate-bounce"></i>
-              <h1 class="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
-                한국 차 공예 문화,<br class="md:hidden" /> 우리가 함께 쓰는 새로운 문화 혁명
-              </h1>
-              <p class="text-lg md:text-xl mb-6 md:mb-8 opacity-90">
-                생산자와 소비자, 함께 만드는 천년의 가치
-              </p>
-              <p class="text-sm md:text-base mb-8 md:mb-10 opacity-80">
-                당신의 선택이 한국 차 공예품 문화를 만듭니다!
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 상단 카테고리 바 (히어로 섹션 아래) - 모바일 전용 2줄 배치 */}
-        <div class="md:hidden bg-white border-b border-gray-200 py-4" id="categoryBar">
-          <div class="container mx-auto px-4">
-            <div class="grid grid-cols-4 gap-2">
-              <a href="/products?type=tea" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-tea-green to-green-600 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-mug-hot text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">한국차</span>
-              </a>
-              <a href="/products?type=craft" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-craft-blue to-blue-600 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-palette text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">공예품</span>
-              </a>
-              <a href="/products?type=gift_set" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-tea-brown to-yellow-600 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-gift text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">선물</span>
-              </a>
-              <a href="/products?type=local" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-seedling text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">특산물</span>
-              </a>
-              <a href="/regions" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-700 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-map-marked-alt text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">지역</span>
-              </a>
-              <a href="/experiences" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-orange-600 to-orange-700 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-users text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">체험</span>
-              </a>
-              <a href="/events" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
-                <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-full flex items-center justify-center mb-2 shadow-md">
-                  <i class="fas fa-star text-white text-lg"></i>
-                </div>
-                <span class="text-xs font-medium text-gray-700">이벤트</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* 추천 상품 */}
-        <section class="py-8 md:py-12">
-          <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-                <i class="fas fa-star text-yellow-500 mr-2"></i>전체 상품
-              </h2>
-            </div>
-            <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-              {productCards}
-            </div>
-            {/* 무한 스크롤 로딩 인디케이터 */}
-            <div id="loadingIndicator" class="hidden text-center py-8">
-              <div class="inline-flex items-center space-x-2">
-                <div class="w-8 h-8 border-4 border-tea-green border-t-transparent rounded-full animate-spin"></div>
-                <span class="text-gray-600">더 많은 상품을 불러오는 중...</span>
-              </div>
-            </div>
-            {/* 무한 스크롤 트리거 요소 */}
-            <div id="scrollTrigger" class="h-1"></div>
-          </div>
-        </section>
-      </div>
-    )
-  } catch (error) {
-    console.error('Home page error:', error)
-    return c.render(
-      <div id="app">
-        <div class="loading">로딩 중...</div>
-      </div>
-    )
-  }
+// 홈 페이지
+app.get('/', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
 })
 
-// 상품 목록 페이지 (SSR with actual data)
-app.get('/products', async (c) => {
-  try {
-    const type = c.req.query('type')
-    const categoryId = c.req.query('category_id')
-    
-    let query = `
-      SELECT p.*, c.name as category_name, pr.name as producer_name, r.name as region_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN producers pr ON p.producer_id = pr.id
-      LEFT JOIN regions r ON pr.region_id = r.id
-      WHERE p.is_available = 1
-    `
-    const params: any[] = []
-    
-    if (type) {
-      query += ' AND p.product_type = ?'
-      params.push(type)
-    }
-    
-    if (categoryId) {
-      query += ' AND p.category_id = ?'
-      params.push(categoryId)
-    }
-    
-    query += ' ORDER BY p.is_featured DESC, p.created_at DESC LIMIT 20'
-    
-    const { results: products } = params.length > 0
-      ? await c.env.DB.prepare(query).bind(...params).all()
-      : await c.env.DB.prepare(query).all()
-
-    // 페이지 제목 결정
-    let pageTitle = '전체 상품'
-    let pageIcon = 'fas fa-box-open'
-    
-    if (type === 'tea') {
-      pageTitle = '한국차'
-      pageIcon = 'fas fa-mug-hot'
-    } else if (type === 'craft') {
-      pageTitle = '공예품'
-      pageIcon = 'fas fa-palette'
-    } else if (type === 'gift_set') {
-      pageTitle = '선물세트'
-      pageIcon = 'fas fa-gift'
-    } else if (type === 'local') {
-      pageTitle = '특산물'
-      pageIcon = 'fas fa-seedling'
-    }
-
-    // 상품 카드 HTML 생성
-    const productCards = products.map((product: any) => (
-      <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-        <a href={`/products/${product.id}`}>
-          <div class="aspect-square overflow-hidden bg-gray-100">
-            <img 
-              src={product.main_image || '/images/placeholder.jpg'} 
-              alt={product.name}
-              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              loading="lazy"
-            />
-          </div>
-          <div class="p-4">
-            <div class="text-xs text-gray-500 mb-1">{product.category_name}</div>
-            <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="text-lg font-bold text-tea-green">{product.price?.toLocaleString()}원</span>
-                {product.original_price && product.original_price > product.price && (
-                  <div class="text-xs text-gray-400 line-through">{product.original_price.toLocaleString()}원</div>
-                )}
-              </div>
-              {product.discount_rate > 0 && (
-                <span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">{product.discount_rate}%</span>
-              )}
-            </div>
-          </div>
-        </a>
-      </div>
-    ))
-
-    return c.render(
-      <div id="app">
-        <section class="py-8 md:py-12">
-          <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-                <i class={`${pageIcon} text-tea-green mr-2`}></i>{pageTitle}
-              </h2>
-            </div>
-            
-            {products.length > 0 ? (
-              <>
-                <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-                  {productCards}
-                </div>
-                {/* 무한 스크롤 로딩 인디케이터 */}
-                <div id="loadingIndicator" class="hidden text-center py-8">
-                  <div class="inline-flex items-center space-x-2">
-                    <div class="w-8 h-8 border-4 border-tea-green border-t-transparent rounded-full animate-spin"></div>
-                    <span class="text-gray-600">더 많은 상품을 불러오는 중...</span>
-                  </div>
-                </div>
-                {/* 무한 스크롤 트리거 요소 */}
-                <div id="scrollTrigger" class="h-1" data-type={type || ''} data-category-id={categoryId || ''}></div>
-              </>
-            ) : (
-              <div class="text-center py-20">
-                <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
-                <p class="text-gray-500 text-lg">등록된 상품이 없습니다</p>
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
-    )
-  } catch (error) {
-    console.error('Products page error:', error)
-    return c.render(
-      <div id="app">
-        <div class="loading">상품을 불러오는 중...</div>
-      </div>
-    )
-  }
+// 상품 목록 페이지
+app.get('/products', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
 })
 
 // 상품 등록 페이지 (반드시 /products/:id 앞에 위치)
@@ -2835,37 +2577,7 @@ app.get('/products/:id', (c) => {
 app.get('/regions', (c) => {
   return c.render(
     <div id="app">
-      <section class="py-8 md:py-12">
-        <div class="container mx-auto px-4">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-              <i class="fas fa-map-marked-alt text-purple-600 mr-2"></i>지역별 보기
-            </h2>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <a href="/products?region=boseong" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-center">
-              <i class="fas fa-mountain text-4xl text-green-600 mb-3"></i>
-              <h3 class="font-bold text-gray-800">보성</h3>
-              <p class="text-sm text-gray-500 mt-1">녹차의 고장</p>
-            </a>
-            <a href="/products?region=hadong" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-center">
-              <i class="fas fa-mountain text-4xl text-green-600 mb-3"></i>
-              <h3 class="font-bold text-gray-800">하동</h3>
-              <p class="text-sm text-gray-500 mt-1">야생차의 본고장</p>
-            </a>
-            <a href="/products?region=jeju" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-center">
-              <i class="fas fa-mountain text-4xl text-blue-600 mb-3"></i>
-              <h3 class="font-bold text-gray-800">제주</h3>
-              <p class="text-sm text-gray-500 mt-1">청정 차의 섬</p>
-            </a>
-            <a href="/products?region=jangheung" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition text-center">
-              <i class="fas fa-mountain text-4xl text-green-600 mb-3"></i>
-              <h3 class="font-bold text-gray-800">장흥</h3>
-              <p class="text-sm text-gray-500 mt-1">차의 고향</p>
-            </a>
-          </div>
-        </div>
-      </section>
+      <div class="loading">로딩 중...</div>
     </div>
   )
 })
@@ -2901,62 +2613,7 @@ app.get('/producers/:id', (c) => {
 app.get('/experiences', (c) => {
   return c.render(
     <div id="app">
-      <section class="py-8 md:py-12">
-        <div class="container mx-auto px-4">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-              <i class="fas fa-users text-orange-600 mr-2"></i>체험 프로그램
-            </h2>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-              <div class="aspect-video bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                <i class="fas fa-leaf text-white text-6xl"></i>
-              </div>
-              <div class="p-6">
-                <h3 class="font-bold text-lg text-gray-800 mb-2">차 따기 체험</h3>
-                <p class="text-gray-600 text-sm mb-4">직접 차밭에서 차를 따고 제다 과정을 체험해보세요</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-tea-green font-bold">50,000원</span>
-                  <button class="px-4 py-2 bg-tea-green text-white rounded-lg text-sm hover:bg-green-700 transition">
-                    신청하기
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-              <div class="aspect-video bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                <i class="fas fa-palette text-white text-6xl"></i>
-              </div>
-              <div class="p-6">
-                <h3 class="font-bold text-lg text-gray-800 mb-2">도자기 만들기</h3>
-                <p class="text-gray-600 text-sm mb-4">전통 도자기 제작 과정을 직접 체험해보세요</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-tea-green font-bold">70,000원</span>
-                  <button class="px-4 py-2 bg-tea-green text-white rounded-lg text-sm hover:bg-green-700 transition">
-                    신청하기
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-              <div class="aspect-video bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                <i class="fas fa-graduation-cap text-white text-6xl"></i>
-              </div>
-              <div class="p-6">
-                <h3 class="font-bold text-lg text-gray-800 mb-2">다도 교육</h3>
-                <p class="text-gray-600 text-sm mb-4">전통 다례와 차 문화를 배워보세요</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-tea-green font-bold">100,000원</span>
-                  <button class="px-4 py-2 bg-tea-green text-white rounded-lg text-sm hover:bg-green-700 transition">
-                    신청하기
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="loading">로딩 중...</div>
     </div>
   )
 })
@@ -2974,57 +2631,7 @@ app.get('/experiences/:id', (c) => {
 app.get('/events', (c) => {
   return c.render(
     <div id="app">
-      <section class="py-8 md:py-12">
-        <div class="container mx-auto px-4">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-              <i class="fas fa-star text-red-600 mr-2"></i>진행 중인 이벤트
-            </h2>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-              <div class="aspect-video bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center">
-                <div class="text-center text-white">
-                  <i class="fas fa-gift text-6xl mb-4"></i>
-                  <h3 class="text-2xl font-bold">신규 회원 가입 이벤트</h3>
-                </div>
-              </div>
-              <div class="p-6">
-                <h3 class="font-bold text-lg text-gray-800 mb-2">가입하고 10% 할인쿠폰 받기</h3>
-                <p class="text-gray-600 text-sm mb-4">신규 회원 가입 시 첫 구매에 사용할 수 있는 10% 할인 쿠폰을 드립니다</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-500">
-                    <i class="fas fa-calendar-alt mr-1"></i>상시 진행
-                  </span>
-                  <a href="/register" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition">
-                    참여하기
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-              <div class="aspect-video bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                <div class="text-center text-white">
-                  <i class="fas fa-leaf text-6xl mb-4"></i>
-                  <h3 class="text-2xl font-bold">봄맞이 차 할인전</h3>
-                </div>
-              </div>
-              <div class="p-6">
-                <h3 class="font-bold text-lg text-gray-800 mb-2">전 품목 최대 30% 할인</h3>
-                <p class="text-gray-600 text-sm mb-4">싱그러운 봄을 맞아 모든 차 제품을 특별 할인가로 만나보세요</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-500">
-                    <i class="fas fa-calendar-alt mr-1"></i>2026.03.01 ~ 03.31
-                  </span>
-                  <a href="/products?type=tea" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition">
-                    상품 보기
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="loading">로딩 중...</div>
     </div>
   )
 })

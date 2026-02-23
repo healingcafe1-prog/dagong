@@ -62,101 +62,7 @@ function formatDate(dateString) {
 // ===== 네비게이션 =====
 
 // DOM이 준비된 후 실행
-// ===== 로딩 타임아웃 설정 (Instagram 인앱 브라우저 대응) =====
-let loadingTimeout = setTimeout(() => {
-  const appDiv = document.getElementById('app');
-  if (appDiv && appDiv.innerHTML.trim().includes('로딩')) {
-    console.error('❌ 로딩 타임아웃: 10초 초과');
-    appDiv.innerHTML = `
-      <div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg text-center">
-        <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
-        <h2 class="text-xl font-bold text-gray-800 mb-3">페이지 로딩 실패</h2>
-        <p class="text-gray-600 mb-4 text-sm">페이지를 불러오는 중 문제가 발생했습니다.</p>
-        <div class="space-y-2 text-left bg-gray-50 p-4 rounded text-sm mb-4">
-          <p class="font-semibold text-gray-700">해결 방법:</p>
-          <p>1️⃣ 페이지 새로고침</p>
-          <p>2️⃣ Instagram 앱 재시작</p>
-          <p>3️⃣ 일반 브라우저로 열기 (Chrome, Safari)</p>
-        </div>
-        <button onclick="window.location.reload()" class="w-full px-4 py-3 bg-tea-green text-white rounded-lg hover:bg-green-700 transition">
-          <i class="fas fa-redo mr-2"></i>다시 시도
-        </button>
-      </div>
-    `;
-  }
-}, 10000); // 10초 타임아웃
-
 document.addEventListener('DOMContentLoaded', () => {
-  // 로딩 성공 시 타임아웃 취소
-  clearTimeout(loadingTimeout);
-  console.log('✅ 페이지 로드 완료');
-  
-  // ===== 모바일 네비게이션 =====
-  
-  // 현재 페이지 활성화 표시
-  const currentPath = window.location.pathname;
-  const navItems = document.querySelectorAll('.mobile-nav-item');
-  navItems.forEach(item => {
-    const page = item.getAttribute('data-page');
-    if (
-      (page === 'home' && currentPath === '/') ||
-      (page === 'mypage' && currentPath.startsWith('/mypage')) ||
-      (page === 'category' && currentPath.startsWith('/products')) ||
-      (page === 'search' && currentPath.startsWith('/search'))
-    ) {
-      item.classList.add('active');
-    }
-  });
-  
-  // 모바일 카테고리 버튼
-  const mobileCategoryBtn = document.getElementById('mobileCategoryBtn');
-  const mobileCategoryBar = document.getElementById('mobileCategoryBar');
-  
-  if (mobileCategoryBtn && mobileCategoryBar) {
-    let categoryBarVisible = false;
-    
-    mobileCategoryBtn.addEventListener('click', () => {
-      categoryBarVisible = !categoryBarVisible;
-      
-      if (categoryBarVisible) {
-        mobileCategoryBar.style.display = 'block';
-        mobileCategoryBar.classList.add('show');
-        mobileCategoryBar.classList.remove('hide');
-        mobileCategoryBtn.classList.add('active');
-      } else {
-        mobileCategoryBar.classList.add('hide');
-        mobileCategoryBar.classList.remove('show');
-        mobileCategoryBtn.classList.remove('active');
-        setTimeout(() => {
-          mobileCategoryBar.style.display = 'none';
-        }, 300);
-      }
-    });
-  }
-  
-  // 모바일 하단 검색 버튼 (기존)
-  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
-  const searchModal = document.getElementById('searchModal');
-  const searchInput = document.getElementById('searchInput');
-  
-  if (mobileSearchBtn && searchModal && searchInput) {
-    mobileSearchBtn.addEventListener('click', () => {
-      searchModal.classList.remove('hidden');
-      searchInput.focus();
-      mobileSearchBtn.classList.add('active');
-    });
-  }
-  
-  // 모바일 상단 검색 버튼 (신규)
-  const mobileTopSearchBtn = document.getElementById('mobileTopSearchBtn');
-  
-  if (mobileTopSearchBtn && searchModal && searchInput) {
-    mobileTopSearchBtn.addEventListener('click', () => {
-      searchModal.classList.remove('hidden');
-      searchInput.focus();
-    });
-  }
-  
   // 모바일 메뉴 토글
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -552,29 +458,29 @@ async function loadHomePage() {
       <!-- 추천 상품 -->
       <section class="bg-white py-16">
         <div class="container mx-auto px-4">
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 flex items-center">
-            <i class="fas fa-heart text-red-500 mr-2 md:mr-3"></i>
+          <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+            <i class="fas fa-heart text-red-500 mr-3"></i>
             추천 상품
           </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             ${featuredProducts.data.products.map(product => `
               <a href="/products/${product.id}" class="block bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition">
-                <div class="aspect-square bg-gray-200 flex items-center justify-center">
-                  <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : 'fa-palette'} text-gray-400 text-4xl md:text-6xl"></i>
+                <div class="h-64 bg-gray-200 flex items-center justify-center">
+                  <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : 'fa-palette'} text-gray-400 text-6xl"></i>
                 </div>
-                <div class="p-3 md:p-4">
-                  <div class="text-xs text-gray-500 mb-1 line-clamp-1">${product.region_name || ''}</div>
-                  <h3 class="font-bold text-sm md:text-lg mb-1 md:mb-2 line-clamp-2">${product.name}</h3>
-                  <div class="flex items-center justify-between mt-2">
-                    <span class="text-tea-green font-bold text-base md:text-xl">${formatPrice(product.price)}</span>
-                    ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded hidden md:inline">인기</span>' : ''}
+                <div class="p-4">
+                  <div class="text-sm text-gray-500 mb-1">${product.region_name || ''}</div>
+                  <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                  <div class="flex items-center justify-between">
+                    <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                    ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
                   </div>
                 </div>
               </a>
             `).join('')}
           </div>
-          <div class="text-center mt-6 md:mt-8">
-            <a href="/products" class="inline-block bg-tea-green text-white px-6 md:px-8 py-2 md:py-3 rounded-full font-bold text-sm md:text-base hover:bg-opacity-90 transition">
+          <div class="text-center mt-8">
+            <a href="/products" class="inline-block bg-tea-green text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition">
               모든 상품 보기
             </a>
           </div>
@@ -670,9 +576,9 @@ async function loadProductsPage() {
             ${type ? typeNames[type] : '전체 상품'}
           </h1>
           
-          <!-- 카테고리 필터 (Desktop) -->
+          <!-- 카테고리 필터 -->
           ${categories.length > 0 ? `
-            <div class="hidden md:flex flex-wrap gap-2 mb-6">
+            <div class="flex flex-wrap gap-2 mb-6">
               <a href="/products${type ? `?type=${type}` : ''}" 
                  class="px-4 py-2 rounded-full ${!categoryId ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
                 전체
@@ -685,39 +591,22 @@ async function loadProductsPage() {
               `).join('')}
             </div>
           ` : ''}
-          
-          <!-- 카테고리 필터 (Mobile - Horizontal Scroll) -->
-          ${categories.length > 0 ? `
-            <div class="md:hidden mb-6">
-              <div class="horizontal-scroll flex gap-2 pb-2">
-                <a href="/products${type ? `?type=${type}` : ''}" 
-                   class="flex-shrink-0 px-4 py-2 rounded-full ${!categoryId ? 'bg-tea-green text-white' : 'bg-white text-gray-700'} text-sm font-medium whitespace-nowrap">
-                  전체
-                </a>
-                ${categories.map(cat => `
-                  <a href="/products?type=${type}&category_id=${cat.id}" 
-                     class="flex-shrink-0 px-4 py-2 rounded-full ${categoryId == cat.id ? 'bg-tea-green text-white' : 'bg-white text-gray-700'} text-sm font-medium whitespace-nowrap">
-                    ${cat.name}
-                  </a>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
         </div>
         
-        <!-- 상품 목록 (모바일 2열, 데스크탑 4열) -->
-        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+        <!-- 상품 목록 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           ${products.map(product => `
             <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-              <div class="aspect-square bg-gray-200 flex items-center justify-center">
-                <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-4xl md:text-6xl"></i>
+              <div class="h-64 bg-gray-200 flex items-center justify-center">
+                <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
               </div>
-              <div class="p-3 md:p-4">
-                <div class="text-xs md:text-sm text-gray-500 mb-1 line-clamp-1">${product.producer_name}</div>
-                <h3 class="font-bold text-sm md:text-lg mb-1 md:mb-2 line-clamp-2">${product.name}</h3>
-                <div class="flex items-center justify-between mt-2">
-                  <span class="text-tea-green font-bold text-base md:text-xl">${formatPrice(product.price)}</span>
-                  ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded hidden md:inline">인기</span>' : ''}
+              <div class="p-4">
+                <div class="text-sm text-gray-500 mb-1">${product.producer_name} · ${product.region_name || ''}</div>
+                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                <div class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description || ''}</div>
+                <div class="flex items-center justify-between">
+                  <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                  ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
                 </div>
               </div>
             </a>
@@ -3283,17 +3172,10 @@ async function updateCartCount() {
     
     const cartCount = data.count || 0;
     const cartBadge = document.getElementById('cartCount');
-    const mobileCartBadge = document.getElementById('mobileCartCount');
     
     if (cartBadge) {
       cartBadge.textContent = cartCount;
       cartBadge.style.display = cartCount > 0 ? 'inline-block' : 'none';
-    }
-    
-    // 모바일 상단 장바구니 카운트도 동기화
-    if (mobileCartBadge) {
-      mobileCartBadge.textContent = cartCount;
-      mobileCartBadge.style.display = cartCount > 0 ? 'flex' : 'none';
     }
   } catch (error) {
     console.error('장바구니 개수 업데이트 오류:', error);
@@ -4418,132 +4300,3 @@ if ('serviceWorker' in navigator) {
     console.log('✅ 캐시 제거 완료');
   });
 }
-
-// ===== 무한 스크롤 기능 (홈페이지 전용) =====
-let currentPage = 1;
-let isLoading = false;
-let hasMoreProducts = true;
-
-// 상품 카드 HTML 생성
-function createProductCard(product) {
-  const discountBadge = product.discount_rate > 0 
-    ? `<span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">${product.discount_rate}%</span>` 
-    : '';
-  
-  const originalPrice = product.original_price && product.original_price > product.price 
-    ? `<div class="text-xs text-gray-400 line-through">${product.original_price.toLocaleString()}원</div>` 
-    : '';
-
-  return `
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <a href="/products/${product.id}">
-        <div class="aspect-square overflow-hidden bg-gray-100">
-          <img 
-            src="${product.main_image || '/images/placeholder.jpg'}" 
-            alt="${product.name}"
-            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-          />
-        </div>
-        <div class="p-4">
-          <div class="text-xs text-gray-500 mb-1">${product.category_name || ''}</div>
-          <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
-          <div class="flex items-center justify-between">
-            <div>
-              <span class="text-lg font-bold text-tea-green">${product.price?.toLocaleString()}원</span>
-              ${originalPrice}
-            </div>
-            ${discountBadge}
-          </div>
-        </div>
-      </a>
-    </div>
-  `;
-}
-
-// 무한 스크롤 로드 함수
-async function loadMoreProducts() {
-  if (isLoading || !hasMoreProducts) return;
-  
-  isLoading = true;
-  const loadingIndicator = document.getElementById('loadingIndicator');
-  const productGrid = document.getElementById('productGrid');
-  const scrollTrigger = document.getElementById('scrollTrigger');
-  
-  if (!productGrid) return; // 상품 그리드가 없으면 중단
-  
-  if (loadingIndicator) {
-    loadingIndicator.classList.remove('hidden');
-  }
-  
-  try {
-    // scrollTrigger에서 type과 category_id 가져오기
-    const type = scrollTrigger?.getAttribute('data-type') || '';
-    const categoryId = scrollTrigger?.getAttribute('data-category-id') || '';
-    
-    // API URL 구성
-    let apiUrl = `/api/products?limit=20&offset=${currentPage * 20}`;
-    if (type) apiUrl += `&type=${type}`;
-    if (categoryId) apiUrl += `&category_id=${categoryId}`;
-    
-    const response = await axios.get(apiUrl);
-    const { products } = response.data;
-    
-    if (products && products.length > 0) {
-      // 상품 카드 추가
-      products.forEach(product => {
-        productGrid.insertAdjacentHTML('beforeend', createProductCard(product));
-      });
-      
-      currentPage++;
-      
-      // 20개 미만이면 더 이상 로드할 상품 없음
-      if (products.length < 20) {
-        hasMoreProducts = false;
-        if (loadingIndicator) {
-          loadingIndicator.innerHTML = '<p class="text-gray-500 text-center py-8">모든 상품을 불러왔습니다 ✅</p>';
-        }
-      }
-    } else {
-      hasMoreProducts = false;
-      if (loadingIndicator) {
-        loadingIndicator.innerHTML = '<p class="text-gray-500 text-center py-8">모든 상품을 불러왔습니다 ✅</p>';
-      }
-    }
-  } catch (error) {
-    console.error('상품 로딩 오류:', error);
-    if (loadingIndicator) {
-      loadingIndicator.innerHTML = '<p class="text-red-500 text-center py-8">상품을 불러오는 중 오류가 발생했습니다 ❌</p>';
-    }
-  } finally {
-    isLoading = false;
-    if (loadingIndicator && hasMoreProducts) {
-      loadingIndicator.classList.add('hidden');
-    }
-  }
-}
-
-// Intersection Observer로 무한 스크롤 트리거
-document.addEventListener('DOMContentLoaded', () => {
-  const scrollTrigger = document.getElementById('scrollTrigger');
-  
-  if (scrollTrigger) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && !isLoading && hasMoreProducts) {
-            loadMoreProducts();
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: '200px', // 200px 미리 로드
-        threshold: 0.1
-      }
-    );
-    
-    observer.observe(scrollTrigger);
-    console.log('✅ 무한 스크롤 활성화');
-  }
-});
