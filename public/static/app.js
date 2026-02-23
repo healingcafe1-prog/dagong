@@ -81,13 +81,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 모바일 언어 선택 버튼
+  const mobileLangBtn = document.getElementById('mobileLangBtn');
+  const mobileLangModal = document.getElementById('mobileLangModal');
+  const mobileLangClose = document.getElementById('mobileLangClose');
   const mobileLangButtons = document.querySelectorAll('button[data-lang-mobile]');
+  
+  // 모달 열기
+  if (mobileLangBtn && mobileLangModal) {
+    mobileLangBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      mobileLangModal.classList.add('show');
+    });
+  }
+  
+  // 모달 닫기 버튼
+  if (mobileLangClose && mobileLangModal) {
+    mobileLangClose.addEventListener('click', () => {
+      mobileLangModal.classList.remove('show');
+    });
+  }
+  
+  // 모달 배경 클릭 시 닫기
+  if (mobileLangModal) {
+    mobileLangModal.addEventListener('click', (e) => {
+      if (e.target === mobileLangModal) {
+        mobileLangModal.classList.remove('show');
+      }
+    });
+  }
+  
+  // 언어 선택
   mobileLangButtons.forEach(button => {
     button.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const lang = button.getAttribute('data-lang-mobile');
       console.log('Mobile language button clicked:', lang);
+      
+      // 모달 닫기
+      if (mobileLangModal) {
+        mobileLangModal.classList.remove('show');
+      }
+      
+      // 언어 변경
       if (window.i18n && window.i18n.setLanguage) {
         window.i18n.setLanguage(lang);
       } else {

@@ -2156,6 +2156,9 @@ app.get('/', async (c) => {
             <span>다공</span>
           </a>
           <div class="mobile-header-actions">
+            <button id="mobileLangBtn" class="mobile-lang-btn">
+              <i class="fas fa-globe"></i>
+            </button>
             <a href="/cart" class="mobile-header-icon">
               <i class="fas fa-shopping-cart"></i>
               <span id="mobileCartCount" class="cart-badge" style="display: none;">0</span>
@@ -2165,6 +2168,48 @@ app.get('/', async (c) => {
             </a>
             <div id="mobileUserMenu" class="mobile-header-icon" style="display: none;">
               <img id="mobileUserAvatar" src="" alt="프로필" class="mobile-avatar"/>
+            </div>
+          </div>
+        </div>
+        
+        {/* 모바일 언어 선택 모달 */}
+        <div id="mobileLangModal" class="mobile-lang-modal">
+          <div class="mobile-lang-content">
+            <div class="mobile-lang-header">
+              <h3 class="mobile-lang-title">언어 선택</h3>
+              <button id="mobileLangClose" class="mobile-lang-close">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="mobile-lang-list">
+              <button class="mobile-lang-option" data-lang-mobile="ko">
+                <div class="mobile-lang-option-left">
+                  <span class="mobile-lang-option-flag">🇰🇷</span>
+                  <span class="mobile-lang-option-text">한국어</span>
+                </div>
+                <span class="mobile-lang-option-code">KO</span>
+              </button>
+              <button class="mobile-lang-option" data-lang-mobile="en">
+                <div class="mobile-lang-option-left">
+                  <span class="mobile-lang-option-flag">🇺🇸</span>
+                  <span class="mobile-lang-option-text">English</span>
+                </div>
+                <span class="mobile-lang-option-code">EN</span>
+              </button>
+              <button class="mobile-lang-option" data-lang-mobile="zh">
+                <div class="mobile-lang-option-left">
+                  <span class="mobile-lang-option-flag">🇨🇳</span>
+                  <span class="mobile-lang-option-text">中文</span>
+                </div>
+                <span class="mobile-lang-option-code">ZH</span>
+              </button>
+              <button class="mobile-lang-option" data-lang-mobile="ja">
+                <div class="mobile-lang-option-left">
+                  <span class="mobile-lang-option-flag">🇯🇵</span>
+                  <span class="mobile-lang-option-text">日本語</span>
+                </div>
+                <span class="mobile-lang-option-code">JA</span>
+              </button>
             </div>
           </div>
         </div>
