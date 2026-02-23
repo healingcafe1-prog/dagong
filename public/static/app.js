@@ -416,7 +416,7 @@ async function loadHomePage() {
         <div class="container mx-auto px-4 text-center">
           <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
             <i class="fas fa-leaf mr-2"></i>
-            한국 차 문화,
+            한국 차 공예 문화,
             <br class="md:hidden">
             우리가 함께 쓰는 새로운 문화 혁명
           </h1>
@@ -572,6 +572,11 @@ async function loadProductsPage() {
     const products = productsRes.data.products;
     const categories = categoriesRes.data.categories;
     
+    // 말차, 발효차 제외 (PC 버전)
+    const filteredCategories = categories.filter(cat => 
+      cat.name !== '말차' && cat.name !== '발효차'
+    );
+    
     const typeNames = {
       'tea': '차',
       'craft': '공예품',
@@ -587,13 +592,13 @@ async function loadProductsPage() {
           </h1>
           
           <!-- 카테고리 필터 -->
-          ${categories.length > 0 ? `
+          ${filteredCategories.length > 0 ? `
             <div class="flex flex-wrap gap-2 mb-6">
               <a href="/products${type ? `?type=${type}` : ''}" 
                  class="px-4 py-2 rounded-full ${!categoryId ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
                 전체
               </a>
-              ${categories.map(cat => `
+              ${filteredCategories.map(cat => `
                 <a href="/products?type=${type}&category_id=${cat.id}" 
                    class="px-4 py-2 rounded-full ${categoryId == cat.id ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
                   ${cat.name}
