@@ -457,7 +457,7 @@ a:active,
 /* 히어로 섹션 - 마켓컬리 스타일 */
 .mobile-hero {
   background: linear-gradient(135deg, #7c9473 0%, #5a7055 100%);
-  padding: 60px 24px 40px;
+  padding: 40px 24px 30px;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -492,31 +492,31 @@ a:active,
 
 .hero-title {
   font-family: 'Noto Serif KR', serif;
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 700;
   color: white;
-  margin-bottom: 12px;
-  letter-spacing: 2px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
 }
 
 .hero-subtitle {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .hero-description {
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.8);
   font-weight: 300;
 }
 
 /* 카테고리 섹션 */
 .category-section {
-  padding: 24px 16px;
+  padding: 20px 16px;
   background: white;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .category-grid {
@@ -564,19 +564,19 @@ a:active,
 
 /* 상품 섹션 */
 .product-section {
-  padding: 0 16px 24px;
+  padding: 0 16px 20px;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding-top: 8px;
+  margin-bottom: 12px;
+  padding-top: 4px;
 }
 
 .section-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: #222;
 }
@@ -778,17 +778,17 @@ a:active,
 
 /* 카테고리 섹션 */
 .category-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #222;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-/* 카테고리 그리드 - 2열 x 4행 */
+/* 카테고리 그리드 - 3열 컴팩트 */
 .category-grid-visual {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
 
 /* 카테고리 아이템 */
@@ -796,23 +796,23 @@ a:active,
   display: flex;
   flex-direction: column;
   text-decoration: none;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease;
 }
 
 .category-item:active {
-  transform: scale(0.98);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  transform: scale(0.96);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* 카테고리 이미지 래퍼 */
+/* 카테고리 이미지 래퍼 - 크기 축소 */
 .category-image-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 100%; /* 1:1 정사각형 비율 */
+  padding-top: 85%; /* 정사각형에서 약간 낮춤 (1:0.85 비율) */
   overflow: hidden;
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
 }
@@ -831,20 +831,20 @@ a:active,
   transform: scale(1.05);
 }
 
-/* 카테고리 라벨 */
+/* 카테고리 라벨 - 패딩 축소 */
 .category-label {
-  padding: 12px 16px;
-  font-size: 15px;
+  padding: 8px 10px;
+  font-size: 13px;
   font-weight: 600;
   color: #333;
   text-align: center;
   background: white;
 }
 
-/* 태블릿 (3열) */
+/* 태블릿 (4열) */
 @media (min-width: 576px) and (max-width: 768px) {
   .category-grid-visual {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -855,7 +855,7 @@ a:active,
   }
   
   .category-label {
-    padding: 10px 8px;
-    font-size: 14px;
+    padding: 6px 8px;
+    font-size: 12px;
   }
 }
