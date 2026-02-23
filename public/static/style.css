@@ -105,6 +105,16 @@ a:active {
   }
 }
 
+/* 가로 스크롤 스크롤바 숨김 (마켓컬리 스타일) */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
 /* 프린트 스타일 */
 @media print {
   nav,

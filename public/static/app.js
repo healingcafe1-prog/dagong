@@ -4401,3 +4401,122 @@ if ('serviceWorker' in navigator) {
     console.log('✅ 캐시 제거 완료');
   });
 }
+
+// ===== 무한 스크롤 기능 (홈페이지 전용) =====
+let currentPage = 1;
+let isLoading = false;
+let hasMoreProducts = true;
+
+// 상품 카드 HTML 생성
+function createProductCard(product) {
+  const discountBadge = product.discount_rate > 0 
+    ? `<span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">${product.discount_rate}%</span>` 
+    : '';
+  
+  const originalPrice = product.original_price && product.original_price > product.price 
+    ? `<div class="text-xs text-gray-400 line-through">${product.original_price.toLocaleString()}원</div>` 
+    : '';
+
+  return `
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <a href="/products/${product.id}">
+        <div class="aspect-square overflow-hidden bg-gray-100">
+          <img 
+            src="${product.main_image || '/images/placeholder.jpg'}" 
+            alt="${product.name}"
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+        </div>
+        <div class="p-4">
+          <div class="text-xs text-gray-500 mb-1">${product.category_name || ''}</div>
+          <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-lg font-bold text-tea-green">${product.price?.toLocaleString()}원</span>
+              ${originalPrice}
+            </div>
+            ${discountBadge}
+          </div>
+        </div>
+      </a>
+    </div>
+  `;
+}
+
+// 무한 스크롤 로드 함수
+async function loadMoreProducts() {
+  if (isLoading || !hasMoreProducts) return;
+  
+  isLoading = true;
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const productGrid = document.getElementById('productGrid');
+  
+  if (!productGrid) return; // 홈페이지가 아니면 중단
+  
+  if (loadingIndicator) {
+    loadingIndicator.classList.remove('hidden');
+  }
+  
+  try {
+    const response = await axios.get(`/api/products?limit=20&offset=${currentPage * 20}`);
+    const { products } = response.data;
+    
+    if (products && products.length > 0) {
+      // 상품 카드 추가
+      products.forEach(product => {
+        productGrid.insertAdjacentHTML('beforeend', createProductCard(product));
+      });
+      
+      currentPage++;
+      
+      // 20개 미만이면 더 이상 로드할 상품 없음
+      if (products.length < 20) {
+        hasMoreProducts = false;
+        if (loadingIndicator) {
+          loadingIndicator.innerHTML = '<p class="text-gray-500 text-center py-8">모든 상품을 불러왔습니다 ✅</p>';
+        }
+      }
+    } else {
+      hasMoreProducts = false;
+      if (loadingIndicator) {
+        loadingIndicator.innerHTML = '<p class="text-gray-500 text-center py-8">모든 상품을 불러왔습니다 ✅</p>';
+      }
+    }
+  } catch (error) {
+    console.error('상품 로딩 오류:', error);
+    if (loadingIndicator) {
+      loadingIndicator.innerHTML = '<p class="text-red-500 text-center py-8">상품을 불러오는 중 오류가 발생했습니다 ❌</p>';
+    }
+  } finally {
+    isLoading = false;
+    if (loadingIndicator && hasMoreProducts) {
+      loadingIndicator.classList.add('hidden');
+    }
+  }
+}
+
+// Intersection Observer로 무한 스크롤 트리거
+document.addEventListener('DOMContentLoaded', () => {
+  const scrollTrigger = document.getElementById('scrollTrigger');
+  
+  if (scrollTrigger) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !isLoading && hasMoreProducts) {
+            loadMoreProducts();
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '200px', // 200px 미리 로드
+        threshold: 0.1
+      }
+    );
+    
+    observer.observe(scrollTrigger);
+    console.log('✅ 무한 스크롤 활성화');
+  }
+});
