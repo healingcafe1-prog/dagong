@@ -63,6 +63,62 @@ function formatDate(dateString) {
 
 // DOM이 준비된 후 실행
 document.addEventListener('DOMContentLoaded', () => {
+  // ===== 모바일 네비게이션 =====
+  
+  // 현재 페이지 활성화 표시
+  const currentPath = window.location.pathname;
+  const navItems = document.querySelectorAll('.mobile-nav-item');
+  navItems.forEach(item => {
+    const page = item.getAttribute('data-page');
+    if (
+      (page === 'home' && currentPath === '/') ||
+      (page === 'mypage' && currentPath.startsWith('/mypage')) ||
+      (page === 'category' && currentPath.startsWith('/products')) ||
+      (page === 'search' && currentPath.startsWith('/search'))
+    ) {
+      item.classList.add('active');
+    }
+  });
+  
+  // 모바일 카테고리 버튼
+  const mobileCategoryBtn = document.getElementById('mobileCategoryBtn');
+  const mobileCategoryBar = document.getElementById('mobileCategoryBar');
+  
+  if (mobileCategoryBtn && mobileCategoryBar) {
+    let categoryBarVisible = false;
+    
+    mobileCategoryBtn.addEventListener('click', () => {
+      categoryBarVisible = !categoryBarVisible;
+      
+      if (categoryBarVisible) {
+        mobileCategoryBar.style.display = 'block';
+        mobileCategoryBar.classList.add('show');
+        mobileCategoryBar.classList.remove('hide');
+        mobileCategoryBtn.classList.add('active');
+      } else {
+        mobileCategoryBar.classList.add('hide');
+        mobileCategoryBar.classList.remove('show');
+        mobileCategoryBtn.classList.remove('active');
+        setTimeout(() => {
+          mobileCategoryBar.style.display = 'none';
+        }, 300);
+      }
+    });
+  }
+  
+  // 모바일 검색 버튼
+  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+  const searchModal = document.getElementById('searchModal');
+  const searchInput = document.getElementById('searchInput');
+  
+  if (mobileSearchBtn && searchModal && searchInput) {
+    mobileSearchBtn.addEventListener('click', () => {
+      searchModal.classList.remove('hidden');
+      searchInput.focus();
+      mobileSearchBtn.classList.add('active');
+    });
+  }
+  
   // 모바일 메뉴 토글
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -458,29 +514,29 @@ async function loadHomePage() {
       <!-- 추천 상품 -->
       <section class="bg-white py-16">
         <div class="container mx-auto px-4">
-          <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
-            <i class="fas fa-heart text-red-500 mr-3"></i>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 flex items-center">
+            <i class="fas fa-heart text-red-500 mr-2 md:mr-3"></i>
             추천 상품
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             ${featuredProducts.data.products.map(product => `
               <a href="/products/${product.id}" class="block bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition">
-                <div class="h-64 bg-gray-200 flex items-center justify-center">
-                  <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : 'fa-palette'} text-gray-400 text-6xl"></i>
+                <div class="aspect-square bg-gray-200 flex items-center justify-center">
+                  <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : 'fa-palette'} text-gray-400 text-4xl md:text-6xl"></i>
                 </div>
-                <div class="p-4">
-                  <div class="text-sm text-gray-500 mb-1">${product.region_name || ''}</div>
-                  <h3 class="font-bold text-lg mb-2">${product.name}</h3>
-                  <div class="flex items-center justify-between">
-                    <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
-                    ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
+                <div class="p-3 md:p-4">
+                  <div class="text-xs text-gray-500 mb-1 line-clamp-1">${product.region_name || ''}</div>
+                  <h3 class="font-bold text-sm md:text-lg mb-1 md:mb-2 line-clamp-2">${product.name}</h3>
+                  <div class="flex items-center justify-between mt-2">
+                    <span class="text-tea-green font-bold text-base md:text-xl">${formatPrice(product.price)}</span>
+                    ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded hidden md:inline">인기</span>' : ''}
                   </div>
                 </div>
               </a>
             `).join('')}
           </div>
-          <div class="text-center mt-8">
-            <a href="/products" class="inline-block bg-tea-green text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition">
+          <div class="text-center mt-6 md:mt-8">
+            <a href="/products" class="inline-block bg-tea-green text-white px-6 md:px-8 py-2 md:py-3 rounded-full font-bold text-sm md:text-base hover:bg-opacity-90 transition">
               모든 상품 보기
             </a>
           </div>
@@ -576,9 +632,9 @@ async function loadProductsPage() {
             ${type ? typeNames[type] : '전체 상품'}
           </h1>
           
-          <!-- 카테고리 필터 -->
+          <!-- 카테고리 필터 (Desktop) -->
           ${categories.length > 0 ? `
-            <div class="flex flex-wrap gap-2 mb-6">
+            <div class="hidden md:flex flex-wrap gap-2 mb-6">
               <a href="/products${type ? `?type=${type}` : ''}" 
                  class="px-4 py-2 rounded-full ${!categoryId ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
                 전체
@@ -591,22 +647,39 @@ async function loadProductsPage() {
               `).join('')}
             </div>
           ` : ''}
+          
+          <!-- 카테고리 필터 (Mobile - Horizontal Scroll) -->
+          ${categories.length > 0 ? `
+            <div class="md:hidden mb-6">
+              <div class="horizontal-scroll flex gap-2 pb-2">
+                <a href="/products${type ? `?type=${type}` : ''}" 
+                   class="flex-shrink-0 px-4 py-2 rounded-full ${!categoryId ? 'bg-tea-green text-white' : 'bg-white text-gray-700'} text-sm font-medium whitespace-nowrap">
+                  전체
+                </a>
+                ${categories.map(cat => `
+                  <a href="/products?type=${type}&category_id=${cat.id}" 
+                     class="flex-shrink-0 px-4 py-2 rounded-full ${categoryId == cat.id ? 'bg-tea-green text-white' : 'bg-white text-gray-700'} text-sm font-medium whitespace-nowrap">
+                    ${cat.name}
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
         </div>
         
-        <!-- 상품 목록 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- 상품 목록 (모바일 2열, 데스크탑 4열) -->
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           ${products.map(product => `
             <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-              <div class="h-64 bg-gray-200 flex items-center justify-center">
-                <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
+              <div class="aspect-square bg-gray-200 flex items-center justify-center">
+                <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-4xl md:text-6xl"></i>
               </div>
-              <div class="p-4">
-                <div class="text-sm text-gray-500 mb-1">${product.producer_name} · ${product.region_name || ''}</div>
-                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
-                <div class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description || ''}</div>
-                <div class="flex items-center justify-between">
-                  <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
-                  ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
+              <div class="p-3 md:p-4">
+                <div class="text-xs md:text-sm text-gray-500 mb-1 line-clamp-1">${product.producer_name}</div>
+                <h3 class="font-bold text-sm md:text-lg mb-1 md:mb-2 line-clamp-2">${product.name}</h3>
+                <div class="flex items-center justify-between mt-2">
+                  <span class="text-tea-green font-bold text-base md:text-xl">${formatPrice(product.price)}</span>
+                  ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded hidden md:inline">인기</span>' : ''}
                 </div>
               </div>
             </a>
