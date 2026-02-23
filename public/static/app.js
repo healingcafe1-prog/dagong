@@ -62,7 +62,35 @@ function formatDate(dateString) {
 // ===== 네비게이션 =====
 
 // DOM이 준비된 후 실행
+// ===== 로딩 타임아웃 설정 (Instagram 인앱 브라우저 대응) =====
+let loadingTimeout = setTimeout(() => {
+  const appDiv = document.getElementById('app');
+  if (appDiv && appDiv.innerHTML.trim().includes('로딩')) {
+    console.error('❌ 로딩 타임아웃: 10초 초과');
+    appDiv.innerHTML = `
+      <div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg text-center">
+        <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
+        <h2 class="text-xl font-bold text-gray-800 mb-3">페이지 로딩 실패</h2>
+        <p class="text-gray-600 mb-4 text-sm">페이지를 불러오는 중 문제가 발생했습니다.</p>
+        <div class="space-y-2 text-left bg-gray-50 p-4 rounded text-sm mb-4">
+          <p class="font-semibold text-gray-700">해결 방법:</p>
+          <p>1️⃣ 페이지 새로고침</p>
+          <p>2️⃣ Instagram 앱 재시작</p>
+          <p>3️⃣ 일반 브라우저로 열기 (Chrome, Safari)</p>
+        </div>
+        <button onclick="window.location.reload()" class="w-full px-4 py-3 bg-tea-green text-white rounded-lg hover:bg-green-700 transition">
+          <i class="fas fa-redo mr-2"></i>다시 시도
+        </button>
+      </div>
+    `;
+  }
+}, 10000); // 10초 타임아웃
+
 document.addEventListener('DOMContentLoaded', () => {
+  // 로딩 성공 시 타임아웃 취소
+  clearTimeout(loadingTimeout);
+  console.log('✅ 페이지 로드 완료');
+  
   // ===== 모바일 네비게이션 =====
   
   // 현재 페이지 활성화 표시
