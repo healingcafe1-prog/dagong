@@ -147,13 +147,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 검색 모달
   const searchBtn = document.getElementById('searchBtn');
+  const mobileTopSearchBtn = document.getElementById('mobileTopSearchBtn');
   const searchModal = document.getElementById('searchModal');
   const closeSearchBtn = document.getElementById('closeSearchBtn');
   const searchInput = document.getElementById('searchInput');
   const searchResults = document.getElementById('searchResults');
 
+  // PC 검색 버튼
   if (searchBtn && searchModal && searchInput) {
     searchBtn.addEventListener('click', () => {
+      searchModal.classList.remove('hidden');
+      searchInput.focus();
+    });
+  }
+  
+  // 모바일 상단 검색 버튼
+  if (mobileTopSearchBtn && searchModal && searchInput) {
+    mobileTopSearchBtn.addEventListener('click', () => {
       searchModal.classList.remove('hidden');
       searchInput.focus();
     });
@@ -3172,10 +3182,18 @@ async function updateCartCount() {
     
     const cartCount = data.count || 0;
     const cartBadge = document.getElementById('cartCount');
+    const mobileCartBadge = document.getElementById('mobileCartCount');
     
+    // PC 장바구니 카운트
     if (cartBadge) {
       cartBadge.textContent = cartCount;
       cartBadge.style.display = cartCount > 0 ? 'inline-block' : 'none';
+    }
+    
+    // 모바일 상단 장바구니 카운트
+    if (mobileCartBadge) {
+      mobileCartBadge.textContent = cartCount;
+      mobileCartBadge.style.display = cartCount > 0 ? 'flex' : 'none';
     }
   } catch (error) {
     console.error('장바구니 개수 업데이트 오류:', error);
@@ -4299,4 +4317,103 @@ if ('serviceWorker' in navigator) {
     }
     console.log('✅ 캐시 제거 완료');
   });
+}
+
+// ===== 무한 스크롤 (모바일 홈 페이지) =====
+if (window.location.pathname === '/') {
+  const productGrid = document.getElementById('productGrid');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+  const scrollTrigger = document.getElementById('scrollTrigger');
+  
+  if (productGrid && loadingIndicator && scrollTrigger) {
+    let isLoading = false;
+    let offset = 20; // 초기 20개는 SSR로 로드됨
+    let hasMore = true;
+    
+    // 무한 스크롤 로드 함수
+    async function loadMoreProducts() {
+      if (isLoading || !hasMore) return;
+      
+      isLoading = true;
+      loadingIndicator.classList.remove('hidden');
+      
+      try {
+        const response = await fetch(`/api/products?limit=20&offset=${offset}`);
+        const data = await response.json();
+        
+        if (data.products && data.products.length > 0) {
+          data.products.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300';
+            
+            productCard.innerHTML = `
+              <a href="/products/${product.id}">
+                <div class="aspect-square overflow-hidden bg-gray-100">
+                  <img 
+                    src="${product.main_image || '/images/placeholder.jpg'}" 
+                    alt="${product.name}"
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="p-4">
+                  <div class="text-xs text-gray-500 mb-1">${product.category_name || ''}</div>
+                  <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-lg font-bold text-tea-green">${product.price?.toLocaleString()}원</span>
+                      ${product.original_price && product.original_price > product.price ? 
+                        `<div class="text-xs text-gray-400 line-through">${product.original_price.toLocaleString()}원</div>` : 
+                        ''}
+                    </div>
+                    ${product.discount_rate > 0 ? 
+                      `<span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">${product.discount_rate}%</span>` : 
+                      ''}
+                  </div>
+                </div>
+              </a>
+            `;
+            
+            productGrid.appendChild(productCard);
+          });
+          
+          offset += data.products.length;
+          
+          // 20개 미만이면 더 이상 로드할 데이터 없음
+          if (data.products.length < 20) {
+            hasMore = false;
+            loadingIndicator.innerHTML = '<p class="text-gray-500 text-center py-8">✅ 모든 상품을 불러왔습니다</p>';
+            loadingIndicator.classList.remove('hidden');
+          }
+        } else {
+          hasMore = false;
+          loadingIndicator.innerHTML = '<p class="text-gray-500 text-center py-8">✅ 모든 상품을 불러왔습니다</p>';
+          loadingIndicator.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('상품 로드 오류:', error);
+        loadingIndicator.innerHTML = '<p class="text-red-500 text-center py-8">❌ 상품을 불러오는데 실패했습니다</p>';
+      } finally {
+        isLoading = false;
+        if (hasMore) {
+          loadingIndicator.classList.add('hidden');
+        }
+      }
+    }
+    
+    // IntersectionObserver로 스크롤 감지
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !isLoading && hasMore) {
+          loadMoreProducts();
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '200px', // 200px 전에 미리 로드
+      threshold: 0.1
+    });
+    
+    observer.observe(scrollTrigger);
+  }
 }
