@@ -2122,8 +2122,99 @@ app.get('/api/education/curriculum/:id', async (c) => {
 
 // ===== 프론트엔드 페이지 라우트 =====
 
+// User-Agent 기반 모바일 감지 함수
+const isMobile = (userAgent: string) => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
+}
+
 // 홈 페이지
-app.get('/', (c) => {
+app.get('/', async (c) => {
+  const userAgent = c.req.header('user-agent') || ''
+  const mobile = isMobile(userAgent)
+  
+  // 모바일 사용자
+  if (mobile) {
+    // 최신 20개 상품 가져오기 (SSR)
+    const { results: products } = await c.env.DB.prepare(`
+      SELECT p.*, c.name as category_name, c.type as category_type,
+             pr.name as producer_name, r.name as region_name
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN producers pr ON p.producer_id = pr.id
+      LEFT JOIN regions r ON pr.region_id = r.id
+      WHERE p.is_available = 1
+      ORDER BY p.is_featured DESC, p.created_at DESC
+      LIMIT 20
+    `).all()
+    
+    return c.render(
+      <div id="app" class="mobile-app">
+        {/* 모바일 히어로 섹션 */}
+        <div class="mobile-hero">
+          <div class="hero-content">
+            <h1 class="hero-title">다공</h1>
+            <p class="hero-subtitle">전통 차와 공예의 품격</p>
+            <p class="hero-description">생산자와 직접 거래하는 프리미엄 플랫폼</p>
+          </div>
+        </div>
+        
+        {/* 카테고리 그리드 */}
+        <div class="category-section">
+          <div class="category-grid">
+            <a href="/products?type=tea" class="category-card">
+              <div class="category-icon">🍵</div>
+              <span class="category-name">한국차</span>
+            </a>
+            <a href="/products?type=craft" class="category-card">
+              <div class="category-icon">🎨</div>
+              <span class="category-name">공예품</span>
+            </a>
+            <a href="/products?type=gift_set" class="category-card">
+              <div class="category-icon">🎁</div>
+              <span class="category-name">선물세트</span>
+            </a>
+            <a href="/products?type=local" class="category-card">
+              <div class="category-icon">🌾</div>
+              <span class="category-name">특산물</span>
+            </a>
+          </div>
+        </div>
+        
+        {/* 상품 목록 */}
+        <div class="product-section">
+          <div class="section-header">
+            <h2 class="section-title">추천 상품</h2>
+            <a href="/products" class="section-link">전체보기</a>
+          </div>
+          <div class="product-grid" id="productGrid">
+            {products.map((product: any) => (
+              <a href={`/products/${product.id}`} class="product-card">
+                <div class="product-image">
+                  <img src={product.main_image || '/images/placeholder.jpg'} alt={product.name} />
+                  {product.discount_rate > 0 && (
+                    <div class="discount-badge">{product.discount_rate}%</div>
+                  )}
+                </div>
+                <div class="product-info">
+                  <div class="product-category">{product.category_name}</div>
+                  <div class="product-name">{product.name}</div>
+                  <div class="product-producer">{product.producer_name}</div>
+                  <div class="product-price">
+                    {product.discount_rate > 0 && (
+                      <span class="original-price">{product.original_price?.toLocaleString()}원</span>
+                    )}
+                    <span class="current-price">{product.price?.toLocaleString()}원</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // PC 사용자 (기존 방식)
   return c.render(
     <div id="app">
       <div class="loading">로딩 중...</div>
