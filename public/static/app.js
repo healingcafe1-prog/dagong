@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // 모바일 검색 버튼
+  // 모바일 하단 검색 버튼 (기존)
   const mobileSearchBtn = document.getElementById('mobileSearchBtn');
   const searchModal = document.getElementById('searchModal');
   const searchInput = document.getElementById('searchInput');
@@ -144,6 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
       searchModal.classList.remove('hidden');
       searchInput.focus();
       mobileSearchBtn.classList.add('active');
+    });
+  }
+  
+  // 모바일 상단 검색 버튼 (신규)
+  const mobileTopSearchBtn = document.getElementById('mobileTopSearchBtn');
+  
+  if (mobileTopSearchBtn && searchModal && searchInput) {
+    mobileTopSearchBtn.addEventListener('click', () => {
+      searchModal.classList.remove('hidden');
+      searchInput.focus();
     });
   }
   
@@ -3273,10 +3283,17 @@ async function updateCartCount() {
     
     const cartCount = data.count || 0;
     const cartBadge = document.getElementById('cartCount');
+    const mobileCartBadge = document.getElementById('mobileCartCount');
     
     if (cartBadge) {
       cartBadge.textContent = cartCount;
       cartBadge.style.display = cartCount > 0 ? 'inline-block' : 'none';
+    }
+    
+    // 모바일 상단 장바구니 카운트도 동기화
+    if (mobileCartBadge) {
+      mobileCartBadge.textContent = cartCount;
+      mobileCartBadge.style.display = cartCount > 0 ? 'flex' : 'none';
     }
   } catch (error) {
     console.error('장바구니 개수 업데이트 오류:', error);
