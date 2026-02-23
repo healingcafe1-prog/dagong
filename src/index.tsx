@@ -2192,11 +2192,11 @@ app.get('/', async (c) => {
               </div>
               <span class="category-label">📍 지역별</span>
             </a>
-            <a href="/education/curriculum" class="category-item">
+            <a href="/producers" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-education.svg" alt="다도교육" class="category-image" />
+                <img src="/static/images/category-producer.svg" alt="생산자" class="category-image" />
               </div>
-              <span class="category-label">🎓 다도교육</span>
+              <span class="category-label">👨‍🌾 생산자</span>
             </a>
             <a href="/events" class="category-item">
               <div class="category-image-wrapper">
@@ -2210,11 +2210,11 @@ app.get('/', async (c) => {
               </div>
               <span class="category-label">🏃 체험</span>
             </a>
-            <a href="/producers" class="category-item">
+            <a href="/education/curriculum" class="category-item">
               <div class="category-image-wrapper">
-                <img src="/static/images/category-producer.svg" alt="생산자" class="category-image" />
+                <img src="/static/images/category-education.svg" alt="다도교육" class="category-image" />
               </div>
-              <span class="category-label">👨‍🌾 생산자</span>
+              <span class="category-label">🎓 다도교육</span>
             </a>
           </div>
         </div>
