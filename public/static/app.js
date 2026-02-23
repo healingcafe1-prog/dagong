@@ -186,6 +186,15 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResults.innerHTML = '';
       }
     });
+    
+    // ESC 키로 검색 모달 닫기
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !searchModal.classList.contains('hidden')) {
+        searchModal.classList.add('hidden');
+        searchInput.value = '';
+        searchResults.innerHTML = '';
+      }
+    });
   }
 
   // 검색 기능
@@ -201,6 +210,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
+    // 로딩 표시
+    searchResults.innerHTML = `
+      <div class="text-center text-gray-500 py-8">
+        <i class="fas fa-spinner fa-spin text-4xl mb-3 text-tea-green"></i>
+        <p class="text-sm">검색 중...</p>
+      </div>
+    `;
+    
     searchTimeout = setTimeout(async () => {
       try {
         const response = await axios.get(`/api/search?q=${encodeURIComponent(query)}`);
@@ -212,14 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (results.products && results.products.length > 0) {
           html += '<div class="mb-4"><h4 class="font-bold text-gray-700 mb-2">상품</h4>';
           results.products.forEach(product => {
+            const price = product.price || product.direct_price || 0;
             html += `
-              <a href="/products/${product.id}" class="block p-3 hover:bg-gray-50 rounded">
+              <a href="/products/${product.id}" class="block p-3 hover:bg-gray-50 rounded transition">
                 <div class="flex items-center space-x-3">
                   <i class="fas fa-box text-tea-green"></i>
-                  <div>
-                    <div class="font-medium">${product.name}</div>
-                    <div class="text-sm text-gray-500">${formatPrice(product.price)}</div>
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-800">${product.name}</div>
+                    <div class="text-sm text-tea-green font-semibold">${formatPrice(price)}</div>
                   </div>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
                 </div>
               </a>
             `;
@@ -232,13 +251,14 @@ document.addEventListener('DOMContentLoaded', () => {
           html += '<div class="mb-4"><h4 class="font-bold text-gray-700 mb-2">생산자</h4>';
           results.producers.forEach(producer => {
             html += `
-              <a href="/producers/${producer.id}" class="block p-3 hover:bg-gray-50 rounded">
+              <a href="/producers/${producer.id}" class="block p-3 hover:bg-gray-50 rounded transition">
                 <div class="flex items-center space-x-3">
                   <i class="fas fa-user text-craft-blue"></i>
-                  <div>
-                    <div class="font-medium">${producer.name}</div>
-                    <div class="text-sm text-gray-500">${producer.description || ''}</div>
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-800">${producer.name}</div>
+                    <div class="text-sm text-gray-500">${producer.region || ''}</div>
                   </div>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
                 </div>
               </a>
             `;
@@ -251,13 +271,14 @@ document.addEventListener('DOMContentLoaded', () => {
           html += '<div><h4 class="font-bold text-gray-700 mb-2">지역</h4>';
           results.regions.forEach(region => {
             html += `
-              <a href="/regions/${region.id}" class="block p-3 hover:bg-gray-50 rounded">
+              <a href="/regions/${region.id}" class="block p-3 hover:bg-gray-50 rounded transition">
                 <div class="flex items-center space-x-3">
                   <i class="fas fa-map-marker-alt text-tea-brown"></i>
-                  <div>
-                    <div class="font-medium">${region.name}</div>
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-800">${region.name}</div>
                     <div class="text-sm text-gray-500">${region.description || ''}</div>
                   </div>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
                 </div>
               </a>
             `;
@@ -266,13 +287,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (html === '') {
-          html = '<div class="text-center text-gray-500 py-4">검색 결과가 없습니다.</div>';
+          html = `
+            <div class="text-center text-gray-500 py-8">
+              <i class="fas fa-search text-4xl mb-3 text-gray-400"></i>
+              <p class="text-lg font-medium mb-1">검색 결과가 없습니다</p>
+              <p class="text-sm">다른 검색어로 다시 시도해보세요</p>
+            </div>
+          `;
         }
         
         searchResults.innerHTML = html;
       } catch (error) {
         console.error('검색 오류:', error);
-        searchResults.innerHTML = '<div class="text-center text-red-500 py-4">검색 중 오류가 발생했습니다.</div>';
+        searchResults.innerHTML = `
+          <div class="text-center text-red-500 py-8">
+            <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+            <p class="text-lg font-medium mb-1">검색 중 오류가 발생했습니다</p>
+            <p class="text-sm">잠시 후 다시 시도해주세요</p>
+          </div>
+        `;
       }
     }, 300);
     });
