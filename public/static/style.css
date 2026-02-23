@@ -862,7 +862,11 @@ a:active,
 }
 
 /* ===== 모바일 헤더 ===== */
-.mobile-header {
+.mobile-app nav {
+  display: none !important;
+}
+
+.mobile-app .mobile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -872,6 +876,14 @@ a:active,
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.mobile-header {
+  display: none;
+}
+
+.mobile-app .mobile-header {
+  display: flex;
 }
 
 .mobile-logo {
@@ -932,11 +944,4 @@ a:active,
   border-radius: 10px;
   min-width: 18px;
   text-align: center;
-}
-
-/* PC에서는 모바일 헤더 숨김 */
-@media (min-width: 768px) {
-  .mobile-header {
-    display: none;
-  }
 }
