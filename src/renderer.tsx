@@ -64,7 +64,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet" />
         
         {/* Custom CSS */}
-        <link href="/static/style.css" rel="stylesheet" />
+        <link href={`/static/style.css?v=${Date.now()}`} rel="stylesheet" />
         
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
@@ -421,13 +421,13 @@ export const renderer = jsxRenderer(({ children }) => {
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         
         {/* PWA 초기화 */}
-        <script src="/static/pwa-init.js"></script>
+        <script src={`/static/pwa-init.js?v=${Date.now()}`}></script>
         
         {/* 앱 스크립트 - 캐시 무효화를 위한 타임스탬프 추가 */}
         <script src={`/static/app.js?v=${Date.now()}`}></script>
-        <script src="/static/education-status.js"></script>
-        <script src="/static/producer-forms.js"></script>
-        <script src="/static/mobile.js"></script>
+        <script src={`/static/education-status.js?v=${Date.now()}`}></script>
+        <script src={`/static/producer-forms.js?v=${Date.now()}`}></script>
+        <script src={`/static/mobile.js?v=${Date.now()}`}></script>
       </body>
     </html>
   )
