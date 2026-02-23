@@ -99,8 +99,35 @@ export const renderer = jsxRenderer(({ children }) => {
         }} />
       </head>
       <body class="bg-tea-cream min-h-screen">
-        {/* 네비게이션 바 */}
-        <nav class="bg-white shadow-md sticky top-0 z-50">
+        {/* 모바일 전용 상단 고정 네비게이션 (홈/검색/장바구니/상품등록/마이페이지) */}
+        <div class="md:hidden bg-white shadow-md sticky top-0 z-50 px-4 py-2">
+          <div class="flex items-center justify-around">
+            <a href="/" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
+              <i class="fas fa-home text-xl mb-1"></i>
+              <span class="text-xs">홈</span>
+            </a>
+            <button id="mobileTopSearchBtn" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
+              <i class="fas fa-search text-xl mb-1"></i>
+              <span class="text-xs">검색</span>
+            </button>
+            <a href="/cart" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all relative touch-manipulation" style="min-width: 60px; min-height: 50px;">
+              <i class="fas fa-shopping-cart text-xl mb-1"></i>
+              <span class="text-xs">장바구니</span>
+              <span id="mobileCartCount" class="absolute top-0 right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+            </a>
+            <a href="/producer/register" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
+              <i class="fas fa-plus-circle text-xl mb-1"></i>
+              <span class="text-xs">상품등록</span>
+            </a>
+            <a href="/mypage" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
+              <i class="fas fa-user text-xl mb-1"></i>
+              <span class="text-xs">마이페이지</span>
+            </a>
+          </div>
+        </div>
+        
+        {/* 데스크톱 네비게이션 바 */}
+        <nav class="hidden md:block bg-white shadow-md sticky top-0 z-50">
           <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-20">
               {/* 로고 */}
@@ -323,32 +350,10 @@ export const renderer = jsxRenderer(({ children }) => {
           {children}
         </main>
         
-        {/* 모바일 하단 고정 네비게이션 */}
-        <nav class="mobile-bottom-nav md:hidden">
-          <a href="/" class="mobile-nav-item" data-page="home">
-            <i class="fas fa-home"></i>
-            <span>홈</span>
-          </a>
-          <button id="mobileCategoryBtn" class="mobile-nav-item" data-page="category">
-            <i class="fas fa-th-large"></i>
-            <span>카테고리</span>
-          </button>
-          <button id="mobileSearchBtn" class="mobile-nav-item" data-page="search">
-            <i class="fas fa-search"></i>
-            <span>검색</span>
-          </button>
-          <a href="/producer/register" class="mobile-nav-item" data-page="register">
-            <i class="fas fa-plus-circle"></i>
-            <span>상품등록</span>
-          </a>
-          <a href="/mypage" class="mobile-nav-item" data-page="mypage">
-            <i class="fas fa-user"></i>
-            <span>마이로그인</span>
-          </a>
-        </nav>
+
         
         {/* 푸터 */}
-        <footer class="bg-gray-800 text-white mt-20 mb-20 md:mb-0">
+        <footer class="bg-gray-800 text-white mt-20">
           <div class="container mx-auto px-4 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
