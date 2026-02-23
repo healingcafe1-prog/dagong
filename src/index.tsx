@@ -2125,16 +2125,16 @@ app.get('/api/education/curriculum/:id', async (c) => {
 // 홈 페이지 (SSR with actual data)
 app.get('/', async (c) => {
   try {
-    // 서버에서 데이터 가져오기
+    // 서버에서 데이터 가져오기 (초기 20개 상품 표시)
     const { results: products } = await c.env.DB.prepare(`
       SELECT p.*, c.name as category_name, pr.name as producer_name, r.name as region_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN producers pr ON p.producer_id = pr.id
       LEFT JOIN regions r ON pr.region_id = r.id
-      WHERE p.is_featured = 1 AND p.is_available = 1
+      WHERE p.is_available = 1
       ORDER BY p.created_at DESC
-      LIMIT 8
+      LIMIT 20
     `).all()
 
     // 상품 카드 HTML 생성
@@ -2201,15 +2201,21 @@ app.get('/', async (c) => {
           <div class="container mx-auto px-4">
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-                <i class="fas fa-star text-yellow-500 mr-2"></i>추천 상품
+                <i class="fas fa-star text-yellow-500 mr-2"></i>전체 상품
               </h2>
-              <a href="/products" class="text-tea-green hover:text-green-700 font-medium text-sm md:text-base">
-                전체보기 <i class="fas fa-chevron-right ml-1"></i>
-              </a>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+            <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {productCards}
             </div>
+            {/* 무한 스크롤 로딩 인디케이터 */}
+            <div id="loadingIndicator" class="hidden text-center py-8">
+              <div class="inline-flex items-center space-x-2">
+                <div class="w-8 h-8 border-4 border-tea-green border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-gray-600">더 많은 상품을 불러오는 중...</span>
+              </div>
+            </div>
+            {/* 무한 스크롤 트리거 요소 */}
+            <div id="scrollTrigger" class="h-1"></div>
           </div>
         </section>
       </div>
