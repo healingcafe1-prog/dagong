@@ -2176,25 +2176,73 @@ app.get('/', async (c) => {
             <div class="max-w-3xl mx-auto">
               <i class="fas fa-leaf text-5xl md:text-6xl mb-6 animate-bounce"></i>
               <h1 class="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
-                한국 차 문화,<br class="md:hidden" /> 우리가 함께 쓰는 새로운 문화 혁명
+                한국 차 공예 문화,<br class="md:hidden" /> 우리가 함께 쓰는 새로운 문화 혁명
               </h1>
               <p class="text-lg md:text-xl mb-6 md:mb-8 opacity-90">
                 생산자와 소비자, 함께 만드는 천년의 가치
               </p>
               <p class="text-sm md:text-base mb-8 md:mb-10 opacity-80">
-                당신의 선택이 한국 차 문화를 살립니다
+                당신의 선택이 한국 차 공예품 문화를 만듭니다!
               </p>
-              <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/products?type=tea" class="px-6 md:px-8 py-3 md:py-4 bg-white text-tea-green rounded-full font-bold hover:bg-gray-100 transition text-sm md:text-base">
-                  <i class="fas fa-mug-hot mr-2"></i>차 둘러보기
-                </a>
-                <a href="/products?type=craft" class="px-6 md:px-8 py-3 md:py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-tea-green transition text-sm md:text-base">
-                  <i class="fas fa-palette mr-2"></i>공예품 보기
-                </a>
-              </div>
             </div>
           </div>
         </section>
+
+        {/* 상단 카테고리 바 (히어로 섹션 아래) */}
+        <div class="bg-white border-b border-gray-200 py-3" id="categoryBar">
+          <div class="container mx-auto px-4">
+            <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
+              <a href="/" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-tea-green to-green-600 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-home text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">홈</span>
+              </a>
+              <a href="/products?type=tea" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-tea-green to-green-600 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-mug-hot text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">한국차</span>
+              </a>
+              <a href="/products?type=craft" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-craft-blue to-blue-600 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-palette text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">공예품</span>
+              </a>
+              <a href="/products?type=gift_set" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-tea-brown to-yellow-600 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-gift text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">선물세트</span>
+              </a>
+              <a href="/products?type=local" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-600 to-green-700 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-seedling text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">특산물</span>
+              </a>
+              <a href="/regions" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-700 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-map-marked-alt text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">지역</span>
+              </a>
+              <a href="/experiences" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-600 to-orange-700 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-users text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">체험</span>
+              </a>
+              <a href="/events" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-full flex items-center justify-center mb-2">
+                  <i class="fas fa-star text-white text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">이벤트</span>
+              </a>
+            </div>
+          </div>
+        </div>
 
         {/* 추천 상품 */}
         <section class="py-8 md:py-12">
