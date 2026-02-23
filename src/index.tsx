@@ -2188,10 +2188,10 @@ app.get('/', async (c) => {
           </div>
         </section>
 
-        {/* 상단 카테고리 바 (히어로 섹션 아래) - 2줄 배치 */}
-        <div class="bg-white border-b border-gray-200 py-4" id="categoryBar">
+        {/* 상단 카테고리 바 (히어로 섹션 아래) - 모바일 전용 2줄 배치 */}
+        <div class="md:hidden bg-white border-b border-gray-200 py-4" id="categoryBar">
           <div class="container mx-auto px-4">
-            <div class="grid grid-cols-4 md:grid-cols-7 gap-2 md:gap-4">
+            <div class="grid grid-cols-4 gap-2">
               <a href="/products?type=tea" class="flex flex-col items-center justify-center py-3 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-all">
                 <div class="w-12 h-12 bg-gradient-to-br from-tea-green to-green-600 rounded-full flex items-center justify-center mb-2 shadow-md">
                   <i class="fas fa-mug-hot text-white text-lg"></i>
