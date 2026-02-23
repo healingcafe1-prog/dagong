@@ -98,21 +98,6 @@ a:active {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
-  /* 모바일 상품 카드 최적화 */
-  .aspect-square {
-    aspect-ratio: 1 / 1;
-  }
-}
-
-/* 가로 스크롤 스크롤바 숨김 (마켓컬리 스타일) */
-.hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
 }
 
 /* 프린트 스타일 */
@@ -161,6 +146,11 @@ a:active,
     font-size: 16px; /* iOS 줌 방지 */
   }
   
+  /* 헤더 고정 높이 */
+  nav {
+    height: 64px;
+  }
+  
   /* 카드 간격 축소 */
   .grid {
     gap: 0.75rem;
@@ -180,52 +170,48 @@ a:active,
     font-size: 16px; /* iOS 줌 방지 */
     padding: 12px;
   }
-  
-  /* 터치 영역 최적화 */
-  .touch-manipulation {
-    -webkit-tap-highlight-color: rgba(124, 148, 115, 0.2);
-    touch-action: manipulation;
-  }
-}
-  }
-  
-  /* 터치 영역 최적화 */
-  .touch-manipulation {
-    -webkit-tap-highlight-color: rgba(124, 148, 115, 0.2);
-    touch-action: manipulation;
-  }
-}
-  
-  /* Body도 패딩 추가 */
-  body {
-    padding-bottom: 0 !important;
-  }
 }
 
-/* 모바일 카테고리 바 애니메이션 */
+/* 하단 네비게이션 바 (모바일) */
 @media (max-width: 768px) {
-  #mobileCategoryBar {
-    transition: all 0.3s ease;
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    padding: 8px 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
   }
   
-  #mobileCategoryBar.show {
-    display: block !important;
-    animation: slideDown 0.3s ease-out;
+  .mobile-bottom-nav a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    color: #666;
+    text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s;
   }
   
-  #mobileCategoryBar.hide {
-    animation: slideUp 0.3s ease-out;
+  .mobile-bottom-nav a.active {
+    color: #7c9473;
   }
   
-  @keyframes slideDown {
-    from {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+  .mobile-bottom-nav i {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  /* 하단 네비 때문에 컨텐츠 여백 추가 */
+  main {
+    padding-bottom: 80px;
   }
 }
 

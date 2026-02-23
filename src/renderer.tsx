@@ -64,7 +64,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet" />
         
         {/* Custom CSS */}
-        <link href={`/static/style.css?v=${Date.now()}`} rel="stylesheet" />
+        <link href="/static/style.css" rel="stylesheet" />
         
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
@@ -99,35 +99,8 @@ export const renderer = jsxRenderer(({ children }) => {
         }} />
       </head>
       <body class="bg-tea-cream min-h-screen">
-        {/* 모바일 전용 상단 고정 네비게이션 (홈/검색/장바구니/상품등록/마이페이지) */}
-        <div class="md:hidden bg-white shadow-md sticky top-0 z-50 px-4 py-2">
-          <div class="flex items-center justify-around">
-            <a href="/" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
-              <i class="fas fa-home text-xl mb-1"></i>
-              <span class="text-xs">홈</span>
-            </a>
-            <button id="mobileTopSearchBtn" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
-              <i class="fas fa-search text-xl mb-1"></i>
-              <span class="text-xs">검색</span>
-            </button>
-            <a href="/cart" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all relative touch-manipulation" style="min-width: 60px; min-height: 50px;">
-              <i class="fas fa-shopping-cart text-xl mb-1"></i>
-              <span class="text-xs">장바구니</span>
-              <span id="mobileCartCount" class="absolute top-0 right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold" style="display: none;">0</span>
-            </a>
-            <a href="/producer/register" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
-              <i class="fas fa-plus-circle text-xl mb-1"></i>
-              <span class="text-xs">상품등록</span>
-            </a>
-            <a href="/mypage" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition-all touch-manipulation" style="min-width: 60px; min-height: 50px;">
-              <i class="fas fa-user text-xl mb-1"></i>
-              <span class="text-xs">마이페이지</span>
-            </a>
-          </div>
-        </div>
-        
-        {/* 데스크톱 네비게이션 바 */}
-        <nav class="hidden md:block bg-white shadow-md sticky top-0 z-50">
+        {/* 네비게이션 바 */}
+        <nav class="bg-white shadow-md sticky top-0 z-50">
           <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-20">
               {/* 로고 */}
@@ -323,34 +296,8 @@ export const renderer = jsxRenderer(({ children }) => {
         
         {/* 메인 콘텐츠 */}
         <main class="min-h-screen">
-          {/* JavaScript 비활성화 시 안내 */}
-          <noscript>
-            <div class="max-w-2xl mx-auto mt-10 p-6 bg-yellow-50 border-2 border-yellow-400 rounded-lg shadow-lg">
-              <div class="text-center mb-4">
-                <i class="fas fa-exclamation-triangle text-5xl text-yellow-600"></i>
-              </div>
-              <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">JavaScript가 비활성화되어 있습니다</h2>
-              <p class="text-gray-700 mb-4 text-center text-sm">이 웹사이트는 정상 작동을 위해 JavaScript가 필요합니다.</p>
-              <div class="space-y-2 bg-white p-4 rounded text-sm">
-                <p class="font-semibold text-gray-800">해결 방법:</p>
-                <p class="text-gray-700">1️⃣ <strong>Instagram에서 접속 중이라면:</strong></p>
-                <p class="text-gray-600 ml-4">• 상단 우측 메뉴 (⋯) → "브라우저에서 열기" 클릭</p>
-                <p class="text-gray-600 ml-4">• 또는 URL을 복사하여 Chrome/Safari에서 직접 열기</p>
-                <p class="text-gray-700 mt-3">2️⃣ <strong>일반 브라우저 사용:</strong></p>
-                <p class="text-gray-600 ml-4">• Chrome, Safari, Firefox 등의 브라우저로 접속</p>
-                <p class="text-gray-600 ml-4">• 브라우저 설정에서 JavaScript 활성화</p>
-              </div>
-              <div class="mt-4 text-center">
-                <a href="https://dagong.co.kr" class="inline-block px-6 py-3 bg-tea-green text-white rounded-lg font-medium">
-                  일반 브라우저로 열기 →
-                </a>
-              </div>
-            </div>
-          </noscript>
           {children}
         </main>
-        
-
         
         {/* 푸터 */}
         <footer class="bg-gray-800 text-white mt-20">
@@ -397,13 +344,13 @@ export const renderer = jsxRenderer(({ children }) => {
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         
         {/* PWA 초기화 */}
-        <script src={`/static/pwa-init.js?v=${Date.now()}`}></script>
+        <script src="/static/pwa-init.js"></script>
         
         {/* 앱 스크립트 - 캐시 무효화를 위한 타임스탬프 추가 */}
         <script src={`/static/app.js?v=${Date.now()}`}></script>
-        <script src={`/static/education-status.js?v=${Date.now()}`}></script>
-        <script src={`/static/producer-forms.js?v=${Date.now()}`}></script>
-        <script src={`/static/mobile.js?v=${Date.now()}`}></script>
+        <script src="/static/education-status.js"></script>
+        <script src="/static/producer-forms.js"></script>
+        <script src="/static/mobile.js"></script>
       </body>
     </html>
   )
