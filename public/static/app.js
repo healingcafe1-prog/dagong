@@ -4451,15 +4451,25 @@ async function loadMoreProducts() {
   isLoading = true;
   const loadingIndicator = document.getElementById('loadingIndicator');
   const productGrid = document.getElementById('productGrid');
+  const scrollTrigger = document.getElementById('scrollTrigger');
   
-  if (!productGrid) return; // 홈페이지가 아니면 중단
+  if (!productGrid) return; // 상품 그리드가 없으면 중단
   
   if (loadingIndicator) {
     loadingIndicator.classList.remove('hidden');
   }
   
   try {
-    const response = await axios.get(`/api/products?limit=20&offset=${currentPage * 20}`);
+    // scrollTrigger에서 type과 category_id 가져오기
+    const type = scrollTrigger?.getAttribute('data-type') || '';
+    const categoryId = scrollTrigger?.getAttribute('data-category-id') || '';
+    
+    // API URL 구성
+    let apiUrl = `/api/products?limit=20&offset=${currentPage * 20}`;
+    if (type) apiUrl += `&type=${type}`;
+    if (categoryId) apiUrl += `&category_id=${categoryId}`;
+    
+    const response = await axios.get(apiUrl);
     const { products } = response.data;
     
     if (products && products.length > 0) {
