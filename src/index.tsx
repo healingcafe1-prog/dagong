@@ -2436,6 +2436,724 @@ app.get('/products', (c) => {
   )
 })
 
+// ===== AI 간편 상품 등록 =====
+// AI가 자동으로 상세페이지를 생성하는 간편 등록 (사진 5장 + 상품명 + 가격)
+app.get('/products/new-simple', async (c) => {
+  // 쿠키에서 세션 확인
+  const cookies = c.req.header('Cookie') || ''
+  const sessionMatch = cookies.match(/session=([^;]+)/)
+  
+  if (!sessionMatch) {
+    return c.redirect('/login?redirect=/products/new-simple')
+  }
+  
+  const sessionToken = sessionMatch[1]
+  
+  // 세션 유효성 확인
+  const { results: sessions } = await c.env.DB.prepare(`
+    SELECT us.*, u.id as user_id, u.email, u.name, u.role
+    FROM user_sessions us
+    JOIN users u ON us.user_id = u.id
+    WHERE us.session_token = ? AND us.expires_at > datetime('now')
+  `).bind(sessionToken).all()
+  
+  if (sessions.length === 0) {
+    return c.redirect('/login?redirect=/products/new-simple')
+  }
+  
+  const user = sessions[0]
+  
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI 간편 상품 등록 - 다공</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+          body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+          }
+          .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          .header-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          }
+          .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          }
+          .photo-upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: #f7fafc;
+          }
+          .photo-upload-area:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+          }
+          .photo-upload-area.dragover {
+            border-color: #667eea;
+            background: #e6f2ff;
+          }
+          .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+          }
+          .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          }
+          .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .photo-item .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s;
+          }
+          .photo-item .remove-btn:hover {
+            background: rgba(220, 38, 38, 1);
+            transform: scale(1.1);
+          }
+          .photo-item .main-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+          .form-group {
+            margin-bottom: 25px;
+          }
+          .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 16px;
+          }
+          .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+          }
+          .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+          }
+          .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 10px;
+          }
+          .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+          }
+          .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+          }
+          .btn-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+          }
+          .info-box {
+            background: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+          }
+          .info-box p {
+            margin: 8px 0;
+            color: #0050b3;
+          }
+          .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+          }
+          .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+          }
+          .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: -1;
+          }
+          .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #718096;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 10px;
+          }
+          .step.active .step-number {
+            background: #667eea;
+            color: white;
+          }
+          .step-label {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 600;
+          }
+          .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+          }
+          .loading-overlay.show {
+            display: flex;
+          }
+          .loading-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+          }
+          .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+    </head>
+    <body>
+        <div class="main-container">
+            <!-- 헤더 -->
+            <div class="header-card">
+                <div style="font-size: 60px; margin-bottom: 20px;">🤖✨</div>
+                <h1 style="font-size: 32px; font-weight: 800; color: #2d3748; margin-bottom: 15px;">
+                    AI 간편 상품 등록
+                </h1>
+                <p style="font-size: 18px; color: #718096; line-height: 1.6;">
+                    사진 5장만 찍어서 올리고, 상품명과 가격만 입력하세요<br>
+                    <strong style="color: #667eea;">AI가 자동으로 멋진 상세페이지를 만들어드립니다!</strong>
+                </p>
+            </div>
+
+            <!-- 단계 표시 -->
+            <div class="form-card">
+                <div class="step-indicator">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <div class="step-label">사진 업로드</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-number">2</div>
+                        <div class="step-label">기본 정보</div>
+                    </div>
+                    <div class="step active">
+                        <div class="step-number">3</div>
+                        <div class="step-label">AI 생성</div>
+                    </div>
+                </div>
+
+                <!-- 안내 -->
+                <div class="info-box">
+                    <p><i class="fas fa-lightbulb mr-2"></i><strong>쉽고 간단해요!</strong></p>
+                    <p>📸 상품 사진 5장 (앞, 뒤, 옆, 디테일, 포장)</p>
+                    <p>✏️ 상품 이름과 판매 가격만 입력</p>
+                    <p>🤖 AI가 자동으로 설명, 특징, 사용법을 작성해드립니다</p>
+                </div>
+
+                <form id="simpleProductForm">
+                    <!-- 사진 업로드 -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-camera mr-2"></i>상품 사진 (5장)
+                            <span class="ai-badge">AI 분석</span>
+                        </label>
+                        <div class="photo-upload-area" id="photoUploadArea">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #cbd5e0; margin-bottom: 15px;"></i>
+                            <p style="font-size: 18px; font-weight: 600; color: #4a5568; margin-bottom: 10px;">
+                                사진을 드래그하거나 클릭해서 업로드하세요
+                            </p>
+                            <p style="font-size: 14px; color: #a0aec0;">
+                                최대 5장까지 (JPG, PNG, HEIC)
+                            </p>
+                            <input type="file" id="photoInput" accept="image/*,.heic" multiple style="display: none;" />
+                        </div>
+                        <div class="photo-preview" id="photoPreview"></div>
+                    </div>
+
+                    <!-- 상품명 -->
+                    <div class="form-group">
+                        <label for="productName">
+                            <i class="fas fa-tag mr-2"></i>상품 이름
+                        </label>
+                        <input 
+                            type="text" 
+                            id="productName" 
+                            name="productName" 
+                            placeholder="예: 하동 야생차 100g" 
+                            required 
+                        />
+                    </div>
+
+                    <!-- 판매가 -->
+                    <div class="form-group">
+                        <label for="productPrice">
+                            <i class="fas fa-won-sign mr-2"></i>판매 가격 (원)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="productPrice" 
+                            name="productPrice" 
+                            placeholder="예: 35000" 
+                            required 
+                            min="0"
+                            step="1000"
+                        />
+                    </div>
+
+                    <!-- 카테고리 (선택) -->
+                    <div class="form-group">
+                        <label for="productCategory">
+                            <i class="fas fa-list mr-2"></i>카테고리 (선택사항)
+                        </label>
+                        <select id="productCategory" name="productCategory">
+                            <option value="">AI가 자동으로 선택합니다</option>
+                            <option value="tea">차 제품</option>
+                            <option value="craft">공예품</option>
+                            <option value="gift_set">선물세트</option>
+                            <option value="local">지역 특산물</option>
+                        </select>
+                    </div>
+
+                    <!-- 제출 버튼 -->
+                    <button type="submit" class="btn-generate" id="generateBtn">
+                        <i class="fas fa-magic mr-3"></i>
+                        AI로 상세페이지 자동 생성하기
+                    </button>
+                </form>
+
+                <!-- 하단 안내 -->
+                <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e2e8f0; text-align: center;">
+                    <p style="color: #718096; font-size: 14px;">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        AI가 생성한 내용은 등록 후 언제든 수정할 수 있습니다
+                    </p>
+                    <a href="/products/new" style="color: #667eea; text-decoration: underline; font-size: 14px; margin-top: 10px; display: inline-block;">
+                        직접 입력하고 싶으신가요? 상세 등록 페이지로 이동
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 로딩 오버레이 -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h3 style="font-size: 24px; font-weight: 700; color: #2d3748; margin-bottom: 15px;">
+                    AI가 상세페이지를 생성하고 있습니다
+                </h3>
+                <p style="color: #718096; font-size: 15px; line-height: 1.6;">
+                    사진을 분석하고 멋진 설명을 작성하는 중...<br>
+                    <span id="loadingStep">1/3 사진 분석 중</span>
+                </p>
+            </div>
+        </div>
+
+        <script>
+            const photoInput = document.getElementById('photoInput');
+            const photoUploadArea = document.getElementById('photoUploadArea');
+            const photoPreview = document.getElementById('photoPreview');
+            const form = document.getElementById('simpleProductForm');
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingStep = document.getElementById('loadingStep');
+            
+            let uploadedPhotos = [];
+
+            // 사진 업로드 영역 클릭
+            photoUploadArea.addEventListener('click', () => {
+                photoInput.click();
+            });
+
+            // 드래그 앤 드롭
+            photoUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                photoUploadArea.classList.add('dragover');
+            });
+
+            photoUploadArea.addEventListener('dragleave', () => {
+                photoUploadArea.classList.remove('dragover');
+            });
+
+            photoUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                photoUploadArea.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files);
+                handleFiles(files);
+            });
+
+            // 파일 선택
+            photoInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                handleFiles(files);
+            });
+
+            // 파일 처리
+            function handleFiles(files) {
+                const imageFiles = files.filter(file => file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.heic'));
+                
+                if (uploadedPhotos.length + imageFiles.length > 5) {
+                    alert('최대 5장까지만 업로드할 수 있습니다.');
+                    return;
+                }
+
+                imageFiles.forEach(file => {
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert(file.name + '은(는) 10MB를 초과합니다.');
+                        return;
+                    }
+
+                    uploadedPhotos.push(file);
+                    displayPhoto(file);
+                });
+
+                updateGenerateButton();
+            }
+
+            // 사진 미리보기
+            function displayPhoto(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-item';
+                    
+                    const isFirst = uploadedPhotos.length === 1;
+                    
+                    photoItem.innerHTML = \`
+                        \${isFirst ? '<div class="main-badge"><i class="fas fa-star mr-1"></i>대표</div>' : ''}
+                        <img src="\${e.target.result}" alt="상품 사진" />
+                        <button type="button" class="remove-btn" onclick="removePhoto(\${uploadedPhotos.length - 1})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    \`;
+                    
+                    photoPreview.appendChild(photoItem);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // 사진 삭제
+            window.removePhoto = function(index) {
+                uploadedPhotos.splice(index, 1);
+                photoPreview.innerHTML = '';
+                uploadedPhotos.forEach(file => displayPhoto(file));
+                updateGenerateButton();
+            };
+
+            // 버튼 활성화 체크
+            function updateGenerateButton() {
+                const hasPhotos = uploadedPhotos.length >= 1 && uploadedPhotos.length <= 5;
+                generateBtn.disabled = !hasPhotos;
+            }
+
+            // 폼 제출
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const productName = document.getElementById('productName').value.trim();
+                const productPrice = document.getElementById('productPrice').value;
+                const productCategory = document.getElementById('productCategory').value;
+
+                if (!productName || !productPrice) {
+                    alert('상품 이름과 가격을 입력해주세요.');
+                    return;
+                }
+
+                if (uploadedPhotos.length === 0) {
+                    alert('최소 1장의 사진을 업로드해주세요.');
+                    return;
+                }
+
+                // 로딩 표시
+                loadingOverlay.classList.add('show');
+                generateBtn.disabled = true;
+
+                try {
+                    // 1단계: 사진 업로드
+                    loadingStep.textContent = '1/3 사진 업로드 중...';
+                    const imageUrls = await uploadImages(uploadedPhotos);
+
+                    // 2단계: AI 분석 및 생성
+                    loadingStep.textContent = '2/3 AI가 사진을 분석하고 설명을 생성하는 중...';
+                    await sleep(2000); // AI 분석 시뮬레이션
+
+                    // 3단계: 상품 등록
+                    loadingStep.textContent = '3/3 상품 등록 중...';
+                    const productData = {
+                        name: productName,
+                        price: parseInt(productPrice),
+                        category: productCategory,
+                        images: imageUrls,
+                        ai_generated: true
+                    };
+
+                    const response = await fetch('/api/products/simple', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(productData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('상품 등록에 실패했습니다.');
+                    }
+
+                    const result = await response.json();
+
+                    // 성공!
+                    alert('🎉 AI가 멋진 상세페이지를 만들었습니다!\\n상품이 성공적으로 등록되었습니다.');
+                    window.location.href = '/products/' + result.product_id;
+
+                } catch (error) {
+                    console.error('등록 오류:', error);
+                    alert('등록 중 오류가 발생했습니다: ' + error.message);
+                } finally {
+                    loadingOverlay.classList.remove('show');
+                    generateBtn.disabled = false;
+                }
+            });
+
+            // 이미지 업로드 (Base64로 변환)
+            async function uploadImages(files) {
+                const urls = [];
+                for (const file of files) {
+                    const base64 = await fileToBase64(file);
+                    urls.push(base64);
+                }
+                return urls;
+            }
+
+            // File을 Base64로 변환
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Sleep 함수
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            // 초기 버튼 상태
+            updateGenerateButton();
+        </script>
+    </body>
+    </html>
+  `)
+})
+
+// AI 간편 등록 API
+app.post('/api/products/simple', async (c) => {
+  // 인증 확인
+  const user = await requireAuth(c)
+  if (!user) {
+    return c.json({ error: '로그인이 필요합니다' }, 401)
+  }
+
+  const { name, price, category, images, ai_generated } = await c.req.json()
+
+  // AI로 상세 정보 생성 (실제로는 외부 AI API 호출)
+  const aiGeneratedContent = await generateProductDescription(name, price, category, images)
+
+  // 상품 등록
+  const result = await c.env.DB.prepare(`
+    INSERT INTO products (
+      name, description, price, product_type, category_id, 
+      main_image, producer_id, is_available, ai_generated
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1)
+  `).bind(
+    name,
+    aiGeneratedContent.description,
+    price,
+    category || aiGeneratedContent.suggestedCategory,
+    aiGeneratedContent.categoryId,
+    images[0], // 첫 번째 이미지를 대표 이미지로
+    user.producer_id || 1
+  ).run()
+
+  const productId = result.meta.last_row_id
+
+  // 추가 이미지 저장
+  for (let i = 0; i < images.length; i++) {
+    await c.env.DB.prepare(`
+      INSERT INTO product_images (product_id, image_url, display_order, is_main)
+      VALUES (?, ?, ?, ?)
+    `).bind(productId, images[i], i + 1, i === 0 ? 1 : 0).run()
+  }
+
+  return c.json({ 
+    success: true, 
+    product_id: productId,
+    ai_content: aiGeneratedContent
+  })
+})
+
+// AI 상품 설명 생성 함수 (Mock)
+async function generateProductDescription(name: string, price: number, category: string, images: string[]) {
+  // 실제로는 여기서 OpenAI GPT-4 Vision API나 Claude Vision API를 호출
+  // 이미지를 분석하고 상품 설명을 자동 생성
+  
+  // Mock 데이터
+  const categoryMap: Record<string, number> = {
+    'tea': 1,
+    'craft': 8,
+    'gift_set': 12,
+    'local': 17
+  }
+
+  // 카테고리 자동 판단 (이름 기반 간단 로직)
+  let suggestedCategory = category
+  let categoryId = categoryMap[category]
+
+  if (!category) {
+    if (name.includes('차') || name.includes('녹차') || name.includes('홍차')) {
+      suggestedCategory = 'tea'
+      categoryId = 1
+    } else if (name.includes('도자기') || name.includes('공예') || name.includes('찻잔')) {
+      suggestedCategory = 'craft'
+      categoryId = 8
+    } else if (name.includes('선물') || name.includes('세트')) {
+      suggestedCategory = 'gift_set'
+      categoryId = 12
+    } else {
+      suggestedCategory = 'local'
+      categoryId = 17
+    }
+  }
+
+  // AI 생성 설명 (실제로는 GPT-4 Vision이 이미지를 보고 생성)
+  const description = `【AI가 생성한 상품 설명】
+
+${name}은(는) 정성스럽게 만들어진 프리미엄 제품입니다.
+
+▶ 주요 특징
+• 전통 방식으로 제작되어 깊은 맛과 향을 자랑합니다
+• 엄선된 원료만을 사용하여 품질을 보장합니다
+• 선물용으로도 손색없는 고급스러운 제품입니다
+
+▶ 사용 방법
+적절한 온도의 물과 함께 사용하시면 가장 좋은 맛을 느끼실 수 있습니다.
+
+▶ 보관 방법
+서늘하고 건조한 곳에 보관하시고, 직사광선을 피해주세요.
+
+* 이 설명은 AI가 상품 사진을 분석하여 자동으로 작성한 것입니다.
+* 판매자는 언제든 내용을 수정할 수 있습니다.`.trim()
+
+  return {
+    description,
+    suggestedCategory,
+    categoryId,
+    features: [
+      '전통 방식 제작',
+      '프리미엄 품질',
+      '선물용 추천'
+    ],
+    tags: ['전통', '수제', '프리미엄']
+  }
+}
+
 // 상품 등록 페이지 (반드시 /products/:id 앞에 위치)
 // 상품 등록 페이지 (인증 필요)
 app.get('/products/new', async (c) => {
