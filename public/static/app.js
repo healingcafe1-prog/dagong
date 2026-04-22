@@ -4713,8 +4713,8 @@ if (window.location.pathname === '/') {
   if (!document.getElementById('kakaoInvitePopup')) {
     const popupHTML = `
       <!-- 카카오톡 친구초대 팝업 -->
-      <div id="kakaoInvitePopup" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+      <div id="kakaoInvitePopup" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onclick="closeKakaoInvitePopup()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onclick="event.stopPropagation()">
           <!-- 헤더 -->
           <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 text-white relative">
             <button onclick="closeKakaoInvitePopup()" class="absolute top-4 right-4 text-white hover:text-gray-200 transition">
