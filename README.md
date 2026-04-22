@@ -34,6 +34,12 @@
 - **프로젝트 백업 v1.1**: https://www.genspark.ai/api/files/s/F2VbznS8
 - **프로젝트 백업 v1.0**: https://www.genspark.ai/api/files/s/pWT2nsI1
 
+### 🤖 자동 배포 시스템
+- **자동 백업**: 매일 새벽 04:55 (KST)
+- **자동 배포**: 매일 새벽 05:00 (KST)
+- **수동 배포**: `main` 브랜치 푸시 시 즉시
+- **상세 가이드**: [AUTO_DEPLOY_GUIDE.md](./AUTO_DEPLOY_GUIDE.md)
+
 ### 📅 최종본 업데이트 이력
 
 #### **v1.1 (2025-04-23)** 🎉 **최신 최종본**
@@ -48,6 +54,10 @@
   - 전체 60개 샘플 상품 품절 처리
   - 품절 UI 개선 (이미지 오버레이 제거 → 상품명 옆 작은 배지)
   - 신상품 우선 정렬 (created_at DESC)
+- **자동 배포 시스템**: 🤖 NEW!
+  - GitHub Actions 자동 배포 (매일 새벽 5시)
+  - 자동 백업 (매일 새벽 4시 55분)
+  - Git 태그 자동 생성
 - **UI/UX 개선**:
   - 회사소개 아이콘 변경 (🏢 → ℹ️)
   - 인스타그램: @korea_teacraft

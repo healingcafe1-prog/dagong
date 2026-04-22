@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "wrangler pages dev dist",
     "deploy": "npm run build && wrangler pages deploy dist",
-    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name chadirect",
+    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name dagong",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "db:migrate:local": "wrangler d1 migrations apply webapp-production --local",
     "db:migrate:prod": "wrangler d1 migrations apply webapp-production",
@@ -15,7 +15,9 @@
     "db:reset": "rm -rf .wrangler/state/v3/d1 && npm run db:migrate:local && npm run db:seed",
     "db:console:local": "wrangler d1 execute webapp-production --local",
     "clean-port": "fuser -k 3000/tcp 2>/dev/null || true",
-    "git:commit": "git add . && git commit -m"
+    "git:commit": "git add . && git commit -m",
+    "git:push": "git push origin main",
+    "auto:test": "echo '🤖 Testing auto-deployment setup...' && npm run build"
   },
   "dependencies": {
     "hono": "^4.11.3"

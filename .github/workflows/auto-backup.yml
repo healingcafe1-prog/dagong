@@ -1,0 +1,75 @@
+name: Auto Backup and Tag
+
+on:
+  # 매일 새벽 4시 55분 (배포 5분 전 백업)
+  schedule:
+    - cron: '55 19 * * *'  # UTC 19:55 = KST 04:55 다음날
+  
+  # 수동 실행 가능
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    name: Create Daily Backup
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Create backup tag
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          
+          # 날짜 기반 태그 생성
+          DATE=$(date +'%Y%m%d')
+          TAG_NAME="backup-${DATE}"
+          
+          # 커밋 카운트 확인
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          
+          # 태그 생성
+          git tag -a "$TAG_NAME" -m "🔄 Daily backup on $(date +'%Y-%m-%d') - Total commits: $COMMIT_COUNT"
+          
+          # 태그 푸시 (실패해도 계속 진행)
+          git push origin "$TAG_NAME" || echo "Tag already exists or push failed"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create release archive
+        run: |
+          DATE=$(date +'%Y%m%d')
+          ARCHIVE_NAME="dagong-backup-${DATE}.tar.gz"
+          
+          # node_modules 제외하고 압축
+          tar -czf "$ARCHIVE_NAME" \
+            --exclude='node_modules' \
+            --exclude='.wrangler' \
+            --exclude='dist' \
+            .
+          
+          echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
+          echo "DATE=$DATE" >> $GITHUB_ENV
+      
+      - name: Upload backup as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-backup-${{ env.DATE }}
+          path: ${{ env.ARCHIVE_NAME }}
+          retention-days: 30  # 30일 보관
+      
+      - name: Backup summary
+        run: |
+          echo "✅ Backup created successfully"
+          echo "📅 Date: $(date +'%Y-%m-%d %H:%M:%S KST')"
+          echo "📦 Archive: ${{ env.ARCHIVE_NAME }}"
+          echo "🏷️ Tag: backup-${{ env.DATE }}"
+          echo "💾 Files will be kept for 30 days"
