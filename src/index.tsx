@@ -6028,6 +6028,344 @@ app.get('/', (c) => {
   )
 })
 
+// ===== 포인트 시스템 API =====
+
+// 내 포인트 조회
+app.get('/api/points/me', authMiddleware, async (c) => {
+  const user = c.get('user') as any
+  
+  // 포인트 정보 조회
+  let userPoints = await c.env.DB.prepare(
+    'SELECT * FROM user_points WHERE user_id = ?'
+  ).bind(user.user_id).first()
+  
+  // 포인트 정보가 없으면 생성
+  if (!userPoints) {
+    await c.env.DB.prepare(`
+      INSERT INTO user_points (user_id, total_points, available_points, used_points, withdrawn_points)
+      VALUES (?, 0, 0, 0, 0)
+    `).bind(user.user_id).run()
+    
+    userPoints = {
+      user_id: user.user_id,
+      total_points: 0,
+      available_points: 0,
+      used_points: 0,
+      withdrawn_points: 0
+    }
+  }
+  
+  // 최근 거래 내역 조회 (최근 10건)
+  const { results: recentTransactions } = await c.env.DB.prepare(`
+    SELECT * FROM point_transactions 
+    WHERE user_id = ? 
+    ORDER BY created_at DESC 
+    LIMIT 10
+  `).bind(user.user_id).all()
+  
+  // 추천인 정보 조회
+  const referralInfo = await c.env.DB.prepare(
+    'SELECT referrer_id, total_referral_earnings FROM user_referrals WHERE referred_user_id = ?'
+  ).bind(user.user_id).first()
+  
+  // 내가 추천한 사람들 수
+  const referredCount = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM user_referrals WHERE referrer_id = ?'
+  ).bind(user.user_id).first() as any
+  
+  return c.json({
+    points: userPoints,
+    recent_transactions: recentTransactions,
+    referral_info: referralInfo,
+    referred_count: referredCount?.count || 0,
+    cash_conversion: {
+      points_required: 600000,
+      cash_amount: 50000,
+      can_withdraw: (userPoints as any).available_points >= 600000
+    }
+  })
+})
+
+// 포인트 거래 내역 조회 (페이징)
+app.get('/api/points/transactions', authMiddleware, async (c) => {
+  const user = c.get('user') as any
+  const limit = parseInt(c.req.query('limit') || '20')
+  const offset = parseInt(c.req.query('offset') || '0')
+  const type = c.req.query('type') // 거래 유형 필터
+  
+  let query = 'SELECT * FROM point_transactions WHERE user_id = ?'
+  const params: any[] = [user.user_id]
+  
+  if (type) {
+    query += ' AND transaction_type = ?'
+    params.push(type)
+  }
+  
+  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?'
+  params.push(limit, offset)
+  
+  const { results } = await c.env.DB.prepare(query).bind(...params).all()
+  
+  // 전체 개수 조회
+  let countQuery = 'SELECT COUNT(*) as total FROM point_transactions WHERE user_id = ?'
+  const countParams: any[] = [user.user_id]
+  
+  if (type) {
+    countQuery += ' AND transaction_type = ?'
+    countParams.push(type)
+  }
+  
+  const total = await c.env.DB.prepare(countQuery).bind(...countParams).first() as any
+  
+  return c.json({
+    transactions: results,
+    pagination: {
+      total: total?.total || 0,
+      limit,
+      offset,
+      has_more: (total?.total || 0) > offset + limit
+    }
+  })
+})
+
+// 포인트 현금 출금 신청
+app.post('/api/points/withdraw', authMiddleware, async (c) => {
+  const user = c.get('user') as any
+  const data = await c.req.json()
+  
+  // 필수 필드 검증
+  if (!data.bank_name || !data.account_number || !data.account_holder) {
+    return c.json({ error: '은행명, 계좌번호, 예금주를 모두 입력해주세요' }, 400)
+  }
+  
+  // 포인트 정보 조회
+  const userPoints = await c.env.DB.prepare(
+    'SELECT * FROM user_points WHERE user_id = ?'
+  ).bind(user.user_id).first() as any
+  
+  if (!userPoints || userPoints.available_points < 600000) {
+    return c.json({ 
+      error: '출금 가능한 포인트가 부족합니다. 600,000P 이상 필요합니다',
+      available_points: userPoints?.available_points || 0,
+      required_points: 600000
+    }, 400)
+  }
+  
+  // 트랜잭션 시작
+  try {
+    // 1. 포인트 차감
+    await c.env.DB.prepare(`
+      UPDATE user_points 
+      SET available_points = available_points - 600000,
+          withdrawn_points = withdrawn_points + 600000,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = ?
+    `).bind(user.user_id).run()
+    
+    // 2. 출금 신청 생성
+    const withdrawal = await c.env.DB.prepare(`
+      INSERT INTO point_withdrawals 
+      (user_id, points, cash_amount, bank_name, account_number, account_holder, status)
+      VALUES (?, 600000, 50000, ?, ?, ?, 'pending')
+    `).bind(user.user_id, data.bank_name, data.account_number, data.account_holder).run()
+    
+    // 3. 포인트 거래 내역 추가
+    const newBalance = userPoints.available_points - 600000
+    await c.env.DB.prepare(`
+      INSERT INTO point_transactions 
+      (user_id, transaction_type, points, balance_after, description)
+      VALUES (?, 'withdraw', -600000, ?, '현금 출금 신청 (50,000원)')
+    `).bind(user.user_id, newBalance).run()
+    
+    return c.json({
+      success: true,
+      withdrawal_id: (withdrawal.meta as any).last_row_id,
+      points_withdrawn: 600000,
+      cash_amount: 50000,
+      remaining_points: newBalance,
+      message: '출금 신청이 완료되었습니다. 영업일 기준 3-5일 내 처리됩니다.'
+    })
+  } catch (error) {
+    return c.json({ error: '출금 신청 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 출금 신청 내역 조회
+app.get('/api/points/withdrawals', authMiddleware, async (c) => {
+  const user = c.get('user') as any
+  
+  const { results } = await c.env.DB.prepare(`
+    SELECT * FROM point_withdrawals 
+    WHERE user_id = ? 
+    ORDER BY requested_at DESC
+  `).bind(user.user_id).all()
+  
+  return c.json({ withdrawals: results })
+})
+
+// 추천인 코드로 가입 처리 (회원가입 시 호출)
+app.post('/api/referrals/register', authMiddleware, async (c) => {
+  const user = c.get('user') as any
+  const { referrer_code } = await c.req.json()
+  
+  if (!referrer_code) {
+    return c.json({ error: '추천인 코드가 없습니다' }, 400)
+  }
+  
+  // 추천인 존재 확인
+  const referrer = await c.env.DB.prepare(
+    'SELECT user_id FROM users WHERE referral_code = ?'
+  ).bind(referrer_code).first() as any
+  
+  if (!referrer) {
+    return c.json({ error: '유효하지 않은 추천인 코드입니다' }, 404)
+  }
+  
+  // 자기 자신을 추천인으로 등록 방지
+  if (referrer.user_id === user.user_id) {
+    return c.json({ error: '자기 자신을 추천인으로 등록할 수 없습니다' }, 400)
+  }
+  
+  // 이미 추천인이 등록되어 있는지 확인
+  const existing = await c.env.DB.prepare(
+    'SELECT * FROM user_referrals WHERE referred_user_id = ?'
+  ).bind(user.user_id).first()
+  
+  if (existing) {
+    return c.json({ error: '이미 추천인이 등록되어 있습니다' }, 400)
+  }
+  
+  try {
+    // 1. 추천 관계 생성
+    await c.env.DB.prepare(`
+      INSERT INTO user_referrals (referrer_id, referred_user_id, signup_bonus_given)
+      VALUES (?, ?, 1)
+    `).bind(referrer.user_id, user.user_id).run()
+    
+    // 2. 추천인에게 20,000P 지급
+    await c.env.DB.prepare(`
+      INSERT INTO user_points (user_id, total_points, available_points)
+      VALUES (?, 20000, 20000)
+      ON CONFLICT(user_id) DO UPDATE SET
+        total_points = total_points + 20000,
+        available_points = available_points + 20000,
+        updated_at = CURRENT_TIMESTAMP
+    `).bind(referrer.user_id).run()
+    
+    // 3. 피추천인에게 20,000P 지급
+    await c.env.DB.prepare(`
+      INSERT INTO user_points (user_id, total_points, available_points)
+      VALUES (?, 20000, 20000)
+      ON CONFLICT(user_id) DO UPDATE SET
+        total_points = total_points + 20000,
+        available_points = available_points + 20000,
+        updated_at = CURRENT_TIMESTAMP
+    `).bind(user.user_id).run()
+    
+    // 4. 추천인 포인트 거래 내역
+    const referrerBalance = await c.env.DB.prepare(
+      'SELECT available_points FROM user_points WHERE user_id = ?'
+    ).bind(referrer.user_id).first() as any
+    
+    await c.env.DB.prepare(`
+      INSERT INTO point_transactions 
+      (user_id, transaction_type, points, balance_after, referred_user_id, description)
+      VALUES (?, 'referral_bonus', 20000, ?, ?, '친구 초대 보너스')
+    `).bind(referrer.user_id, referrerBalance.available_points, user.user_id).run()
+    
+    // 5. 피추천인 포인트 거래 내역
+    await c.env.DB.prepare(`
+      INSERT INTO point_transactions 
+      (user_id, transaction_type, points, balance_after, referrer_id, description)
+      VALUES (?, 'referral_bonus', 20000, 20000, ?, '추천인 가입 보너스')
+    `).bind(user.user_id, referrer.user_id).run()
+    
+    return c.json({
+      success: true,
+      message: '추천인 등록이 완료되었습니다. 20,000P가 지급되었습니다!',
+      points_earned: 20000
+    })
+  } catch (error) {
+    return c.json({ error: '추천인 등록 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 주문 완료 후 포인트 적립 (내부 함수로 사용)
+async function awardPurchasePoints(
+  db: any, 
+  userId: string, 
+  orderId: number, 
+  productPrice: number, 
+  pointRate: number
+) {
+  const pointsEarned = Math.floor(productPrice * (pointRate / 100))
+  
+  // 1. 구매자 포인트 적립
+  await db.prepare(`
+    INSERT INTO user_points (user_id, total_points, available_points)
+    VALUES (?, ?, ?)
+    ON CONFLICT(user_id) DO UPDATE SET
+      total_points = total_points + ?,
+      available_points = available_points + ?,
+      updated_at = CURRENT_TIMESTAMP
+  `).bind(userId, pointsEarned, pointsEarned, pointsEarned, pointsEarned).run()
+  
+  // 2. 포인트 거래 내역 추가
+  const userBalance = await db.prepare(
+    'SELECT available_points FROM user_points WHERE user_id = ?'
+  ).bind(userId).first() as any
+  
+  await db.prepare(`
+    INSERT INTO point_transactions 
+    (user_id, transaction_type, points, balance_after, order_id, description)
+    VALUES (?, 'purchase_earn', ?, ?, ?, '상품 구매 적립')
+  `).bind(userId, pointsEarned, userBalance.available_points, orderId).run()
+  
+  // 3. 주문에 적립 포인트 기록
+  await db.prepare(`
+    UPDATE orders SET points_earned = ? WHERE id = ?
+  `).bind(pointsEarned, orderId).run()
+  
+  // 4. 추천인이 있으면 추천인에게도 포인트 적립
+  const referral = await db.prepare(
+    'SELECT referrer_id FROM user_referrals WHERE referred_user_id = ?'
+  ).bind(userId).first() as any
+  
+  if (referral) {
+    await db.prepare(`
+      INSERT INTO user_points (user_id, total_points, available_points)
+      VALUES (?, ?, ?)
+      ON CONFLICT(user_id) DO UPDATE SET
+        total_points = total_points + ?,
+        available_points = available_points + ?,
+        updated_at = CURRENT_TIMESTAMP
+    `).bind(referral.referrer_id, pointsEarned, pointsEarned, pointsEarned, pointsEarned).run()
+    
+    // 추천인 포인트 거래 내역
+    const referrerBalance = await db.prepare(
+      'SELECT available_points FROM user_points WHERE user_id = ?'
+    ).bind(referral.referrer_id).first() as any
+    
+    await db.prepare(`
+      INSERT INTO point_transactions 
+      (user_id, transaction_type, points, balance_after, order_id, referred_user_id, description)
+      VALUES (?, 'referral_earn', ?, ?, ?, ?, '추천인 구매 적립')
+    `).bind(referral.referrer_id, pointsEarned, referrerBalance.available_points, orderId, userId).run()
+    
+    // 추천 총 수익 업데이트
+    await db.prepare(`
+      UPDATE user_referrals 
+      SET total_referral_earnings = total_referral_earnings + ?
+      WHERE referrer_id = ? AND referred_user_id = ?
+    `).bind(pointsEarned, referral.referrer_id, userId).run()
+  }
+  
+  return {
+    buyer_points: pointsEarned,
+    referrer_points: referral ? pointsEarned : 0
+  }
+}
+
 export default app
 
 // ===== 주문 확인 및 정산 API =====
@@ -6081,11 +6419,29 @@ app.post('/api/orders/:id/confirm', async (c) => {
   await c.env.DB.prepare(`
     INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by, change_reason)
     VALUES (?, ?, 'delivered', ?, '구매확정')
-  `).bind(orderId, order.order_status, data.user_id || 'system').run()
+  `).bind(orderId, (order as any).order_status, data.user_id || 'system').run()
+  
+  // 포인트 적립 처리
+  const orderData = order as any
+  const { results: orderItems } = await c.env.DB.prepare(
+    'SELECT oi.*, p.point_rate FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?'
+  ).bind(orderId).all()
+  
+  let totalPointsEarned = 0
+  for (const item of orderItems) {
+    const itemData = item as any
+    const pointsForItem = Math.floor(itemData.price * itemData.quantity * ((itemData.point_rate || 35) / 100))
+    totalPointsEarned += pointsForItem
+  }
+  
+  if (totalPointsEarned > 0 && orderData.user_id) {
+    await awardPurchasePoints(c.env.DB, orderData.user_id, parseInt(orderId), totalPointsEarned, 100)
+  }
   
   return c.json({ 
     success: true, 
     message: '구매확정이 완료되었습니다',
+    points_earned: totalPointsEarned,
     settlement_due_date: settlementDueDate.toISOString(),
     settlement_info: '3일 이내에 판매자에게 정산됩니다'
   })
