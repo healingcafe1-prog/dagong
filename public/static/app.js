@@ -1671,9 +1671,21 @@ async function loadEducationApplicationPage() {
             <select name="education_type" required
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-tea-green">
               <option value="">선택하세요</option>
-              <option value="tea_ceremony">다도교육</option>
-              <option value="tea_tasting">차 시음</option>
-              <option value="craft_workshop">공예 체험</option>
+              <optgroup label="🍵 다도 · 차 문화">
+                <option value="tea_ceremony">🫖 다도교육 — 전통 다도 예절 · 다기 사용법</option>
+                <option value="blending_tea">🌿 블렌딩티 만들기 체험 — 나만의 블렌딩티 제조</option>
+                <option value="tea_making">🍃 차 만들기 체험 — 찻잎 채취 · 가공 · 덖음 체험</option>
+                <option value="tea_origin_tour">🚌 차 산지 여행 — 차산지 방문 · 투어 프로그램</option>
+              </optgroup>
+              <optgroup label="🧘 명상 · 웰니스">
+                <option value="meditation">🙏 명상교육 — 차 명상 · 마음챙김 프로그램</option>
+                <option value="tea_qigong">🌀 활기체조(茶氣體操) — 차와 함께하는 기세조</option>
+                <option value="yoga">🧘 요가 — 차와 함께하는 야침 요가</option>
+              </optgroup>
+              <optgroup label="🎨 공예 · 체험 · 레저">
+                <option value="craft_workshop">🌸 공예 체험 — 다기 공예 · 다도 소품 만들기</option>
+                <option value="horse_riding">🐴 승마 체험 — 차와 함께하는 승마 힐링 프로그램</option>
+              </optgroup>
             </select>
           </div>
           
@@ -1769,8 +1781,15 @@ async function loadEducationStatusPage() {
     // 교육 타입 이름 매핑
     const eduTypeNames = {
       'tea_ceremony': '다도교육',
-      'tea_tasting': '차 시음',
-      'craft_workshop': '공예 체험'
+      'blending_tea': '블렌딩티 만들기 체험',
+      'tea_making': '차 만들기 체험',
+      'tea_origin_tour': '차 산지 여행',
+      'meditation': '명상교육',
+      'tea_qigong': '활기체조(茶氣體操)',
+      'yoga': '요가',
+      'craft_workshop': '공예 체험',
+      'horse_riding': '승마 체험',
+      'tea_tasting': '차 시음'
     };
     
     // 진행 중인 교육만 필터링
