@@ -589,7 +589,7 @@ async function loadHomePage() {
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             ${featuredProducts.data.products.map(product => `
-              <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition ${product.stock_quantity === 0 ? 'opacity-75' : ''}">
+              <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
                 <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden relative">
                   ${product.main_image 
                     ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -598,15 +598,13 @@ async function loadHomePage() {
                        </div>`
                     : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>`
                   }
-                  ${product.stock_quantity === 0 ? `
-                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <span class="bg-red-500 text-white px-6 py-3 rounded-lg font-bold text-lg">품절</span>
-                    </div>
-                  ` : ''}
                 </div>
                 <div class="p-4">
                   <div class="text-sm text-gray-500 mb-1">${product.region_name || ''}</div>
-                  <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                  <div class="flex items-center gap-2 mb-2">
+                    <h3 class="font-bold text-lg">${product.name}</h3>
+                    ${product.stock_quantity === 0 ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">품절</span>' : ''}
+                  </div>
                   <div class="flex items-center justify-between">
                     <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
                     ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
@@ -737,7 +735,7 @@ async function loadProductsPage() {
         <!-- 상품 목록 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           ${products.map(product => `
-            <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition ${product.stock_quantity === 0 ? 'opacity-75' : ''}">
+            <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
               <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden relative">
                 ${product.main_image 
                   ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -746,15 +744,13 @@ async function loadProductsPage() {
                      </div>`
                   : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>`
                 }
-                ${product.stock_quantity === 0 ? `
-                  <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <span class="bg-red-500 text-white px-6 py-3 rounded-lg font-bold text-lg">품절</span>
-                  </div>
-                ` : ''}
               </div>
               <div class="p-4">
                 <div class="text-sm text-gray-500 mb-1">${product.producer_name} · ${product.region_name || ''}</div>
-                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                <div class="flex items-center gap-2 mb-2">
+                  <h3 class="font-bold text-lg">${product.name}</h3>
+                  ${product.stock_quantity === 0 ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">품절</span>' : ''}
+                </div>
                 <div class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description || ''}</div>
                 <div class="flex items-center justify-between">
                   <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
@@ -1293,7 +1289,10 @@ async function loadProducerDetailPage(producerId) {
                     <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
                   </div>
                   <div class="p-4">
-                    <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                    <div class="flex items-center gap-2 mb-2">
+                      <h3 class="font-bold text-lg">${product.name}</h3>
+                      ${product.stock_quantity === 0 ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">품절</span>' : ''}
+                    </div>
                     <div class="flex items-center justify-between">
                       <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
                       ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
