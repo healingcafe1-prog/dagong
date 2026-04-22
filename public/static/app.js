@@ -589,8 +589,8 @@ async function loadHomePage() {
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             ${featuredProducts.data.products.map(product => `
-              <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-                <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+              <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition ${product.stock_quantity === 0 ? 'opacity-75' : ''}">
+                <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden relative">
                   ${product.main_image 
                     ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                        <div style="display:none;" class="w-full h-full flex items-center justify-center">
@@ -598,6 +598,11 @@ async function loadHomePage() {
                        </div>`
                     : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>`
                   }
+                  ${product.stock_quantity === 0 ? `
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                      <span class="bg-red-500 text-white px-6 py-3 rounded-lg font-bold text-lg">품절</span>
+                    </div>
+                  ` : ''}
                 </div>
                 <div class="p-4">
                   <div class="text-sm text-gray-500 mb-1">${product.region_name || ''}</div>
@@ -732,8 +737,8 @@ async function loadProductsPage() {
         <!-- 상품 목록 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           ${products.map(product => `
-            <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-              <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+            <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition ${product.stock_quantity === 0 ? 'opacity-75' : ''}">
+              <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden relative">
                 ${product.main_image 
                   ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                      <div style="display:none;" class="w-full h-full flex items-center justify-center">
@@ -741,6 +746,11 @@ async function loadProductsPage() {
                      </div>`
                   : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>`
                 }
+                ${product.stock_quantity === 0 ? `
+                  <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <span class="bg-red-500 text-white px-6 py-3 rounded-lg font-bold text-lg">품절</span>
+                  </div>
+                ` : ''}
               </div>
               <div class="p-4">
                 <div class="text-sm text-gray-500 mb-1">${product.producer_name} · ${product.region_name || ''}</div>
@@ -862,7 +872,7 @@ async function loadProductDetailPage(productId) {
                 </div>
                 <div>
                   <div class="text-gray-500 mb-1">재고</div>
-                  <div class="font-medium">${product.stock > 0 ? '구매 가능' : '품절'}</div>
+                  <div class="font-medium ${product.stock_quantity === 0 ? 'text-red-500' : 'text-green-600'}">${product.stock_quantity === 0 ? '품절' : '구매 가능'}</div>
                 </div>
               </div>
             </div>
@@ -904,7 +914,7 @@ async function loadProductDetailPage(productId) {
                 <button id="decreaseQty" class="px-4 py-2 hover:bg-gray-100">
                   <i class="fas fa-minus"></i>
                 </button>
-                <input type="number" id="productQuantity" value="1" min="1" max="${product.stock}" 
+                <input type="number" id="productQuantity" value="1" min="1" max="${product.stock_quantity}" 
                        class="w-16 text-center border-x py-2">
                 <button id="increaseQty" class="px-4 py-2 hover:bg-gray-100">
                   <i class="fas fa-plus"></i>
@@ -914,20 +924,20 @@ async function loadProductDetailPage(productId) {
             
             <div class="flex gap-3">
               <button onclick="addToCart(${product.id}, document.getElementById('productQuantity').value)" 
-                      class="flex-1 bg-tea-green text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
-                      ${product.stock <= 0 ? 'disabled' : ''}>
+                      class="flex-1 bg-tea-green text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition ${product.stock_quantity <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                      ${product.stock_quantity <= 0 ? 'disabled' : ''}>
                 <i class="fas fa-shopping-cart mr-2"></i>
                 장바구니
               </button>
               <button onclick="buyNow(${product.id}, document.getElementById('productQuantity').value)" 
-                      class="flex-1 bg-tea-brown text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
-                      ${product.stock <= 0 ? 'disabled' : ''}>
+                      class="flex-1 bg-tea-brown text-white px-6 py-4 rounded-lg font-bold hover:bg-opacity-90 transition ${product.stock_quantity <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                      ${product.stock_quantity <= 0 ? 'disabled' : ''}>
                 <i class="fas fa-credit-card mr-2"></i>
                 구매하기
               </button>
             </div>
             
-            ${product.stock <= 0 ? `
+            ${product.stock_quantity <= 0 ? `
               <p class="mt-3 text-center text-red-600">
                 <i class="fas fa-exclamation-circle"></i> 현재 품절된 상품입니다
               </p>
