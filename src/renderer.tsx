@@ -175,7 +175,7 @@ export const renderer = jsxRenderer(({ children }) => {
                   <span class="text-sm" data-i18n="nav.events">이벤트</span>
                 </a>
                 <a href="/about" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
-                  <i class="fas fa-building text-xl mb-1"></i>
+                  <i class="fas fa-info-circle text-xl mb-1"></i>
                   <span class="text-sm" data-i18n="nav.about">회사소개</span>
                 </a>
               </div>
