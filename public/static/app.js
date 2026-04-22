@@ -2315,7 +2315,7 @@ async function loadEducationCurriculumPage() {
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">
             <i class="fas fa-graduation-cap text-tea-green mr-3"></i>
-            다도교육 커리큘럼
+            교육 커리큘럼
           </h1>
           <p class="text-lg text-gray-600 mb-4">
             차와 공예에 대한 체계적인 교육 프로그램을 만나보세요
