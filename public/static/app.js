@@ -4569,4 +4569,188 @@ if (window.location.pathname === '/') {
     
     observer.observe(scrollTrigger);
   }
+
+  // ==================== 카카오톡 친구초대 팝업 ====================
+  
+  // 전역 함수로 팝업 열기
+  window.openKakaoInvitePopup = function() {
+    const popup = document.getElementById('kakaoInvitePopup');
+    if (popup) {
+      popup.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+    }
+  }
+  
+  // 전역 함수로 팝업 닫기
+  window.closeKakaoInvitePopup = function() {
+    const popup = document.getElementById('kakaoInvitePopup');
+    if (popup) {
+      popup.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+  }
+  
+  // 카카오톡 공유하기
+  window.shareKakaoInvite = async function() {
+    const user = await checkAuth();
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      window.location.hash = '#/login';
+      return;
+    }
+    
+    // 추천인 코드 생성 (user_id 기반)
+    const referralCode = 'DG' + user.id.toString().padStart(6, '0');
+    const inviteUrl = window.location.origin + '?ref=' + referralCode;
+    
+    // Kakao SDK가 로드되어 있는지 확인
+    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: '🍵 다공 - 차와 공예의 직거래 플랫폼',
+          description: '친구 초대하고 20,000 포인트 받으세요! 전통 차와 공예품을 생산자와 직거래로 만나보세요.',
+          imageUrl: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800',
+          link: {
+            mobileWebUrl: inviteUrl,
+            webUrl: inviteUrl
+          }
+        },
+        buttons: [
+          {
+            title: '다공 가입하기',
+            link: {
+              mobileWebUrl: inviteUrl,
+              webUrl: inviteUrl
+            }
+          }
+        ]
+      });
+      
+      // 공유 성공 후 포인트 적립 (실제로는 친구가 가입해야 적립)
+      alert('카카오톡으로 초대장을 보냈습니다! 🎉\n친구가 가입하면 20,000 포인트가 적립됩니다.');
+      window.closeKakaoInvitePopup();
+      
+    } else {
+      // Kakao SDK가 없으면 링크 복사
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+        alert('초대 링크가 복사되었습니다! 🎉\n친구에게 공유해주세요.\n\n링크: ' + inviteUrl);
+        window.closeKakaoInvitePopup();
+      } catch (err) {
+        alert('초대 링크: ' + inviteUrl + '\n\n위 링크를 복사하여 친구에게 공유해주세요!');
+      }
+    }
+  }
+  
+  // 초대 링크 복사
+  window.copyInviteLink = async function() {
+    const user = await checkAuth();
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      window.location.hash = '#/login';
+      return;
+    }
+    
+    const referralCode = 'DG' + user.id.toString().padStart(6, '0');
+    const inviteUrl = window.location.origin + '?ref=' + referralCode;
+    
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      alert('초대 링크가 복사되었습니다! 📋\n친구에게 공유해주세요.');
+    } catch (err) {
+      // 복사 실패 시 텍스트 선택
+      const textarea = document.createElement('textarea');
+      textarea.value = inviteUrl;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('초대 링크가 복사되었습니다! 📋');
+      } catch (err2) {
+        alert('초대 링크: ' + inviteUrl);
+      }
+      document.body.removeChild(textarea);
+    }
+  }
+  
+  // 내 초대 현황 보기
+  window.viewMyReferrals = async function() {
+    const user = await checkAuth();
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      window.location.hash = '#/login';
+      return;
+    }
+    
+    window.closeKakaoInvitePopup();
+    window.location.hash = '#/my-referrals';
+  }
+  
+  // 페이지에 팝업 HTML 추가 (최초 1회만)
+  if (!document.getElementById('kakaoInvitePopup')) {
+    const popupHTML = `
+      <!-- 카카오톡 친구초대 팝업 -->
+      <div id="kakaoInvitePopup" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+          <!-- 헤더 -->
+          <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 text-white relative">
+            <button onclick="closeKakaoInvitePopup()" class="absolute top-4 right-4 text-white hover:text-gray-200 transition">
+              <i class="fas fa-times text-2xl"></i>
+            </button>
+            <div class="text-center">
+              <i class="fas fa-gift text-5xl mb-3"></i>
+              <h2 class="text-2xl font-bold mb-2">친구 초대하고</h2>
+              <h3 class="text-3xl font-extrabold">20,000 포인트 받기!</h3>
+            </div>
+          </div>
+          
+          <!-- 내용 -->
+          <div class="p-6">
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mb-6">
+              <p class="text-center text-gray-700 font-medium">
+                <i class="fas fa-star text-yellow-500 mr-1"></i>
+                친구가 가입하면 <span class="text-yellow-600 font-bold text-xl">20,000P</span> 적립!
+              </p>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+              <div class="flex items-start">
+                <span class="bg-tea-green text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">1</span>
+                <p class="text-gray-700">초대 링크를 친구에게 공유</p>
+              </div>
+              <div class="flex items-start">
+                <span class="bg-tea-green text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">2</span>
+                <p class="text-gray-700">친구가 링크로 회원가입</p>
+              </div>
+              <div class="flex items-start">
+                <span class="bg-tea-green text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">3</span>
+                <p class="text-gray-700">나와 친구 모두 20,000P 적립!</p>
+              </div>
+            </div>
+            
+            <!-- 버튼 -->
+            <div class="space-y-3">
+              <button onclick="shareKakaoInvite()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg">
+                <i class="fas fa-comment mr-2"></i>
+                카카오톡으로 초대하기
+              </button>
+              
+              <button onclick="copyInviteLink()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+                <i class="fas fa-link mr-2"></i>
+                초대 링크 복사하기
+              </button>
+              
+              <button onclick="viewMyReferrals()" class="w-full text-tea-green hover:text-tea-green-dark font-medium py-2 transition">
+                <i class="fas fa-users mr-2"></i>
+                내 초대 현황 보기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
+  }
 }

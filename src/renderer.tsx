@@ -62,6 +62,18 @@ export const renderer = jsxRenderer(({ children }) => {
         {/* Font Awesome Icons */}
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
         
+        {/* Kakao SDK */}
+        <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-l+xbElFSnPZ2rOaPrU//2FF5B4LB8FiX5q4fXYTlfcG4PGpMkE1vcL7kNXI6Cci0" crossorigin="anonymous"></script>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Kakao SDK 초기화 (JavaScript Key 사용)
+            if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+              Kakao.init('your_kakao_javascript_key_here'); // 실제 JavaScript 키로 교체 필요
+              console.log('Kakao SDK 초기화 완료:', Kakao.isInitialized());
+            }
+          `
+        }} />
+        
         {/* Google Fonts - Noto Serif KR */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
@@ -168,6 +180,12 @@ export const renderer = jsxRenderer(({ children }) => {
               <div class="flex items-center space-x-4">
                 <button id="searchBtn" class="text-gray-700 hover:text-tea-green">
                   <i class="fas fa-search text-xl"></i>
+                </button>
+                
+                {/* 친구초대 */}
+                <button onclick="window.openKakaoInvitePopup()" class="relative text-gray-700 hover:text-yellow-500 transition group">
+                  <i class="fas fa-gift text-xl"></i>
+                  <span class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">P</span>
                 </button>
                 
                 {/* 장바구니 */}
