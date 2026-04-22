@@ -1575,6 +1575,12 @@ app.post('/api/products', authMiddleware, async (c) => {
     return c.json({ error: '할인율은 20%에서 50% 사이여야 합니다', min: 20, max: 50 }, 400)
   }
   
+  // 포인트 적립률 검증 (25% ~ 35%)
+  const pointRate = data.point_rate || 35
+  if (pointRate < 25 || pointRate > 35) {
+    return c.json({ error: '포인트 적립률은 25%에서 35% 사이여야 합니다', min: 25, max: 35 }, 400)
+  }
+  
   // 새로운 가격 필드 사용: consumer_price, direct_price
   // 하위 호환성을 위해 original_price, price도 유지
   const consumerPrice = data.consumer_price || data.original_price
@@ -1595,12 +1601,12 @@ app.post('/api/products', authMiddleware, async (c) => {
   const result = await c.env.DB.prepare(`
     INSERT INTO products (
       name, category_id, producer_id, description, 
-      consumer_price, direct_price, original_price, price, discount_rate, 
+      consumer_price, direct_price, original_price, price, discount_rate, point_rate,
       shipping_fee, stock_quantity, 
       platform_fee_rate, card_fee_rate, tax_rate, total_fee_rate,
       platform_fee_amount, card_fee_amount, tax_amount, total_fee_amount, producer_revenue,
       main_image, product_type, weight, origin, is_featured
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     data.name,
     data.category_id,
@@ -1611,6 +1617,7 @@ app.post('/api/products', authMiddleware, async (c) => {
     consumerPrice, // 하위 호환성
     directPrice, // 하위 호환성
     discountRate,
+    pointRate,
     data.shipping_fee || 3000,
     data.stock_quantity || 0,
     platformFeeRate,

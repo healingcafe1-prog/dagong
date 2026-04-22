@@ -38,6 +38,17 @@ function formatPrice(price) {
   return new Intl.NumberFormat('ko-KR').format(price) + '원';
 }
 
+// 포인트 계산
+function calculatePoints(price, pointRate = 35) {
+  return Math.floor(price * (pointRate / 100));
+}
+
+// 포인트 포맷팅
+function formatPoints(price, pointRate = 35) {
+  const points = calculatePoints(price, pointRate);
+  return new Intl.NumberFormat('ko-KR').format(points) + 'P';
+}
+
 // 할인율 계산
 function calculateDiscountRate(originalPrice, discountedPrice) {
   return Math.round((1 - discountedPrice / originalPrice) * 100);
@@ -606,7 +617,12 @@ async function loadHomePage() {
                     ${product.stock_quantity === 0 ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">품절</span>' : ''}
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                    <div>
+                      <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                      <div class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-coins text-yellow-500"></i> ${formatPoints(product.price, product.point_rate || 35)} 적립
+                      </div>
+                    </div>
                     ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
                   </div>
                 </div>
@@ -753,7 +769,12 @@ async function loadProductsPage() {
                 </div>
                 <div class="text-gray-600 text-sm mb-3 line-clamp-2">${product.description || ''}</div>
                 <div class="flex items-center justify-between">
-                  <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                  <div>
+                    <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <i class="fas fa-coins text-yellow-500"></i> ${formatPoints(product.price, product.point_rate || 35)} 적립
+                    </div>
+                  </div>
                   ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
                 </div>
               </div>
@@ -826,6 +847,9 @@ async function loadProductDetailPage(productId) {
                       <span class="text-4xl font-bold text-red-600">${formatPrice(product.direct_price || product.price)}</span>
                       ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
                     </div>
+                    <div class="mt-2 text-sm text-gray-600">
+                      <i class="fas fa-coins text-yellow-500"></i> 구매 시 <strong class="text-yellow-600">${formatPoints(product.direct_price || product.price, product.point_rate || 35)}</strong> 적립
+                    </div>
                   </div>
                   <div class="bg-red-50 border border-red-200 rounded-lg p-3">
                     <div class="flex items-center text-red-600 font-medium">
@@ -842,6 +866,9 @@ async function loadProductDetailPage(productId) {
                     <div class="flex items-center gap-3">
                       <span class="text-4xl font-bold text-red-600">${formatPrice(product.direct_price || product.price)}</span>
                       ${product.is_featured ? '<span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-sm font-bold">인기 상품</span>' : ''}
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600">
+                      <i class="fas fa-coins text-yellow-500"></i> 구매 시 <strong class="text-yellow-600">${formatPoints(product.direct_price || product.price, product.point_rate || 35)}</strong> 적립
                     </div>
                   </div>
                 `}
@@ -1294,7 +1321,12 @@ async function loadProducerDetailPage(producerId) {
                       ${product.stock_quantity === 0 ? '<span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">품절</span>' : ''}
                     </div>
                     <div class="flex items-center justify-between">
-                      <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                      <div>
+                        <span class="text-tea-green font-bold text-xl">${formatPrice(product.price)}</span>
+                        <div class="text-xs text-gray-500 mt-1">
+                          <i class="fas fa-coins text-yellow-500"></i> ${formatPoints(product.price, product.point_rate || 35)} 적립
+                        </div>
+                      </div>
                       ${product.is_featured ? '<span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded">인기</span>' : ''}
                     </div>
                   </div>
