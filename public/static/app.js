@@ -1769,6 +1769,84 @@ async function loadAboutPage() {
           </div>
         </div>
 
+        <!-- 제휴사 -->
+        <div class="max-w-4xl mx-auto mb-12">
+          <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+              <i class="fas fa-handshake text-tea-green mr-3"></i>
+              제휴사
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- SNP 경매 -->
+              <a href="https://snpauction.com" target="_blank" 
+                 class="block p-6 bg-gradient-to-br from-tea-cream to-white rounded-xl hover:shadow-lg transition border border-gray-200 group">
+                <div class="flex items-center justify-between mb-3">
+                  <i class="fas fa-gavel text-3xl text-tea-green group-hover:scale-110 transition-transform"></i>
+                  <i class="fas fa-external-link-alt text-gray-400 group-hover:text-tea-green transition"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 mb-2">SNP 경매</h3>
+                <p class="text-sm text-gray-600">snpauction.com</p>
+              </a>
+
+              <!-- 바디리셋28 -->
+              <a href="https://bodyreset28.co.kr" target="_blank" 
+                 class="block p-6 bg-gradient-to-br from-tea-cream to-white rounded-xl hover:shadow-lg transition border border-gray-200 group">
+                <div class="flex items-center justify-between mb-3">
+                  <i class="fas fa-heartbeat text-3xl text-tea-green group-hover:scale-110 transition-transform"></i>
+                  <i class="fas fa-external-link-alt text-gray-400 group-hover:text-tea-green transition"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 mb-2">바디리셋28</h3>
+                <p class="text-sm text-gray-600">bodyreset28.co.kr</p>
+              </a>
+
+              <!-- 티카페알케미 -->
+              <a href="https://티카페알케미.com" target="_blank" 
+                 class="block p-6 bg-gradient-to-br from-tea-cream to-white rounded-xl hover:shadow-lg transition border border-gray-200 group">
+                <div class="flex items-center justify-between mb-3">
+                  <i class="fas fa-mug-hot text-3xl text-tea-green group-hover:scale-110 transition-transform"></i>
+                  <i class="fas fa-external-link-alt text-gray-400 group-hover:text-tea-green transition"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 mb-2">티카페알케미</h3>
+                <p class="text-sm text-gray-600">티카페알케미.com</p>
+              </a>
+
+              <!-- 농어촌114 -->
+              <a href="https://농어촌114.com" target="_blank" 
+                 class="block p-6 bg-gradient-to-br from-tea-cream to-white rounded-xl hover:shadow-lg transition border border-gray-200 group">
+                <div class="flex items-center justify-between mb-3">
+                  <i class="fas fa-tractor text-3xl text-tea-green group-hover:scale-110 transition-transform"></i>
+                  <i class="fas fa-external-link-alt text-gray-400 group-hover:text-tea-green transition"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 mb-2">농어촌114</h3>
+                <p class="text-sm text-gray-600">농어촌114.com</p>
+              </a>
+
+              <!-- 솔라링크 -->
+              <a href="https://솔라링크.com" target="_blank" 
+                 class="block p-6 bg-gradient-to-br from-tea-cream to-white rounded-xl hover:shadow-lg transition border border-gray-200 group">
+                <div class="flex items-center justify-between mb-3">
+                  <i class="fas fa-solar-panel text-3xl text-tea-green group-hover:scale-110 transition-transform"></i>
+                  <i class="fas fa-external-link-alt text-gray-400 group-hover:text-tea-green transition"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 mb-2">솔라링크</h3>
+                <p class="text-sm text-gray-600">솔라링크.com</p>
+              </a>
+
+              <!-- 농기계차차차 -->
+              <a href="https://농기계차차차.com" target="_blank" 
+                 class="block p-6 bg-gradient-to-br from-tea-cream to-white rounded-xl hover:shadow-lg transition border border-gray-200 group">
+                <div class="flex items-center justify-between mb-3">
+                  <i class="fas fa-tools text-3xl text-tea-green group-hover:scale-110 transition-transform"></i>
+                  <i class="fas fa-external-link-alt text-gray-400 group-hover:text-tea-green transition"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 mb-2">농기계차차차</h3>
+                <p class="text-sm text-gray-600">농기계차차차.com</p>
+              </a>
+            </div>
+          </div>
+        </div>
+
         <!-- 명함 다운로드 -->
         <div class="max-w-4xl mx-auto">
           <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
