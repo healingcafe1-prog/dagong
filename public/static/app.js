@@ -1724,13 +1724,24 @@ async function loadAboutPage() {
               </div>
 
               <!-- 인스타그램 -->
-              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm md:col-span-2">
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
                 <div class="flex items-center mb-3">
                   <i class="fab fa-instagram text-2xl mr-3"></i>
                   <span class="font-bold text-lg">인스타그램</span>
                 </div>
                 <a href="https://instagram.com/korea_teacraft" target="_blank" class="text-lg hover:underline">
                   @korea_teacraft
+                </a>
+              </div>
+
+              <!-- 네이버카페 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-comments text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">네이버카페</span>
+                </div>
+                <a href="https://cafe.naver.com/한국차공예네트워크" target="_blank" class="text-lg hover:underline">
+                  한국차공예네트워크
                 </a>
               </div>
             </div>
