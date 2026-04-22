@@ -1740,7 +1740,7 @@ async function loadAboutPage() {
                   <i class="fas fa-comments text-2xl mr-3"></i>
                   <span class="font-bold text-lg">네이버카페</span>
                 </div>
-                <a href="https://cafe.naver.com/한국차공예네트워크" target="_blank" class="text-lg hover:underline">
+                <a href="https://cafe.naver.com/dasunilmi" target="_blank" class="text-lg hover:underline">
                   한국차공예네트워크
                 </a>
               </div>
