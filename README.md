@@ -1,8 +1,8 @@
-# 다공 - 차와 공예의 직거래 플랫폼 v1.1 (최종본) 🎉
+# 다공 - 차와 공예의 직거래 플랫폼 v1.2 (최종본) 🎉
 
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-orange)](https://dagong.co.kr)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/healingcafe1-prog/dagong)
-[![Version](https://img.shields.io/badge/Version-1.1--final-green)](https://github.com/healingcafe1-prog/dagong/releases/tag/v1.1-final-20250423)
+[![Version](https://img.shields.io/badge/Version-1.2--final-green)](https://github.com/healingcafe1-prog/dagong/releases/tag/v1.2-final-20250423)
 
 ## 📋 프로젝트 개요
 
@@ -20,8 +20,9 @@
 - 🎁 **카카오톡 친구초대** (20,000 포인트 적립)
 - 🎓 **체험·교육 프로그램** (다도교육, 차체험, 공예체험 등)
 - 🔍 **통합 검색 기능** (상품, 생산자, 지역 실시간 검색)
-- 🏢 **회사소개 페이지** (연락처, 제휴사, 명함 다운로드) ✨ NEW!
-- 🏷️ **품절 상품 관리** (샘플 품절 처리, 신상품 우선 정렬) ✨ NEW!
+- 🏢 **회사소개 페이지** (연락처, 제휴사, 명함 다운로드)
+- 🏷️ **품절 상품 관리** (샘플 품절 처리, 신상품 우선 정렬)
+- 💎 **포인트 시스템** (구매적립 25-35%, 추천인 보너스, 현금전환) ✨ NEW!
 
 ---
 
@@ -31,6 +32,7 @@
 - **프로덕션**: https://dagong.co.kr
 - **개발 환경**: https://3000-i1cjrhuxghhqe7nryfah2-5c13a017.sandbox.novita.ai
 - **GitHub**: https://github.com/healingcafe1-prog/dagong
+- **프로젝트 백업 v1.2**: https://www.genspark.ai/api/files/s/iSXaQMZC ⭐ **최신**
 - **프로젝트 백업 v1.1**: https://www.genspark.ai/api/files/s/F2VbznS8
 - **프로젝트 백업 v1.0**: https://www.genspark.ai/api/files/s/pWT2nsI1
 
@@ -42,7 +44,26 @@
 
 ### 📅 최종본 업데이트 이력
 
-#### **v1.1 (2025-04-23)** 🎉 **최신 최종본**
+#### **v1.2 (2025-04-23)** 💎 **최신 최종본**
+- **포인트 시스템 완성**:
+  - 구매 적립: 상품 가격의 25-35% (생산자가 설정)
+  - 추천인 가입 보너스: 추천인과 가입자 각각 20,000P
+  - 추천인 구매 적립: 피추천인 구매 시 동일 포인트 적립
+  - 현금 전환: 600,000PV = 50,000원
+  - API 5개: 포인트 조회, 거래내역, 출금신청, 추천인등록, 출금내역
+  - 데이터베이스: user_points, point_transactions, point_withdrawals, user_referrals
+- **모바일 최적화**:
+  - 친구초대 팝업 크기 조정 (화면의 50%로 축소)
+  - 아이콘, 텍스트, 패딩 모바일 최적화
+- **상품 포인트 표시**:
+  - 모든 상품 카드에 포인트 적립 정보 표시
+  - 상품 상세 페이지에 포인트 안내
+  - 샘플 상품 모두 35% 적립률 설정
+- **Git 태그**: `v1.2-final-20250423`
+- **총 커밋**: 338개
+- **백업 파일**: `dagong-final-v1.2-20250423.tar.gz` (14.98 MB)
+
+#### **v1.1 (2025-04-23)** 🎉
 - **회사소개 페이지 완성**:
   - 다공의 의미와 가치 섹션
   - 핵심 가치 3가지 (전통 계승, 직거래, K-Culture)
@@ -278,12 +299,14 @@ ORDER BY
 
 ### 데이터 현황
 
-- **상품**: 68개 (차 20개, 공예 20개, 선물 10개, 특산물 10개, 추천 8개)
-- **카테고리**: 31개 (차 7개, 공예 11개, 선물 4개, 특산물 5개)
-- **생산자**: 3개
+- **상품**: 60개 (차 20개, 공예 20개, 선물 10개, 특산물 10개) - 모두 품절 처리됨
+- **카테고리**: 31개 (차 7개, 공예 11개, 선물 4개, 특산물 5개, 기타 4개)
+- **생산자**: 5개 (샘플)
 - **지역**: 17개
 - **체험 프로그램**: 25개 (다도 5개, 차체험 5개, 공예 5개, 농장 5개, 공방 5개)
 - **교육 커리큘럼**: 30개
+- **포인트 시스템**: 완전 구현 (DB 테이블 4개, API 5개)
+- **제휴사**: 6개
 
 ---
 
