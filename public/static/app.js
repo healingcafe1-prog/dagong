@@ -1744,6 +1744,17 @@ async function loadAboutPage() {
                   한국차공예네트워크
                 </a>
               </div>
+
+              <!-- 네이버블로그 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-blog text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">네이버블로그</span>
+                </div>
+                <a href="https://blog.naver.com/dagong1004" target="_blank" class="text-lg hover:underline">
+                  dagong1004
+                </a>
+              </div>
             </div>
           </div>
         </div>
