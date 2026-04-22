@@ -174,6 +174,10 @@ export const renderer = jsxRenderer(({ children }) => {
                   <i class="fas fa-star text-xl mb-1"></i>
                   <span class="text-sm" data-i18n="nav.events">이벤트</span>
                 </a>
+                <a href="/about" class="flex flex-col items-center text-gray-700 hover:text-tea-green transition group">
+                  <i class="fas fa-building text-xl mb-1"></i>
+                  <span class="text-sm" data-i18n="nav.about">회사소개</span>
+                </a>
               </div>
               
               {/* 검색, 장바구니, 언어선택, 로그인 & 모바일 메뉴 */}
@@ -271,6 +275,7 @@ export const renderer = jsxRenderer(({ children }) => {
                 <a href="/education/status" class="block py-1 pl-4 text-gray-700 hover:text-tea-green">교육 현황</a>
               </div>
               <a href="/events" class="block py-2 text-gray-700 hover:text-tea-brown">이벤트</a>
+              <a href="/about" class="block py-2 text-gray-700 hover:text-tea-green">회사소개</a>
               
               {/* 모바일 언어 선택 */}
               <div class="py-2 border-t border-gray-200 mt-2">

@@ -3866,6 +3866,15 @@ app.get('/events', (c) => {
   )
 })
 
+// 회사소개 페이지
+app.get('/about', (c) => {
+  return c.render(
+    <div id="app">
+      <div class="loading">로딩 중...</div>
+    </div>
+  )
+})
+
 // 검색 페이지
 app.get('/search', (c) => {
   return c.render(

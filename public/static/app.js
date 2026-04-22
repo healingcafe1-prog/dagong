@@ -444,6 +444,10 @@ else if (path.startsWith('/experiences/')) {
 else if (path === '/events') {
   loadEventsPage();
 }
+// 회사소개 페이지
+else if (path === '/about') {
+  loadAboutPage();
+}
 // 교육 신청 페이지
 else if (path === '/education/apply') {
   loadEducationApplicationPage();
@@ -1542,6 +1546,275 @@ async function loadEventsPage() {
     console.error('이벤트 목록 로드 오류:', error);
     app.innerHTML = '<div class="container mx-auto px-4 py-20 text-center"><p class="text-red-500">페이지를 불러오는 중 오류가 발생했습니다.</p></div>';
   }
+}
+
+// ===== 회사소개 페이지 =====
+async function loadAboutPage() {
+  app.innerHTML = `
+    <div class="bg-gradient-to-br from-tea-cream via-white to-craft-blue-50 min-h-screen py-16">
+      <div class="container mx-auto px-4">
+        <!-- 헤더 -->
+        <div class="text-center mb-16">
+          <div class="inline-block bg-white rounded-full p-6 shadow-xl mb-6">
+            <i class="fas fa-leaf text-tea-green text-6xl"></i>
+          </div>
+          <h1 class="text-5xl font-bold text-gray-900 mb-4">다공 (DAGONG)</h1>
+          <p class="text-2xl text-gray-600 font-medium">한국 차와 공예 직거래 플랫폼</p>
+          <div class="mt-6 flex items-center justify-center space-x-4">
+            <span class="px-4 py-2 bg-tea-green text-white rounded-full text-sm font-bold">K-Culture</span>
+            <span class="px-4 py-2 bg-craft-blue text-white rounded-full text-sm font-bold">한국 전통</span>
+            <span class="px-4 py-2 bg-tea-brown text-white rounded-full text-sm font-bold">직거래</span>
+          </div>
+        </div>
+
+        <!-- 회사 소개 -->
+        <div class="max-w-4xl mx-auto mb-16">
+          <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+              <i class="fas fa-quote-left text-tea-green mr-4"></i>
+              다공의 의미
+            </h2>
+            <div class="prose prose-lg max-w-none">
+              <p class="text-gray-700 text-lg leading-relaxed mb-6">
+                <strong class="text-tea-green text-2xl">"다공(茶空)"</strong>은 
+                차(茶)와 공예(工藝)를 통해 만들어지는 <strong>여백과 공간</strong>을 의미합니다.
+              </p>
+              <p class="text-gray-700 text-lg leading-relaxed mb-6">
+                한 잔의 차를 마시는 순간, 장인의 손길이 닿은 공예품을 감상하는 시간,
+                그 안에서 우리는 <strong class="text-craft-blue">일상의 여유</strong>와 
+                <strong class="text-tea-brown">전통의 가치</strong>를 발견합니다.
+              </p>
+              <p class="text-gray-700 text-lg leading-relaxed">
+                다공은 생산자와 소비자를 직접 연결하여 중간 마진을 줄이고,
+                합리적인 가격으로 <strong>좋은 품질의 한국 전통 차와 공예품</strong>을 제공합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 핵심 가치 -->
+        <div class="max-w-6xl mx-auto mb-16">
+          <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">
+            <i class="fas fa-heart text-red-500 mr-3"></i>
+            핵심 가치
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- 전통 계승 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+              <div class="w-16 h-16 bg-tea-green rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-landmark text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 text-center mb-4">전통 문화 계승</h3>
+              <p class="text-gray-600 text-center leading-relaxed">
+                한국의 전통 차 문화와 공예 기술을 보존하고 현대에 계승합니다.
+                천년의 역사를 이어갑니다.
+              </p>
+            </div>
+
+            <!-- 직거래 -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+              <div class="w-16 h-16 bg-craft-blue rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-handshake text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 text-center mb-4">생산자 직거래</h3>
+              <p class="text-gray-600 text-center leading-relaxed">
+                중간 유통 마진을 없애고 생산자와 소비자를 직접 연결합니다.
+                합리적인 가격, 정당한 수익.
+              </p>
+            </div>
+
+            <!-- K-Culture -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition transform hover:-translate-y-2">
+              <div class="w-16 h-16 bg-tea-brown rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-globe-asia text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 text-center mb-4">K-Culture 세계화</h3>
+              <p class="text-gray-600 text-center leading-relaxed">
+                한국 차와 공예의 가치를 세계에 알립니다.
+                K-Culture와 함께 세계로 나아갑니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 연락처 정보 -->
+        <div class="max-w-4xl mx-auto mb-16">
+          <div class="bg-gradient-to-r from-tea-green to-craft-blue rounded-2xl shadow-xl p-8 md:p-12 text-white">
+            <h2 class="text-3xl font-bold mb-8 text-center">
+              <i class="fas fa-address-book mr-3"></i>
+              연락처
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- 대표 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-user-tie text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">대표</span>
+                </div>
+                <p class="text-lg">박영광</p>
+              </div>
+
+              <!-- 휴대폰 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-mobile-alt text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">휴대폰</span>
+                </div>
+                <a href="tel:+82-10-9571-9168" class="text-lg hover:underline">
+                  010-9571-9168<br/>
+                  (+82-10-9571-9168)
+                </a>
+              </div>
+
+              <!-- 전화 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-phone text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">전화</span>
+                </div>
+                <a href="tel:+82-43-225-8582" class="text-lg hover:underline">
+                  043-225-8582<br/>
+                  (+82-43-225-8582)
+                </a>
+              </div>
+
+              <!-- 이메일 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-envelope text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">이메일</span>
+                </div>
+                <a href="mailto:dagong1004@naver.com" class="text-lg hover:underline">
+                  dagong1004@naver.com
+                </a>
+              </div>
+
+              <!-- 주소 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm md:col-span-2">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-map-marker-alt text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">주소</span>
+                </div>
+                <p class="text-lg">
+                  충북 청주시 상당구 중앙로 47 1층<br/>
+                  (47 Jungang-ro, Sangdang-gu, Cheongju-si, Chungcheongbuk-do, Korea)
+                </p>
+              </div>
+
+              <!-- 웹사이트 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fas fa-globe text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">웹사이트</span>
+                </div>
+                <a href="https://dagong.co.kr" target="_blank" class="text-lg hover:underline">
+                  dagong.co.kr
+                </a>
+              </div>
+
+              <!-- 유튜브 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm">
+                <div class="flex items-center mb-3">
+                  <i class="fab fa-youtube text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">유튜브</span>
+                </div>
+                <a href="https://youtube.com/@다공tv" target="_blank" class="text-lg hover:underline">
+                  다공tv
+                </a>
+              </div>
+
+              <!-- 인스타그램 -->
+              <div class="bg-white bg-opacity-20 rounded-xl p-6 backdrop-blur-sm md:col-span-2">
+                <div class="flex items-center mb-3">
+                  <i class="fab fa-instagram text-2xl mr-3"></i>
+                  <span class="font-bold text-lg">인스타그램</span>
+                </div>
+                <a href="https://instagram.com/한국차공예네트워크" target="_blank" class="text-lg hover:underline">
+                  cafe: 한국차공예네트워크
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 명함 다운로드 -->
+        <div class="max-w-4xl mx-auto">
+          <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+              <i class="fas fa-id-card text-tea-green mr-3"></i>
+              명함 다운로드
+            </h2>
+            
+            <!-- 명함 미리보기 -->
+            <div class="mb-8 text-center">
+              <div class="inline-block bg-gray-100 rounded-xl p-4 shadow-lg">
+                <img 
+                  src="https://www.genspark.ai/api/files/s/vL24JmQF" 
+                  alt="다공 명함" 
+                  class="max-w-full h-auto rounded-lg shadow-md"
+                  style="max-width: 600px;"
+                />
+              </div>
+            </div>
+
+            <!-- 다운로드 버튼 -->
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+              <a 
+                href="https://www.genspark.ai/api/files/s/vL24JmQF" 
+                download="dagong-business-card.jpg"
+                class="inline-flex items-center justify-center px-8 py-4 bg-tea-green text-white font-bold rounded-xl hover:bg-opacity-90 transition shadow-lg transform hover:scale-105"
+              >
+                <i class="fas fa-download mr-3 text-xl"></i>
+                명함 이미지 다운로드
+              </a>
+              <button 
+                onclick="window.print()"
+                class="inline-flex items-center justify-center px-8 py-4 bg-craft-blue text-white font-bold rounded-xl hover:bg-opacity-90 transition shadow-lg transform hover:scale-105"
+              >
+                <i class="fas fa-print mr-3 text-xl"></i>
+                명함 인쇄하기
+              </button>
+            </div>
+
+            <!-- 명함 정보 -->
+            <div class="mt-8 p-6 bg-tea-cream rounded-xl">
+              <h3 class="font-bold text-lg mb-4 flex items-center">
+                <i class="fas fa-info-circle text-tea-green mr-2"></i>
+                명함 정보
+              </h3>
+              <ul class="space-y-2 text-gray-700">
+                <li><i class="fas fa-check text-tea-green mr-2"></i>고해상도 이미지 (인쇄 가능)</li>
+                <li><i class="fas fa-check text-tea-green mr-2"></i>한글/영문 정보 포함</li>
+                <li><i class="fas fa-check text-tea-green mr-2"></i>모든 연락처 정보 수록</li>
+                <li><i class="fas fa-check text-tea-green mr-2"></i>양면 디자인</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 하단 CTA -->
+        <div class="max-w-4xl mx-auto mt-16 text-center">
+          <h3 class="text-2xl font-bold text-gray-900 mb-6">
+            다공과 함께 한국의 전통을 경험하세요
+          </h3>
+          <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <a href="/products" class="inline-block px-8 py-4 bg-tea-green text-white font-bold rounded-xl hover:bg-opacity-90 transition shadow-lg">
+              <i class="fas fa-shopping-bag mr-2"></i>
+              상품 둘러보기
+            </a>
+            <a href="/experiences" class="inline-block px-8 py-4 bg-craft-blue text-white font-bold rounded-xl hover:bg-opacity-90 transition shadow-lg">
+              <i class="fas fa-users mr-2"></i>
+              체험·교육 신청
+            </a>
+            <a href="/regions" class="inline-block px-8 py-4 bg-tea-brown text-white font-bold rounded-xl hover:bg-opacity-90 transition shadow-lg">
+              <i class="fas fa-map-marked-alt mr-2"></i>
+              지역별 보기
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // ===== 교육 신청 페이지 =====
