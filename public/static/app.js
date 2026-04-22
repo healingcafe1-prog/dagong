@@ -5096,66 +5096,66 @@ if (window.location.pathname === '/') {
     const popupHTML = `
       <!-- 카카오톡 친구초대 팝업 -->
       <div id="kakaoInvitePopup" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onclick="closeKakaoInvitePopup()">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onclick="event.stopPropagation()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden max-h-[90vh] md:max-h-[90vh] max-h-[50vh] overflow-y-auto scale-90 md:scale-100" onclick="event.stopPropagation()">
           <!-- 헤더 -->
-          <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 text-white relative">
-            <button onclick="closeKakaoInvitePopup()" class="absolute top-4 right-4 text-white hover:text-gray-200 transition">
-              <i class="fas fa-times text-2xl"></i>
+          <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 p-3 md:p-6 text-white relative">
+            <button onclick="closeKakaoInvitePopup()" class="absolute top-2 right-2 md:top-4 md:right-4 text-white hover:text-gray-200 transition">
+              <i class="fas fa-times text-xl md:text-2xl"></i>
             </button>
             <div class="text-center">
-              <i class="fas fa-gift text-5xl mb-3"></i>
-              <h2 class="text-2xl font-bold mb-2">친구 초대하고</h2>
-              <h3 class="text-3xl font-extrabold">20,000 포인트 받기!</h3>
+              <i class="fas fa-gift text-2xl md:text-5xl mb-1 md:mb-3"></i>
+              <h2 class="text-base md:text-2xl font-bold mb-1 md:mb-2">친구 초대하고</h2>
+              <h3 class="text-xl md:text-3xl font-extrabold">20,000 포인트 받기!</h3>
             </div>
           </div>
           
           <!-- 내용 -->
-          <div class="p-6">
-            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mb-6">
-              <p class="text-center text-gray-700 font-medium">
+          <div class="p-3 md:p-6">
+            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3 md:p-4 mb-4 md:mb-6">
+              <p class="text-center text-gray-700 font-medium text-sm md:text-base">
                 <i class="fas fa-star text-yellow-500 mr-1"></i>
-                친구가 가입하면 <span class="text-yellow-600 font-bold text-xl">20,000P</span> 적립!
+                친구가 가입하면 <span class="text-yellow-600 font-bold text-lg md:text-xl">20,000P</span> 적립!
               </p>
             </div>
             
-            <div class="space-y-3 mb-6">
+            <div class="space-y-1.5 md:space-y-3 mb-3 md:mb-6">
               <div class="flex items-start">
-                <span class="bg-tea-green text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">1</span>
-                <p class="text-gray-700">초대 링크를 친구에게 공유</p>
+                <span class="bg-tea-green text-white rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-xs md:text-sm font-bold mr-2 md:mr-3 flex-shrink-0">1</span>
+                <p class="text-gray-700 text-sm md:text-base">초대 링크를 친구에게 공유</p>
               </div>
               <div class="flex items-start">
-                <span class="bg-tea-green text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">2</span>
-                <p class="text-gray-700">친구가 링크로 회원가입</p>
+                <span class="bg-tea-green text-white rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-xs md:text-sm font-bold mr-2 md:mr-3 flex-shrink-0">2</span>
+                <p class="text-gray-700 text-sm md:text-base">친구가 링크로 회원가입</p>
               </div>
               <div class="flex items-start">
-                <span class="bg-tea-green text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0">3</span>
-                <p class="text-gray-700">나와 친구 모두 20,000P 적립!</p>
+                <span class="bg-tea-green text-white rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center text-xs md:text-sm font-bold mr-2 md:mr-3 flex-shrink-0">3</span>
+                <p class="text-gray-700 text-sm md:text-base">나와 친구 모두 20,000P 적립!</p>
               </div>
             </div>
             
             <!-- 버튼 -->
-            <div class="space-y-3">
-              <button onclick="shareKakaoInvite()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg">
+            <div class="space-y-2 md:space-y-3">
+              <button onclick="shareKakaoInvite()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-3 md:py-4 rounded-xl transition transform hover:scale-105 shadow-lg text-sm md:text-base">
                 <i class="fas fa-comment mr-2"></i>
                 카카오톡으로 초대하기
               </button>
               
-              <button onclick="copyInviteLink()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+              <button onclick="copyInviteLink()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 md:py-3 rounded-xl transition text-sm md:text-base">
                 <i class="fas fa-link mr-2"></i>
                 초대 링크 복사하기
               </button>
               
-              <button onclick="viewMyReferrals()" class="w-full text-tea-green hover:text-tea-green-dark font-medium py-2 transition">
+              <button onclick="viewMyReferrals()" class="w-full text-tea-green hover:text-tea-green-dark font-medium py-2 transition text-sm md:text-base">
                 <i class="fas fa-users mr-2"></i>
                 내 초대 현황 보기
               </button>
             </div>
             
             <!-- 오늘 하루 보지 않기 -->
-            <div class="mt-4 pt-4 border-t border-gray-200 text-center">
+            <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 text-center">
               <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="hidePopupToday" class="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-400">
-                <span class="ml-2 text-sm text-gray-600">오늘 하루 보지 않기</span>
+                <input type="checkbox" id="hidePopupToday" class="form-checkbox h-4 w-4 md:h-5 md:w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-400">
+                <span class="ml-2 text-xs md:text-sm text-gray-600">오늘 하루 보지 않기</span>
               </label>
             </div>
           </div>
