@@ -4584,10 +4584,32 @@ if (window.location.pathname === '/') {
   // 전역 함수로 팝업 닫기
   window.closeKakaoInvitePopup = function() {
     const popup = document.getElementById('kakaoInvitePopup');
+    const hideCheckbox = document.getElementById('hidePopupToday');
+    
     if (popup) {
       popup.classList.add('hidden');
       document.body.style.overflow = 'auto';
+      
+      // "오늘 하루 보지 않기" 체크되어 있으면 쿠키 설정
+      if (hideCheckbox && hideCheckbox.checked) {
+        setCookie('hideInvitePopup', 'true', 1); // 1일 동안 숨김
+      }
     }
+  }
+  
+  // 쿠키 설정 함수
+  function setCookie(name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+  }
+  
+  // 쿠키 확인 함수
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
   }
   
   // 카카오톡 공유하기
@@ -4746,6 +4768,14 @@ if (window.location.pathname === '/') {
                 내 초대 현황 보기
               </button>
             </div>
+            
+            <!-- 오늘 하루 보지 않기 -->
+            <div class="mt-4 pt-4 border-t border-gray-200 text-center">
+              <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="hidePopupToday" class="form-checkbox h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-400">
+                <span class="ml-2 text-sm text-gray-600">오늘 하루 보지 않기</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -4753,4 +4783,16 @@ if (window.location.pathname === '/') {
     
     document.body.insertAdjacentHTML('beforeend', popupHTML);
   }
+
+  // ==================== 페이지 로드 시 자동 팝업 표시 ====================
+  
+  // 쿠키 확인 후 자동 팝업 표시
+  window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+      const hidePopup = getCookie('hideInvitePopup');
+      if (!hidePopup) {
+        window.openKakaoInvitePopup();
+      }
+    }, 1500); // 1.5초 후 팝업 표시 (페이지 로드 완료 후)
+  });
 }
