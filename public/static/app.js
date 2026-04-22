@@ -585,9 +585,15 @@ async function loadHomePage() {
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             ${featuredProducts.data.products.map(product => `
-              <a href="/products/${product.id}" class="block bg-gray-50 rounded-lg overflow-hidden hover:shadow-lg transition">
-                <div class="h-64 bg-gray-200 flex items-center justify-center">
-                  <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : 'fa-palette'} text-gray-400 text-6xl"></i>
+              <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
+                <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                  ${product.main_image 
+                    ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                       <div style="display:none;" class="w-full h-full flex items-center justify-center">
+                         <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
+                       </div>`
+                    : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>`
+                  }
                 </div>
                 <div class="p-4">
                   <div class="text-sm text-gray-500 mb-1">${product.region_name || ''}</div>
@@ -723,8 +729,14 @@ async function loadProductsPage() {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           ${products.map(product => `
             <a href="/products/${product.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-              <div class="h-64 bg-gray-200 flex items-center justify-center">
-                <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
+              <div class="h-64 bg-gray-200 flex items-center justify-center overflow-hidden">
+                ${product.main_image 
+                  ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                     <div style="display:none;" class="w-full h-full flex items-center justify-center">
+                       <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>
+                     </div>`
+                  : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-6xl"></i>`
+                }
               </div>
               <div class="p-4">
                 <div class="text-sm text-gray-500 mb-1">${product.producer_name} · ${product.region_name || ''}</div>
@@ -759,8 +771,14 @@ async function loadProductDetailPage(productId) {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- 상품 이미지 -->
           <div>
-            <div class="bg-gray-200 rounded-lg h-96 flex items-center justify-center mb-4">
-              <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-8xl"></i>
+            <div class="bg-gray-200 rounded-lg h-96 flex items-center justify-center mb-4 overflow-hidden">
+              ${product.main_image 
+                ? `<img src="${product.main_image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                   <div style="display:none;" class="w-full h-full flex items-center justify-center">
+                     <i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-8xl"></i>
+                   </div>`
+                : `<i class="fas ${product.product_type === 'tea' ? 'fa-mug-hot' : product.product_type === 'craft' ? 'fa-palette' : 'fa-gift'} text-gray-400 text-8xl"></i>`
+              }
             </div>
             ${images && images.length > 0 ? `
               <div class="grid grid-cols-4 gap-2">
