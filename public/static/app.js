@@ -2608,6 +2608,32 @@ async function logout() {
   }
 }
 
+// 테스트 계정 로그인 (개발용)
+window.testLogin = function() {
+  const testUser = {
+    id: 'test_' + Date.now(),
+    name: '테스트 사용자',
+    email: 'test@dagong.co.kr',
+    provider: 'test'
+  };
+  
+  // localStorage에 저장
+  localStorage.setItem('user_id', testUser.id);
+  localStorage.setItem('user_name', testUser.name);
+  localStorage.setItem('user_email', testUser.email);
+  localStorage.setItem('auth_provider', testUser.provider);
+  
+  // 토큰 생성 (간단한 Base64 인코딩)
+  const token = btoa(JSON.stringify(testUser));
+  localStorage.setItem('auth_token', token);
+  
+  alert('✅ 테스트 계정으로 로그인되었습니다!\n\n이름: ' + testUser.name + '\n이메일: ' + testUser.email + '\n\n※ 개발/테스트 전용 계정입니다.');
+  
+  // 메인 페이지로 이동
+  window.location.hash = '#/';
+  window.location.reload();
+}
+
 // ===== 로그인 페이지 =====
 function loadLoginPage() {
   const error = searchParams.get('error');
@@ -2662,6 +2688,16 @@ function loadLoginPage() {
             </svg>
             <span class="font-medium text-gray-800">카카오로 시작하기</span>
           </a>
+        </div>
+        
+        <!-- 개발/테스트용 로그인 -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <p class="text-center text-sm text-gray-600 mb-3">개발/테스트용</p>
+          <button onclick="testLogin()" 
+             class="flex items-center justify-center w-full bg-gray-100 border-2 border-gray-300 rounded-lg px-6 py-3 hover:bg-gray-200 transition">
+            <i class="fas fa-user-circle mr-3 text-gray-600"></i>
+            <span class="font-medium text-gray-700">테스트 계정으로 로그인</span>
+          </button>
         </div>
         
         <div class="mt-8 text-center text-sm text-gray-600">
