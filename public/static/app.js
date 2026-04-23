@@ -2711,6 +2711,13 @@ function loadLoginPage() {
             홈으로 돌아가기
           </a>
         </div>
+        
+        <div class="mt-4 text-center">
+          <a href="/clear-cache.html" class="text-xs text-red-600 hover:underline">
+            <i class="fas fa-exclamation-circle mr-1"></i>
+            로그인 버튼이 안 보이나요? 캐시 클리어
+          </a>
+        </div>
       </div>
     </div>
   `;
