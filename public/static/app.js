@@ -5028,99 +5028,125 @@ if (window.location.pathname === '/') {
   
   // 카카오톡 공유하기
   window.shareKakaoInvite = async function() {
-    const user = await checkAuth();
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      window.location.hash = '#/login';
-      return;
-    }
-    
-    // 추천인 코드 생성 (user_id 기반)
-    const referralCode = 'DG' + user.id.toString().padStart(6, '0');
-    const inviteUrl = window.location.origin + '?ref=' + referralCode;
-    
-    // Kakao SDK가 로드되어 있는지 확인
-    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
-      Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
-          title: '🍵 다공 - 차와 공예의 직거래 플랫폼',
-          description: '친구 초대하고 20,000 포인트 받으세요! 전통 차와 공예품을 생산자와 직거래로 만나보세요.',
-          imageUrl: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800',
-          link: {
-            mobileWebUrl: inviteUrl,
-            webUrl: inviteUrl
-          }
-        },
-        buttons: [
-          {
-            title: '다공 가입하기',
-            link: {
-              mobileWebUrl: inviteUrl,
-              webUrl: inviteUrl
-            }
-          }
-        ]
-      });
+    try {
+      const user = await checkAuth();
+      if (!user) {
+        alert('로그인이 필요합니다.');
+        window.location.hash = '#/login';
+        closeKakaoInvitePopup();
+        return;
+      }
       
-      // 공유 성공 후 포인트 적립 (실제로는 친구가 가입해야 적립)
-      alert('카카오톡으로 초대장을 보냈습니다! 🎉\n친구가 가입하면 20,000 포인트가 적립됩니다.');
-      window.closeKakaoInvitePopup();
+      // 추천인 코드 생성 (user_id 기반)
+      const referralCode = 'DG' + user.id.toString().padStart(6, '0');
+      const inviteUrl = window.location.origin + '?ref=' + referralCode;
       
-    } else {
-      // Kakao SDK가 없으면 링크 복사
+      // Kakao SDK가 로드되어 있고 초기화되어 있는지 확인
+      if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+        try {
+          Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+              title: '🍵 다공 - 차와 공예의 직거래 플랫폼',
+              description: '친구 초대하고 20,000 포인트 받으세요! 전통 차와 공예품을 생산자와 직거래로 만나보세요.',
+              imageUrl: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=800',
+              link: {
+                mobileWebUrl: inviteUrl,
+                webUrl: inviteUrl
+              }
+            },
+            buttons: [
+              {
+                title: '다공 가입하기',
+                link: {
+                  mobileWebUrl: inviteUrl,
+                  webUrl: inviteUrl
+                }
+              }
+            ]
+          });
+          
+          // 공유 성공 후
+          alert('카카오톡으로 초대장을 보냈습니다! 🎉\n친구가 가입하면 20,000 포인트가 적립됩니다.');
+          closeKakaoInvitePopup();
+          return;
+        } catch (kakaoError) {
+          console.error('Kakao 공유 실패:', kakaoError);
+          // Kakao 공유 실패 시 링크 복사로 대체
+        }
+      }
+      
+      // Kakao SDK가 없거나 초기화되지 않았거나 공유 실패 시 링크 복사
       try {
         await navigator.clipboard.writeText(inviteUrl);
-        alert('초대 링크가 복사되었습니다! 🎉\n친구에게 공유해주세요.\n\n링크: ' + inviteUrl);
-        window.closeKakaoInvitePopup();
-      } catch (err) {
-        alert('초대 링크: ' + inviteUrl + '\n\n위 링크를 복사하여 친구에게 공유해주세요!');
+        alert('초대 링크가 복사되었습니다! 🎉\n\n친구에게 공유해주세요:\n' + inviteUrl + '\n\n친구가 가입하면 20,000 포인트가 적립됩니다.');
+        closeKakaoInvitePopup();
+      } catch (clipboardError) {
+        // 클립보드 접근 실패 시 링크 직접 표시
+        const copyText = prompt('초대 링크를 복사하세요:', inviteUrl);
+        if (copyText !== null) {
+          alert('링크를 복사하여 친구에게 공유해주세요! 🎉\n친구가 가입하면 20,000 포인트가 적립됩니다.');
+        }
+        closeKakaoInvitePopup();
       }
+    } catch (error) {
+      console.error('초대 처리 오류:', error);
+      alert('초대 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      closeKakaoInvitePopup();
     }
   }
   
   // 초대 링크 복사
   window.copyInviteLink = async function() {
-    const user = await checkAuth();
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      window.location.hash = '#/login';
-      return;
-    }
-    
-    const referralCode = 'DG' + user.id.toString().padStart(6, '0');
-    const inviteUrl = window.location.origin + '?ref=' + referralCode;
-    
     try {
-      await navigator.clipboard.writeText(inviteUrl);
-      alert('초대 링크가 복사되었습니다! 📋\n친구에게 공유해주세요.');
-    } catch (err) {
-      // 복사 실패 시 텍스트 선택
-      const textarea = document.createElement('textarea');
-      textarea.value = inviteUrl;
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        alert('초대 링크가 복사되었습니다! 📋');
-      } catch (err2) {
-        alert('초대 링크: ' + inviteUrl);
+      const user = await checkAuth();
+      if (!user) {
+        alert('로그인이 필요합니다.');
+        window.location.hash = '#/login';
+        closeKakaoInvitePopup();
+        return;
       }
-      document.body.removeChild(textarea);
+      
+      const referralCode = 'DG' + user.id.toString().padStart(6, '0');
+      const inviteUrl = window.location.origin + '?ref=' + referralCode;
+      
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+        alert('초대 링크가 복사되었습니다! 📋\n\n' + inviteUrl + '\n\n친구에게 공유해주세요!');
+        closeKakaoInvitePopup();
+      } catch (err) {
+        // 복사 실패 시 fallback
+        const copyText = prompt('초대 링크를 복사하세요:', inviteUrl);
+        if (copyText !== null) {
+          alert('링크를 친구에게 공유해주세요! 📋');
+        }
+        closeKakaoInvitePopup();
+      }
+    } catch (error) {
+      console.error('링크 복사 오류:', error);
+      alert('링크 복사 중 오류가 발생했습니다.');
+      closeKakaoInvitePopup();
     }
   }
   
   // 내 초대 현황 보기
   window.viewMyReferrals = async function() {
-    const user = await checkAuth();
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      window.location.hash = '#/login';
-      return;
+    try {
+      const user = await checkAuth();
+      if (!user) {
+        alert('로그인이 필요합니다.');
+        window.location.hash = '#/login';
+        closeKakaoInvitePopup();
+        return;
+      }
+      
+      closeKakaoInvitePopup();
+      // TODO: 내 초대 현황 페이지로 이동 (추후 구현)
+      alert('내 초대 현황 페이지는 곧 준비됩니다! 🎉\n\n현재 초대 링크는 계속 사용 가능합니다.');
+    } catch (error) {
+      console.error('초대 현황 조회 오류:', error);
+      closeKakaoInvitePopup();
     }
-    
-    window.closeKakaoInvitePopup();
-    window.location.hash = '#/my-referrals';
   }
   
   // 페이지에 팝업 HTML 추가 (최초 1회만)

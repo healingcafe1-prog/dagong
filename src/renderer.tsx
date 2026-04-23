@@ -66,11 +66,15 @@ export const renderer = jsxRenderer(({ children }) => {
         <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js" integrity="sha384-l+xbElFSnPZ2rOaPrU//2FF5B4LB8FiX5q4fXYTlfcG4PGpMkE1vcL7kNXI6Cci0" crossorigin="anonymous"></script>
         <script dangerouslySetInnerHTML={{
           __html: `
-            // Kakao SDK 초기화 (JavaScript Key 사용)
-            if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-              Kakao.init('your_kakao_javascript_key_here'); // 실제 JavaScript 키로 교체 필요
-              console.log('Kakao SDK 초기화 완료:', Kakao.isInitialized());
-            }
+            // Kakao SDK 초기화 (선택적)
+            // Kakao JavaScript 키가 있으면 아래 주석을 해제하고 키를 입력하세요
+            // if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+            //   Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
+            //   console.log('Kakao SDK 초기화 완료:', Kakao.isInitialized());
+            // }
+            
+            // Kakao SDK가 없어도 링크 복사로 작동하도록 설정됨
+            console.log('Kakao SDK 로드 완료. 초기화는 선택 사항입니다.');
           `
         }} />
         
