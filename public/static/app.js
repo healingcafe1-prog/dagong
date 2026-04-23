@@ -5027,9 +5027,25 @@ if (window.location.pathname === '/') {
   }
   
   // 카카오톡 공유하기
+  // 로그인 체크 함수
+  function getLoggedInUser() {
+    const userId = localStorage.getItem('user_id');
+    const userName = localStorage.getItem('user_name');
+    const userEmail = localStorage.getItem('user_email');
+    
+    if (userId) {
+      return {
+        id: userId,
+        name: userName,
+        email: userEmail
+      };
+    }
+    return null;
+  }
+
   window.shareKakaoInvite = async function() {
     try {
-      const user = await checkAuth();
+      const user = getLoggedInUser();
       if (!user) {
         alert('로그인이 필요합니다.');
         window.location.hash = '#/login';
@@ -5099,7 +5115,7 @@ if (window.location.pathname === '/') {
   // 초대 링크 복사
   window.copyInviteLink = async function() {
     try {
-      const user = await checkAuth();
+      const user = getLoggedInUser();
       if (!user) {
         alert('로그인이 필요합니다.');
         window.location.hash = '#/login';
@@ -5132,7 +5148,7 @@ if (window.location.pathname === '/') {
   // 내 초대 현황 보기
   window.viewMyReferrals = async function() {
     try {
-      const user = await checkAuth();
+      const user = getLoggedInUser();
       if (!user) {
         alert('로그인이 필요합니다.');
         window.location.hash = '#/login';
