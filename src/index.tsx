@@ -2536,6 +2536,26 @@ app.get('/', async (c) => {
           </div>
         </div>
         
+        {/* 주요 액션 버튼 */}
+        <div class="quick-actions">
+          <a href="/experiences" class="action-button experience">
+            <div class="action-icon">🏃</div>
+            <div class="action-content">
+              <div class="action-title">체험 예약하기</div>
+              <div class="action-subtitle">다도, 공예 체험</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </a>
+          <a href="/products/new" class="action-button register">
+            <div class="action-icon">📝</div>
+            <div class="action-content">
+              <div class="action-title">상품 등록하기</div>
+              <div class="action-subtitle">AI 상세페이지 생성</div>
+            </div>
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+        
         {/* 카테고리 그리드 - 컬리 스타일 */}
         <div class="category-section">
           <h2 class="category-title">카테고리</h2>

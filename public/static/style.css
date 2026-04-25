@@ -1145,3 +1145,111 @@ body.mobile-page footer {
   min-width: 18px;
   text-align: center;
 }
+
+/* 주요 액션 버튼 */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+  background: white;
+}
+
+.action-button.experience {
+  border-color: #8ba888;
+  background: linear-gradient(135deg, #f5f9f4 0%, #ffffff 100%);
+}
+
+.action-button.register {
+  border-color: #6b8e23;
+  background: linear-gradient(135deg, #f0f7e6 0%, #ffffff 100%);
+}
+
+.action-button:active {
+  transform: scale(0.98);
+}
+
+.action-button.experience:active {
+  background: #8ba888;
+  border-color: #8ba888;
+}
+
+.action-button.register:active {
+  background: #6b8e23;
+  border-color: #6b8e23;
+}
+
+.action-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.action-content {
+  flex: 1;
+  text-align: left;
+}
+
+.action-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.action-button:active .action-title {
+  color: white;
+}
+
+.action-subtitle {
+  font-size: 12px;
+  color: #666;
+}
+
+.action-button:active .action-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.action-button .fa-chevron-right {
+  font-size: 14px;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.action-button:active .fa-chevron-right {
+  color: white;
+}
+
+/* 반응형 - 작은 화면 */
+@media (max-width: 400px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-button {
+    padding: 14px;
+  }
+  
+  .action-icon {
+    font-size: 28px;
+  }
+  
+  .action-title {
+    font-size: 14px;
+  }
+  
+  .action-subtitle {
+    font-size: 11px;
+  }
+}
