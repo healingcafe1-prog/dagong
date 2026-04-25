@@ -53,7 +53,7 @@ app.use('/api/*', cors())
 app.use('/static/*', serveStatic())
 
 // HTML 파일 직접 서빙 (정적 HTML 페이지)
-app.get('/*.html', serveStatic({ path: '/' }))
+app.get('/*.html', serveStatic({ root: './' }))
 
 // SQL API 엔드포인트 - 완전한 SQL 반환
 app.get('/api/sql-content', (c) => {
