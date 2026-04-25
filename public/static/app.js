@@ -558,6 +558,9 @@ async function loadHomePage() {
             <a href="/experiences" class="border-2 border-white text-white px-8 py-3 rounded-full font-bold hover:bg-white hover:text-tea-green transition">
               체험 예약하기
             </a>
+            <a href="/products/new" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 py-3 rounded-full font-bold hover:from-emerald-600 hover:to-teal-700 transition shadow-lg">
+              📝 상품 등록하기
+            </a>
           </div>
         </div>
       </section>
