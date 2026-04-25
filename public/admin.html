@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다공 관리자</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-4 md:p-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- 헤더 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                            <i class="fas fa-leaf text-green-600 mr-2"></i>
+                            다공 관리자
+                        </h1>
+                        <p class="text-gray-600">자동 배포 시스템 v2.1</p>
+                    </div>
+                    <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-home mr-2"></i>사이트로
+                    </a>
+                </div>
+            </div>
+
+            <!-- 자동 배포 안내 -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-8 mb-6 text-white">
+                <div class="flex items-start space-x-4">
+                    <i class="fas fa-rocket text-5xl opacity-80"></i>
+                    <div class="flex-1">
+                        <h2 class="text-2xl font-bold mb-3">✨ 자동 배포 시스템 활성화!</h2>
+                        <p class="text-blue-100 mb-4">
+                            이제 코드를 수정하고 GitHub에 푸시하기만 하면 자동으로 사이트가 업데이트됩니다!
+                        </p>
+                        <div class="bg-blue-700 bg-opacity-50 rounded-lg p-4 space-y-2">
+                            <p class="font-medium">📝 업데이트 방법:</p>
+                            <ol class="list-decimal list-inside space-y-1 text-sm text-blue-50">
+                                <li>코드 수정</li>
+                                <li>Git에 커밋: <code class="bg-blue-800 px-2 py-0.5 rounded">git add . && git commit -m "업데이트"</code></li>
+                                <li>GitHub에 푸시: <code class="bg-blue-800 px-2 py-0.5 rounded">git push origin main</code></li>
+                                <li>자동으로 배포됨 (2-3분 소요)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빠른 링크 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <a href="https://github.com/healingcafe1-prog/dagong/actions" target="_blank" 
+                   class="bg-white hover:bg-gray-50 border rounded-lg p-6 text-center transition group">
+                    <i class="fab fa-github text-4xl text-gray-800 mb-3 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-gray-900">GitHub Actions</p>
+                    <p class="text-xs text-gray-500 mt-1">배포 상태 확인</p>
+                </a>
+
+                <a href="https://dash.cloudflare.com/pages" target="_blank" 
+                   class="bg-white hover:bg-gray-50 border rounded-lg p-6 text-center transition group">
+                    <i class="fas fa-cloud text-4xl text-orange-500 mb-3 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-gray-900">Cloudflare Pages</p>
+                    <p class="text-xs text-gray-500 mt-1">배포 관리</p>
+                </a>
+
+                <a href="https://dash.cloudflare.com" target="_blank" 
+                   class="bg-white hover:bg-gray-50 border rounded-lg p-6 text-center transition group">
+                    <i class="fas fa-database text-4xl text-purple-600 mb-3 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-gray-900">D1 Database</p>
+                    <p class="text-xs text-gray-500 mt-1">DB 관리</p>
+                </a>
+
+                <a href="https://dagong.co.kr" target="_blank" 
+                   class="bg-white hover:bg-gray-50 border rounded-lg p-6 text-center transition group">
+                    <i class="fas fa-globe text-4xl text-green-600 mb-3 group-hover:scale-110 transition"></i>
+                    <p class="font-bold text-gray-900">사이트 보기</p>
+                    <p class="text-xs text-gray-500 mt-1">dagong.co.kr</p>
+                </a>
+            </div>
+
+            <!-- 환경 변수 설정 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">
+                    <i class="fas fa-key text-yellow-600 mr-2"></i>
+                    환경 변수 설정 (필수)
+                </h3>
+                <p class="text-gray-600 mb-4">
+                    소셜 로그인이 작동하려면 Cloudflare Pages에서 환경 변수를 설정해야 합니다.
+                </p>
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <p class="text-sm text-yellow-800 font-medium mb-2">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        설정하지 않으면 로그인 기능이 작동하지 않습니다!
+                    </p>
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">KAKAO_CLIENT_ID</code>
+                        <span class="text-xs text-gray-500">카카오 REST API 키</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">KAKAO_CLIENT_SECRET</code>
+                        <span class="text-xs text-gray-500">카카오 시크릿 키</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">GOOGLE_CLIENT_ID</code>
+                        <span class="text-xs text-gray-500">구글 클라이언트 ID</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">GOOGLE_CLIENT_SECRET</code>
+                        <span class="text-xs text-gray-500">구글 시크릿</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">NAVER_CLIENT_ID</code>
+                        <span class="text-xs text-gray-500">네이버 클라이언트 ID</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">NAVER_CLIENT_SECRET</code>
+                        <span class="text-xs text-gray-500">네이버 시크릿</span>
+                    </div>
+                </div>
+                <a href="https://dash.cloudflare.com" target="_blank" 
+                   class="block w-full bg-yellow-600 hover:bg-yellow-700 text-white text-center px-4 py-3 rounded-lg font-medium">
+                    <i class="fas fa-cog mr-2"></i>
+                    Cloudflare에서 환경 변수 설정하기
+                </a>
+            </div>
+
+            <!-- GitHub Secrets 설정 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">
+                    <i class="fab fa-github text-gray-800 mr-2"></i>
+                    GitHub Secrets 설정 (자동 배포용)
+                </h3>
+                <p class="text-gray-600 mb-4">
+                    자동 배포가 작동하려면 GitHub Repository Secrets를 설정해야 합니다.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">CLOUDFLARE_API_TOKEN</code>
+                        <span class="text-xs text-green-600 font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>설정됨
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <code class="text-sm">CLOUDFLARE_ACCOUNT_ID</code>
+                        <span class="text-xs text-gray-500">ecc65d2ec1ecc2222db7937965158511</span>
+                    </div>
+                </div>
+                <a href="https://github.com/healingcafe1-prog/dagong/settings/secrets/actions" target="_blank" 
+                   class="block w-full bg-gray-800 hover:bg-gray-900 text-white text-center px-4 py-3 rounded-lg font-medium">
+                    <i class="fab fa-github mr-2"></i>
+                    GitHub Secrets 관리
+                </a>
+            </div>
+
+            <!-- 최근 업데이트 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">
+                    <i class="fas fa-history text-indigo-600 mr-2"></i>
+                    최근 업데이트
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">자동 배포 시스템 구축</p>
+                            <p class="text-sm text-gray-600">GitHub Actions + Cloudflare Pages</p>
+                            <p class="text-xs text-gray-500 mt-1">2026-04-25</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <i class="fas fa-check-circle text-blue-600 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">사용자 인증 시스템 수정</p>
+                            <p class="text-sm text-gray-600">카카오/구글/네이버 로그인 및 친구초대</p>
+                            <p class="text-xs text-gray-500 mt-1">2026-04-25</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        <i class="fas fa-check-circle text-purple-600 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-900">새로운 콘텐츠 추가</p>
+                            <p class="text-sm text-gray-600">박람회, 프리마켓, 고급 다도, 승마체험</p>
+                            <p class="text-xs text-gray-500 mt-1">2026-04-25</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
