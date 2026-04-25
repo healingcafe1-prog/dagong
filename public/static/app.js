@@ -1037,7 +1037,9 @@ async function loadRegionsPage() {
     
     const typeNames = {
       'tea': '차 산지',
-      'craft': '공예 산지'
+      'craft': '공예 산지',
+      'fair': '한국차공예품박람회',
+      'freemarket': '프리마켓'
     };
     
     app.innerHTML = `
@@ -1046,7 +1048,7 @@ async function loadRegionsPage() {
           ${type ? typeNames[type] : '전체 지역'}
         </h1>
         
-        <div class="flex gap-4 mb-8">
+        <div class="flex flex-wrap gap-4 mb-8">
           <a href="/regions" class="px-4 py-2 rounded-full ${!type ? 'bg-tea-green text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
             전체
           </a>
@@ -1056,13 +1058,21 @@ async function loadRegionsPage() {
           <a href="/regions?type=craft" class="px-4 py-2 rounded-full ${type === 'craft' ? 'bg-craft-blue text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
             공예 산지
           </a>
+          <a href="/regions?type=fair" class="px-4 py-2 rounded-full ${type === 'fair' ? 'bg-purple-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            <i class="fas fa-store mr-2"></i>
+            한국차공예품박람회
+          </a>
+          <a href="/regions?type=freemarket" class="px-4 py-2 rounded-full ${type === 'freemarket' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} transition">
+            <i class="fas fa-shopping-bag mr-2"></i>
+            프리마켓
+          </a>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           ${regions.map(region => `
             <a href="/regions/${region.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-              <div class="h-48 bg-gradient-to-br ${region.type === 'tea' ? 'from-tea-green to-green-600' : 'from-craft-blue to-blue-600'} flex items-center justify-center">
-                <i class="fas ${region.type === 'tea' ? 'fa-leaf' : 'fa-palette'} text-white text-6xl"></i>
+              <div class="h-48 bg-gradient-to-br ${region.type === 'tea' ? 'from-tea-green to-green-600' : region.type === 'craft' ? 'from-craft-blue to-blue-600' : region.type === 'fair' ? 'from-purple-600 to-purple-800' : 'from-orange-600 to-orange-800'} flex items-center justify-center">
+                <i class="fas ${region.type === 'tea' ? 'fa-leaf' : region.type === 'craft' ? 'fa-palette' : region.type === 'fair' ? 'fa-store' : 'fa-shopping-bag'} text-white text-6xl"></i>
               </div>
               <div class="p-6">
                 <h3 class="text-xl font-bold mb-2">${region.name}</h3>

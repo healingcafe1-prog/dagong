@@ -933,14 +933,25 @@ app.use(renderer)
 
 // 지역 목록 조회 API
 app.get('/api/regions', async (c) => {
-  const type = c.req.query('type') // 'tea' 또는 'craft'
+  const type = c.req.query('type') // 'tea', 'craft', 'fair', 'freemarket'
   
   let query = 'SELECT * FROM regions'
   const params: string[] = []
   
   if (type) {
-    query += ' WHERE type = ?'
-    params.push(type)
+    if (type === 'fair') {
+      // '한국차공예품박람회'로 필터링
+      query += ' WHERE name = ?'
+      params.push('한국차공예품박람회')
+    } else if (type === 'freemarket') {
+      // '프리마켓'으로 필터링
+      query += ' WHERE name = ?'
+      params.push('프리마켓')
+    } else {
+      // 'tea' 또는 'craft' type으로 필터링 (단, 박람회/프리마켓 제외)
+      query += ' WHERE type = ? AND name NOT IN (?, ?)'
+      params.push(type, '한국차공예품박람회', '프리마켓')
+    }
   }
   
   query += ' ORDER BY id'
