@@ -6895,3 +6895,399 @@ app.get('/privacy', (c) => {
   `)
 })
 
+// ============================================
+// 상품 등록 및 펀딩 API
+// ============================================
+
+// 1. 상품 등록 생성 (초안)
+app.post('/api/listings', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const body = await c.req.json()
+    
+    const { title, short_description, category, price, images = [] } = body
+    
+    // 필수 필드 확인
+    if (!title || !short_description || !category || !price) {
+      return c.json({ error: '필수 항목을 모두 입력해주세요' }, 400)
+    }
+    
+    // 상품 등록 생성
+    const result = await c.env.DB.prepare(`
+      INSERT INTO product_listings 
+      (user_id, title, short_description, category, price, status)
+      VALUES (?, ?, ?, ?, ?, 'draft')
+    `).bind(user.user_id, title, short_description, category, price).run()
+    
+    const listingId = result.meta.last_row_id
+    
+    // 이미지 저장
+    if (images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        await c.env.DB.prepare(`
+          INSERT INTO product_listing_images 
+          (listing_id, image_url, image_order, is_main)
+          VALUES (?, ?, ?, ?)
+        `).bind(listingId, images[i], i, i === 0 ? 1 : 0).run()
+      }
+    }
+    
+    return c.json({
+      success: true,
+      listing_id: listingId,
+      message: '상품 등록이 생성되었습니다'
+    })
+  } catch (error) {
+    console.error('상품 등록 생성 오류:', error)
+    return c.json({ error: '상품 등록 생성 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 2. AI 상세페이지 생성 요청
+app.post('/api/listings/:id/generate-ai-description', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const listingId = c.req.param('id')
+    
+    // 상품 정보 가져오기
+    const { results: listings } = await c.env.DB.prepare(`
+      SELECT * FROM product_listings 
+      WHERE id = ? AND user_id = ?
+    `).bind(listingId, user.user_id).all()
+    
+    if (listings.length === 0) {
+      return c.json({ error: '상품을 찾을 수 없습니다' }, 404)
+    }
+    
+    const listing = listings[0]
+    
+    // AI 상세페이지 생성 (시뮬레이션)
+    const aiDescription = `
+# ${listing.title}
+
+## 상품 소개
+${listing.short_description}
+
+## 특징
+- 프리미엄 품질의 ${listing.category === 'tea' ? '차' : listing.category === 'craft' ? '공예품' : '상품'}입니다
+- 장인의 정성이 담긴 수작업 제품
+- 친환경 재료를 사용하여 안전합니다
+- 선물용으로도 완벽한 패키징
+
+## 상세 설명
+이 상품은 전통 기법과 현대적 감각이 조화를 이룬 특별한 작품입니다. 
+오랜 시간 연구와 개발을 통해 최고의 품질을 자랑합니다.
+
+## 사용 방법
+1. 제품을 개봉합니다
+2. 사용 전 제품을 깨끗이 세척합니다
+3. 용도에 맞게 사용하시면 됩니다
+
+## 보관 방법
+- 직사광선을 피해 서늘한 곳에 보관하세요
+- 습기가 적은 곳에 보관하세요
+- 사용 후에는 깨끗이 씻어 말려주세요
+
+## 교환 및 반품
+- 상품 수령 후 7일 이내 교환/반품 가능
+- 미사용 제품에 한해 가능합니다
+    `.trim()
+    
+    // DB에 저장
+    await c.env.DB.prepare(`
+      UPDATE product_listings 
+      SET ai_detailed_description = ?,
+          ai_generated_at = datetime('now'),
+          updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(aiDescription, listingId).run()
+    
+    // AI 생성 로그 저장
+    await c.env.DB.prepare(`
+      INSERT INTO ai_generation_logs 
+      (listing_id, user_id, input_data, generated_content, model_used, status)
+      VALUES (?, ?, ?, ?, 'gpt-4', 'completed')
+    `).bind(
+      listingId, 
+      user.user_id, 
+      JSON.stringify({ title: listing.title, description: listing.short_description }),
+      aiDescription
+    ).run()
+    
+    return c.json({
+      success: true,
+      description: aiDescription,
+      message: 'AI 상세페이지가 생성되었습니다'
+    })
+  } catch (error) {
+    console.error('AI 생성 오류:', error)
+    return c.json({ error: 'AI 생성 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 3. 펀딩 설정
+app.put('/api/listings/:id/funding', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const listingId = c.req.param('id')
+    const body = await c.req.json()
+    
+    const { 
+      funding_goal, 
+      funding_start_date, 
+      funding_end_date,
+      min_funding_amount = 10000
+    } = body
+    
+    // 펀딩 설정 업데이트
+    await c.env.DB.prepare(`
+      UPDATE product_listings 
+      SET is_funding = 1,
+          funding_goal = ?,
+          funding_start_date = ?,
+          funding_end_date = ?,
+          min_funding_amount = ?,
+          updated_at = datetime('now')
+      WHERE id = ? AND user_id = ?
+    `).bind(
+      funding_goal, 
+      funding_start_date, 
+      funding_end_date,
+      min_funding_amount,
+      listingId, 
+      user.user_id
+    ).run()
+    
+    return c.json({
+      success: true,
+      message: '펀딩 설정이 완료되었습니다'
+    })
+  } catch (error) {
+    console.error('펀딩 설정 오류:', error)
+    return c.json({ error: '펀딩 설정 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 4. 일정 추가
+app.post('/api/listings/:id/schedules', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const listingId = c.req.param('id')
+    const body = await c.req.json()
+    
+    const { 
+      schedule_date, 
+      start_time, 
+      end_time, 
+      max_participants = 10,
+      price_adjustment = 0
+    } = body
+    
+    // 일정 추가
+    const result = await c.env.DB.prepare(`
+      INSERT INTO product_schedules 
+      (listing_id, schedule_date, start_time, end_time, max_participants, price_adjustment)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).bind(listingId, schedule_date, start_time, end_time, max_participants, price_adjustment).run()
+    
+    // 상품에 일정 있음 표시
+    await c.env.DB.prepare(`
+      UPDATE product_listings 
+      SET has_schedule = 1,
+          updated_at = datetime('now')
+      WHERE id = ? AND user_id = ?
+    `).bind(listingId, user.user_id).run()
+    
+    return c.json({
+      success: true,
+      schedule_id: result.meta.last_row_id,
+      message: '일정이 추가되었습니다'
+    })
+  } catch (error) {
+    console.error('일정 추가 오류:', error)
+    return c.json({ error: '일정 추가 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 5. 상품 제출 (심사 요청)
+app.put('/api/listings/:id/submit', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const listingId = c.req.param('id')
+    
+    // 상품 상태를 pending으로 변경
+    await c.env.DB.prepare(`
+      UPDATE product_listings 
+      SET status = 'pending',
+          updated_at = datetime('now')
+      WHERE id = ? AND user_id = ? AND status = 'draft'
+    `).bind(listingId, user.user_id).run()
+    
+    return c.json({
+      success: true,
+      message: '상품이 심사 요청되었습니다'
+    })
+  } catch (error) {
+    console.error('상품 제출 오류:', error)
+    return c.json({ error: '상품 제출 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 6. 내 상품 목록 조회
+app.get('/api/my-listings', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    
+    const { results: listings } = await c.env.DB.prepare(`
+      SELECT pl.*,
+             (SELECT image_url FROM product_listing_images 
+              WHERE listing_id = pl.id AND is_main = 1 LIMIT 1) as main_image,
+             (SELECT COUNT(*) FROM product_listing_images 
+              WHERE listing_id = pl.id) as image_count
+      FROM product_listings pl
+      WHERE pl.user_id = ?
+      ORDER BY pl.created_at DESC
+    `).bind(user.user_id).all()
+    
+    return c.json({ listings })
+  } catch (error) {
+    console.error('상품 목록 조회 오류:', error)
+    return c.json({ error: '상품 목록 조회 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 7. 상품 상세 조회
+app.get('/api/listings/:id', async (c) => {
+  try {
+    const listingId = c.req.param('id')
+    
+    const { results: listings } = await c.env.DB.prepare(`
+      SELECT pl.*,
+             u.name as seller_name,
+             u.profile_image as seller_image
+      FROM product_listings pl
+      JOIN users u ON pl.user_id = u.id
+      WHERE pl.id = ?
+    `).bind(listingId).all()
+    
+    if (listings.length === 0) {
+      return c.json({ error: '상품을 찾을 수 없습니다' }, 404)
+    }
+    
+    // 이미지 가져오기
+    const { results: images } = await c.env.DB.prepare(`
+      SELECT * FROM product_listing_images 
+      WHERE listing_id = ?
+      ORDER BY image_order
+    `).bind(listingId).all()
+    
+    // 일정 가져오기
+    const { results: schedules } = await c.env.DB.prepare(`
+      SELECT * FROM product_schedules 
+      WHERE listing_id = ? AND schedule_date >= date('now')
+      ORDER BY schedule_date, start_time
+    `).bind(listingId).all()
+    
+    // 조회수 증가
+    await c.env.DB.prepare(`
+      UPDATE product_listings 
+      SET view_count = view_count + 1
+      WHERE id = ?
+    `).bind(listingId).run()
+    
+    return c.json({
+      listing: listings[0],
+      images,
+      schedules
+    })
+  } catch (error) {
+    console.error('상품 조회 오류:', error)
+    return c.json({ error: '상품 조회 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 8. 펀딩 목록 조회 (공개)
+app.get('/api/fundings', async (c) => {
+  try {
+    const status = c.req.query('status') || 'active'
+    
+    let query = `
+      SELECT pl.*,
+             u.name as seller_name,
+             (SELECT image_url FROM product_listing_images 
+              WHERE listing_id = pl.id AND is_main = 1 LIMIT 1) as main_image,
+             ROUND((pl.funding_current_amount * 100.0 / pl.funding_goal), 1) as funding_percentage
+      FROM product_listings pl
+      JOIN users u ON pl.user_id = u.id
+      WHERE pl.is_funding = 1 AND pl.status = 'published'
+    `
+    
+    if (status === 'active') {
+      query += ` AND pl.funding_end_date >= date('now')`
+    } else if (status === 'ended') {
+      query += ` AND pl.funding_end_date < date('now')`
+    }
+    
+    query += ` ORDER BY pl.created_at DESC`
+    
+    const { results: fundings } = await c.env.DB.prepare(query).all()
+    
+    return c.json({ fundings })
+  } catch (error) {
+    console.error('펀딩 목록 조회 오류:', error)
+    return c.json({ error: '펀딩 목록 조회 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 9. 펀딩 후원하기
+app.post('/api/fundings/:id/pledge', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const listingId = c.req.param('id')
+    const body = await c.req.json()
+    
+    const { amount, quantity = 1, message } = body
+    
+    // 최소 금액 확인
+    const { results: listings } = await c.env.DB.prepare(`
+      SELECT * FROM product_listings WHERE id = ?
+    `).bind(listingId).all()
+    
+    if (listings.length === 0) {
+      return c.json({ error: '펀딩을 찾을 수 없습니다' }, 404)
+    }
+    
+    const listing = listings[0]
+    
+    if (amount < listing.min_funding_amount) {
+      return c.json({ 
+        error: `최소 후원 금액은 ${listing.min_funding_amount}원입니다` 
+      }, 400)
+    }
+    
+    // 후원 저장
+    const result = await c.env.DB.prepare(`
+      INSERT INTO funding_pledges 
+      (listing_id, user_id, amount, quantity, backer_message, payment_status)
+      VALUES (?, ?, ?, ?, ?, 'pending')
+    `).bind(listingId, user.user_id, amount, quantity, message).run()
+    
+    // 펀딩 금액 업데이트
+    await c.env.DB.prepare(`
+      UPDATE product_listings 
+      SET funding_current_amount = funding_current_amount + ?,
+          funding_backers_count = funding_backers_count + 1
+      WHERE id = ?
+    `).bind(amount, listingId).run()
+    
+    return c.json({
+      success: true,
+      pledge_id: result.meta.last_row_id,
+      message: '후원이 완료되었습니다'
+    })
+  } catch (error) {
+    console.error('펀딩 후원 오류:', error)
+    return c.json({ error: '펀딩 후원 중 오류가 발생했습니다' }, 500)
+  }
+})
+
