@@ -1069,17 +1069,24 @@ async function loadRegionsPage() {
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          ${regions.map(region => `
+          ${regions.map(region => {
+            // name으로 타입 구분
+            const isFair = region.name === '한국차공예품박람회';
+            const isFreemarket = region.name === '프리마켓';
+            const displayType = isFair ? 'fair' : isFreemarket ? 'freemarket' : region.type;
+            
+            return `
             <a href="/regions/${region.id}" class="block bg-white rounded-lg overflow-hidden hover:shadow-lg transition">
-              <div class="h-48 bg-gradient-to-br ${region.type === 'tea' ? 'from-tea-green to-green-600' : region.type === 'craft' ? 'from-craft-blue to-blue-600' : region.type === 'fair' ? 'from-purple-600 to-purple-800' : 'from-orange-600 to-orange-800'} flex items-center justify-center">
-                <i class="fas ${region.type === 'tea' ? 'fa-leaf' : region.type === 'craft' ? 'fa-palette' : region.type === 'fair' ? 'fa-store' : 'fa-shopping-bag'} text-white text-6xl"></i>
+              <div class="h-48 bg-gradient-to-br ${displayType === 'tea' ? 'from-tea-green to-green-600' : displayType === 'craft' ? 'from-craft-blue to-blue-600' : displayType === 'fair' ? 'from-purple-600 to-purple-800' : 'from-orange-600 to-orange-800'} flex items-center justify-center">
+                <i class="fas ${displayType === 'tea' ? 'fa-leaf' : displayType === 'craft' ? 'fa-palette' : displayType === 'fair' ? 'fa-store' : 'fa-shopping-bag'} text-white text-6xl"></i>
               </div>
               <div class="p-6">
                 <h3 class="text-xl font-bold mb-2">${region.name}</h3>
                 <p class="text-gray-600 text-sm">${region.description || ''}</p>
               </div>
             </a>
-          `).join('')}
+          `;
+          }).join('')}
         </div>
       </div>
     `;
