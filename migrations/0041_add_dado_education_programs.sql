@@ -1,6 +1,6 @@
--- 다도교육 카테고리 재추가
+-- 고급 다도교육 카테고리 추가 (기존 ID 1과 구분)
 INSERT INTO education_categories (id, name, parent_id, description, display_order, icon)
-VALUES (6, '다도교육', 1, '다도의 의미와 역사, 명상과 인성교육을 배웁니다', 3, 'fa-spa');
+VALUES (8, '고급 다도', 1, '훈민정음, 직지심경 등 한국 전통 문화와 결합한 고급 다도를 배웁니다', 4, 'fa-spa');
 
 -- 1. 훈민정음 다도
 INSERT INTO education_curriculum (
@@ -13,7 +13,7 @@ INSERT INTO education_curriculum (
   display_order,
   thumbnail_image
 ) VALUES (
-  6,
+  8,
   '훈민정음 다도',
   '훈민정음의 철학과 한글의 아름다움을 차와 함께 배웁니다',
   '• 프로그램 소개
@@ -54,7 +54,7 @@ INSERT INTO education_curriculum (
   display_order,
   thumbnail_image
 ) VALUES (
-  6,
+  8,
   '훈민정음 명상',
   '한글 자음·모음의 소리와 형태를 통한 명상 수련',
   '• 프로그램 소개
@@ -95,7 +95,7 @@ INSERT INTO education_curriculum (
   display_order,
   thumbnail_image
 ) VALUES (
-  6,
+  8,
   '직지심경 다도',
   '세계 최초 금속활자본 직지심경의 의미를 다도로 배웁니다',
   '• 프로그램 소개
@@ -141,7 +141,7 @@ INSERT INTO education_curriculum (
   display_order,
   thumbnail_image
 ) VALUES (
-  6,
+  8,
   '직지심경 명상',
   '직지심경의 가르침을 명상으로 실천합니다',
   '• 프로그램 소개
@@ -188,7 +188,7 @@ INSERT INTO education_curriculum (
   display_order,
   thumbnail_image
 ) VALUES (
-  6,
+  8,
   '지역특산품 결합 블렌딩티 제작지원 컨설팅',
   '지역 특산품을 활용한 창의적 블렌딩티 개발 전문 컨설팅',
   '• 프로그램 소개

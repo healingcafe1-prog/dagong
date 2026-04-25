@@ -14,7 +14,7 @@ INSERT INTO producers (
 ) VALUES (
   '괴산네이쳐승마장',
   (SELECT id FROM regions WHERE name = '괴산'),
-  'local',
+  'craft',
   '자연과 함께하는 승마 체험을 제공하는 괴산의 승마장',
   '043-000-0000',
   'goesan.nature@example.com',
