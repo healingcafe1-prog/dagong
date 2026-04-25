@@ -45,22 +45,11 @@ jobs:
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Create deployment tag
-        if: success()
-        run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          TAG_NAME="auto-deploy-$(date +'%Y%m%d-%H%M%S')"
-          git tag -a "$TAG_NAME" -m "🤖 Auto deployment on $(date +'%Y-%m-%d %H:%M:%S KST')"
-          git push origin "$TAG_NAME" || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Notify deployment status
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ 배포 성공: $(date +'%Y-%m-%d %H:%M:%S KST')"
+            echo "✅ 배포 성공: $(date +'%Y-%m-%d %H:%M:%S')"
           else
-            echo "❌ 배포 실패: $(date +'%Y-%m-%d %H:%M:%S KST')"
+            echo "❌ 배포 실패: $(date +'%Y-%m-%d %H:%M:%S')"
           fi
