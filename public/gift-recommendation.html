@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선물 추천 - 다공</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+                <a href="/" class="text-2xl font-bold text-tea-green flex items-center">
+                    <i class="fas fa-leaf mr-2"></i>
+                    다공
+                </a>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="/products?type=tea" class="text-gray-700 hover:text-tea-green">한국차</a>
+                    <a href="/products?type=craft" class="text-gray-700 hover:text-tea-green">공예품</a>
+                    <a href="/products?type=gift_set" class="text-gray-700 hover:text-tea-green font-bold text-tea-green">선물세트</a>
+                    <a href="/experiences" class="text-gray-700 hover:text-tea-green">체험</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="container mx-auto px-4 py-8">
+            <!-- 어떤 선물을 하나요? -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8">
+                    어떤 선물을 하나요?
+                    <i class="fas fa-question-circle text-gray-400 text-lg ml-2"></i>
+                </h2>
+                
+                <div class="grid grid-cols-4 md:grid-cols-8 gap-6 max-w-6xl mx-auto">
+                    <!-- 어린이날 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="어린이날">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🧸</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">어린이날</span>
+                        <span class="text-xs text-tea-green">추천 5종</span>
+                    </div>
+
+                    <!-- 어버이날 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="어버이날">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-100 to-pink-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🌺</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">어버이날</span>
+                        <span class="text-xs text-tea-green">추천 8종</span>
+                    </div>
+
+                    <!-- 스승의날 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="스승의날">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-100 to-red-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🌹</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">스승의날</span>
+                        <span class="text-xs text-tea-green">추천 15종</span>
+                    </div>
+
+                    <!-- 생일 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="생일">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-yellow-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🎂</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">생일</span>
+                        <span class="text-xs text-tea-green">추천 20종</span>
+                    </div>
+
+                    <!-- 기념일 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="기념일">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-pink-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">💍</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">기념일</span>
+                        <span class="text-xs text-tea-green">추천 12종</span>
+                    </div>
+
+                    <!-- 집들이 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="집들이">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-teal-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🏡</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">집들이</span>
+                        <span class="text-xs text-tea-green">추천 10종</span>
+                    </div>
+
+                    <!-- 결혼 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="결혼">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-rose-100 to-red-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">💐</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">결혼</span>
+                        <span class="text-xs text-tea-green">추천 8종</span>
+                    </div>
+
+                    <!-- 졸업/입학 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="졸업입학">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🎓</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">졸업/입학</span>
+                        <span class="text-xs text-tea-green">추천 6종</span>
+                    </div>
+
+                    <!-- 가벼운선물 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="가벼운선물">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-yellow-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🎁</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">가벼운선물</span>
+                        <span class="text-xs text-tea-green">추천 15종</span>
+                    </div>
+
+                    <!-- 퇴직 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="퇴직">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-slate-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🏆</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">퇴직</span>
+                        <span class="text-xs text-tea-green">추천 7종</span>
+                    </div>
+
+                    <!-- 임신/출산 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="임신출산">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-100 to-rose-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">👶</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">임신/출산</span>
+                        <span class="text-xs text-tea-green">추천 5종</span>
+                    </div>
+
+                    <!-- 환갑/칠순 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="환갑칠순">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-100 to-amber-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🎊</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">환갑/칠순</span>
+                        <span class="text-xs text-tea-green">추천 6종</span>
+                    </div>
+
+                    <!-- 돌잔치 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="돌잔치">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-100 to-blue-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🎈</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">돌잔치</span>
+                        <span class="text-xs text-tea-green">추천 4종</span>
+                    </div>
+
+                    <!-- 군인 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="군인">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-emerald-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">🎖️</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">군인</span>
+                        <span class="text-xs text-tea-green">추천 8종</span>
+                    </div>
+
+                    <!-- 시험 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="시험">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-red-200 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-4xl">📝</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">시험</span>
+                        <span class="text-xs text-tea-green">추천 5종</span>
+                    </div>
+
+                    <!-- 기프트카드 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-occasion="기프트카드">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mb-2 shadow-md">
+                            <span class="text-3xl text-white font-bold">GIFT</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 text-center">기프트카드</span>
+                        <span class="text-xs text-tea-green">준비중</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 누구에게 선물하나요? -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8">누구에게 선물하나요?</h2>
+                
+                <div class="grid grid-cols-4 md:grid-cols-8 gap-6 max-w-5xl mx-auto">
+                    <!-- ALL -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="all">
+                        <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-2 shadow-md border-2 border-gray-300">
+                            <span class="text-lg font-bold text-gray-700">ALL</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">누구나</span>
+                    </div>
+
+                    <!-- 여성 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="여성">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-200 to-rose-300 flex items-center justify-center mb-2 shadow-md overflow-hidden">
+                            <i class="fas fa-female text-4xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">여성</span>
+                    </div>
+
+                    <!-- 남성 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="남성">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-200 to-indigo-300 flex items-center justify-center mb-2 shadow-md overflow-hidden">
+                            <i class="fas fa-male text-4xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">남성</span>
+                    </div>
+
+                    <!-- 연인 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="연인">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-red-200 to-pink-300 flex items-center justify-center mb-2 shadow-md">
+                            <i class="fas fa-heart text-3xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">연인</span>
+                    </div>
+
+                    <!-- 직장동료 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="직장동료">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-gray-200 to-slate-300 flex items-center justify-center mb-2 shadow-md">
+                            <i class="fas fa-briefcase text-3xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">직장동료</span>
+                    </div>
+
+                    <!-- 어린이 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="어린이">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-200 to-amber-300 flex items-center justify-center mb-2 shadow-md">
+                            <i class="fas fa-child text-3xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">어린이</span>
+                    </div>
+
+                    <!-- 부모님 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="부모님">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-green-200 to-emerald-300 flex items-center justify-center mb-2 shadow-md">
+                            <i class="fas fa-users text-3xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">부모님</span>
+                    </div>
+
+                    <!-- 선생님 -->
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-110 transition" data-recipient="선생님">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-200 to-violet-300 flex items-center justify-center mb-2 shadow-md">
+                            <i class="fas fa-chalkboard-teacher text-2xl text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">선생님</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // 이벤트별 선물 추천
+        document.querySelectorAll('[data-occasion]').forEach(item => {
+            item.addEventListener('click', () => {
+                const occasion = item.dataset.occasion
+                window.location.href = `/products?type=gift_set&occasion=${occasion}`
+            })
+        })
+
+        // 수신자별 선물 추천
+        document.querySelectorAll('[data-recipient]').forEach(item => {
+            item.addEventListener('click', () => {
+                const recipient = item.dataset.recipient
+                window.location.href = `/products?type=gift_set&recipient=${recipient}`
+            })
+        })
+    </script>
+</body>
+</html>
