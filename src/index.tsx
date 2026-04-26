@@ -4070,6 +4070,68 @@ app.get('/products/new', async (c) => {
                     <input type="text" name="origin" id="origin" placeholder="예: 제주도">
                 </div>
 
+                <!-- 펀딩 옵션 -->
+                <div style="border: 2px solid #667eea; border-radius: 12px; padding: 25px; margin-top: 30px; background: linear-gradient(135deg, #f5f7ff 0%, #fff 100%);">
+                    <h3 style="font-size: 20px; font-weight: 700; color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-rocket"></i> 펀딩 예약 판매 <span style="font-size: 12px; color: #666; font-weight: normal;">(선택사항)</span>
+                    </h3>
+                    <p style="font-size: 14px; color: #6c757d; margin-bottom: 20px;">
+                        공예품은 대량생산이 어려워요. 펀딩으로 주문을 먼저 받고 제작하세요!
+                    </p>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="is_funding" name="is_funding" style="width: auto; margin-right: 10px;">
+                            <span>이 상품을 펀딩 예약 상품으로 등록하기</span>
+                        </label>
+                    </div>
+
+                    <div id="fundingFields" class="conditional-field">
+                        <!-- 펀딩 기간 -->
+                        <div class="form-group">
+                            <label class="required">펀딩 시작일</label>
+                            <input type="date" name="funding_start_date" id="funding_start_date" min="${new Date().toISOString().split('T')[0]}">
+                            <div class="help-text">펀딩을 시작할 날짜를 선택하세요</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">펀딩 종료일</label>
+                            <input type="date" name="funding_end_date" id="funding_end_date" min="${new Date().toISOString().split('T')[0]}">
+                            <div class="help-text">펀딩을 종료할 날짜를 선택하세요 (최소 7일 이상 권장)</div>
+                        </div>
+
+                        <!-- 목표 수량 -->
+                        <div class="form-group">
+                            <label class="required">목표 후원 수량</label>
+                            <input type="number" name="funding_goal_quantity" id="funding_goal_quantity" placeholder="예: 50" min="10" value="50">
+                            <div class="help-text">최소 몇 개가 주문되어야 제작을 시작할지 설정하세요</div>
+                        </div>
+
+                        <!-- 제작 기간 -->
+                        <div class="form-group">
+                            <label class="required">제작 소요 기간 (일)</label>
+                            <input type="number" name="production_days" id="production_days" placeholder="예: 30" min="7" max="90" value="30">
+                            <div class="help-text">펀딩 종료 후 제작 및 발송까지 소요되는 기간 (7~90일)</div>
+                        </div>
+
+                        <!-- 최소 후원 금액 -->
+                        <div class="form-group">
+                            <label>최소 후원 금액 (원)</label>
+                            <input type="number" name="min_funding_amount" id="min_funding_amount" value="10000" min="5000" step="1000">
+                            <div class="help-text">한 번에 후원할 수 있는 최소 금액</div>
+                        </div>
+
+                        <div class="info-box" style="background: #fff3cd; border-color: #ffc107;">
+                            <i class="fas fa-lightbulb" style="color: #ffc107;"></i>
+                            <strong>펀딩 예약 판매란?</strong><br>
+                            • 샘플 상품을 먼저 등록하고 주문을 받습니다<br>
+                            • 목표 수량 달성 시 제작을 시작합니다<br>
+                            • 제작 완료 후 고객에게 발송됩니다<br>
+                            • 주문이 들어올 때마다 카카오 알림톡을 받습니다
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 등록 버튼 -->
                 <button type="submit" class="btn-primary" id="submitBtn">
                     <i class="fas fa-check"></i> 상품 등록하기
@@ -4133,6 +4195,36 @@ app.get('/products/new', async (c) => {
           // 계좌번호 숫자만 입력
           document.getElementById('account_number').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          });
+
+          // 펀딩 옵션 토글
+          document.getElementById('is_funding').addEventListener('change', function(e) {
+            const fundingFields = document.getElementById('fundingFields');
+            const isChecked = e.target.checked;
+            
+            if (isChecked) {
+              fundingFields.classList.add('show');
+              document.getElementById('funding_start_date').required = true;
+              document.getElementById('funding_end_date').required = true;
+              document.getElementById('funding_goal_quantity').required = true;
+              document.getElementById('production_days').required = true;
+              
+              // 기본값 설정
+              const today = new Date();
+              const startDate = new Date(today);
+              startDate.setDate(startDate.getDate() + 3); // 3일 후 시작
+              const endDate = new Date(startDate);
+              endDate.setDate(endDate.getDate() + 30); // 30일간 진행
+              
+              document.getElementById('funding_start_date').value = startDate.toISOString().split('T')[0];
+              document.getElementById('funding_end_date').value = endDate.toISOString().split('T')[0];
+            } else {
+              fundingFields.classList.remove('show');
+              document.getElementById('funding_start_date').required = false;
+              document.getElementById('funding_end_date').required = false;
+              document.getElementById('funding_goal_quantity').required = false;
+              document.getElementById('production_days').required = false;
+            }
           });
 
           // 이미지 업로드 처리
@@ -7591,6 +7683,129 @@ app.post('/api/fundings/:id/pledge', authMiddleware, async (c) => {
   } catch (error) {
     console.error('펀딩 후원 오류:', error)
     return c.json({ error: '펀딩 후원 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+
+// ===== 셀러 대시보드 API =====
+
+// 셀러 통계 조회
+app.get('/api/seller/stats', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    
+    // 진행중인 펀딩 개수
+    const { results: activeFunding } = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count
+      FROM product_listings
+      WHERE user_id = ? AND is_funding = 1 AND funding_status = 'active'
+    `).bind(user.user_id).all()
+    
+    // 총 주문건 수
+    const { results: totalOrders } = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count, SUM(amount) as revenue
+      FROM funding_pledges
+      WHERE listing_id IN (
+        SELECT id FROM product_listings WHERE user_id = ?
+      ) AND payment_status = 'completed'
+    `).bind(user.user_id).all()
+    
+    // 미확인 주문
+    const { results: unviewedOrders } = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count
+      FROM funding_pledges
+      WHERE listing_id IN (
+        SELECT id FROM product_listings WHERE user_id = ?
+      ) AND seller_viewed = 0
+    `).bind(user.user_id).all()
+    
+    return c.json({
+      active_funding: activeFunding[0]?.count || 0,
+      total_orders: totalOrders[0]?.count || 0,
+      total_revenue: totalOrders[0]?.revenue || 0,
+      unviewed_orders: unviewedOrders[0]?.count || 0
+    })
+  } catch (error) {
+    console.error('셀러 통계 조회 오류:', error)
+    return c.json({ error: '통계 조회 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 셀러의 펀딩 상품 목록
+app.get('/api/seller/funding-products', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    
+    const { results: products } = await c.env.DB.prepare(`
+      SELECT pl.*,
+             (SELECT image_url FROM product_listing_images 
+              WHERE listing_id = pl.id AND is_main = 1 LIMIT 1) as main_image
+      FROM product_listings pl
+      WHERE pl.user_id = ? AND pl.is_funding = 1
+      ORDER BY pl.created_at DESC
+    `).bind(user.user_id).all()
+    
+    return c.json({ products })
+  } catch (error) {
+    console.error('펀딩 상품 조회 오류:', error)
+    return c.json({ error: '펀딩 상품 조회 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 셀러의 주문 목록
+app.get('/api/seller/orders', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    
+    const { results: orders } = await c.env.DB.prepare(`
+      SELECT fp.*,
+             pl.title as product_title,
+             u.name as backer_name,
+             u.email as backer_email,
+             u.phone as backer_phone
+      FROM funding_pledges fp
+      JOIN product_listings pl ON fp.listing_id = pl.id
+      JOIN users u ON fp.user_id = u.id
+      WHERE pl.user_id = ?
+      ORDER BY fp.created_at DESC
+      LIMIT 100
+    `).bind(user.user_id).all()
+    
+    return c.json({ orders })
+  } catch (error) {
+    console.error('주문 목록 조회 오류:', error)
+    return c.json({ error: '주문 목록 조회 중 오류가 발생했습니다' }, 500)
+  }
+})
+
+// 주문 확인 처리
+app.post('/api/seller/orders/:id/viewed', authMiddleware, async (c) => {
+  try {
+    const user = c.get('user')
+    const orderId = c.req.param('id')
+    
+    // 본인 주문인지 확인
+    const { results: orders } = await c.env.DB.prepare(`
+      SELECT fp.* FROM funding_pledges fp
+      JOIN product_listings pl ON fp.listing_id = pl.id
+      WHERE fp.id = ? AND pl.user_id = ?
+    `).bind(orderId, user.user_id).all()
+    
+    if (orders.length === 0) {
+      return c.json({ error: '권한이 없습니다' }, 403)
+    }
+    
+    // 확인 처리
+    await c.env.DB.prepare(`
+      UPDATE funding_pledges
+      SET seller_viewed = 1, seller_viewed_at = datetime('now')
+      WHERE id = ?
+    `).bind(orderId).run()
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('주문 확인 처리 오류:', error)
+    return c.json({ error: '주문 확인 처리 중 오류가 발생했습니다' }, 500)
   }
 })
 

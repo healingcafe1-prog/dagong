@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>셀러 대시보드 - 펀딩 주문 관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <!-- 헤더 -->
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+                <a href="/" class="text-2xl font-bold text-tea-green flex items-center">
+                    <i class="fas fa-leaf mr-2"></i>
+                    다공
+                </a>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="/my-listings" class="text-gray-700 hover:text-tea-green">내 상품</a>
+                    <a href="/seller/dashboard" class="text-gray-700 hover:text-tea-green font-bold text-tea-green">펀딩 관리</a>
+                    <a href="/logout" class="text-gray-700 hover:text-tea-green">로그아웃</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-6">
+                <i class="fas fa-rocket text-purple-600"></i>
+                펀딩 주문 관리
+            </h1>
+
+            <!-- 통계 카드 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">진행중인 펀딩</p>
+                            <p class="text-3xl font-bold text-blue-600" id="activeFundingCount">0</p>
+                        </div>
+                        <i class="fas fa-rocket text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">총 주문건</p>
+                            <p class="text-3xl font-bold text-green-600" id="totalOrders">0</p>
+                        </div>
+                        <i class="fas fa-shopping-cart text-4xl text-green-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">미확인 주문</p>
+                            <p class="text-3xl font-bold text-red-600" id="unviewedOrders">0</p>
+                        </div>
+                        <i class="fas fa-bell text-4xl text-red-200"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">총 매출</p>
+                            <p class="text-2xl font-bold text-purple-600" id="totalRevenue">0원</p>
+                        </div>
+                        <i class="fas fa-won-sign text-4xl text-purple-200"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 펀딩 상품 목록 -->
+            <div class="bg-white rounded-lg shadow p-6 mb-8">
+                <h2 class="text-xl font-bold mb-4">
+                    <i class="fas fa-box-open"></i> 내 펀딩 상품
+                </h2>
+                <div id="fundingProducts" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                        <p>펀딩 상품을 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 최근 주문 목록 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold">
+                        <i class="fas fa-list"></i> 최근 주문 (실시간)
+                    </h2>
+                    <button onclick="loadOrders()" class="text-tea-green hover:text-tea-green-dark">
+                        <i class="fas fa-sync-alt"></i> 새로고침
+                    </button>
+                </div>
+                <div id="recentOrders">
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                        <p>주문 내역을 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script>
+        let autoRefreshInterval = null;
+
+        // 통계 로드
+        async function loadStats() {
+            try {
+                const response = await axios.get('/api/seller/stats');
+                const stats = response.data;
+                
+                document.getElementById('activeFundingCount').textContent = stats.active_funding || 0;
+                document.getElementById('totalOrders').textContent = stats.total_orders || 0;
+                document.getElementById('unviewedOrders').textContent = stats.unviewed_orders || 0;
+                document.getElementById('totalRevenue').textContent = (stats.total_revenue || 0).toLocaleString() + '원';
+            } catch (error) {
+                console.error('통계 로드 실패:', error);
+            }
+        }
+
+        // 펀딩 상품 로드
+        async function loadFundingProducts() {
+            try {
+                const response = await axios.get('/api/seller/funding-products');
+                const products = response.data.products || [];
+                
+                const container = document.getElementById('fundingProducts');
+                
+                if (products.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-box text-4xl mb-4"></i>
+                            <p>진행중인 펀딩 상품이 없습니다</p>
+                            <a href="/products/new" class="inline-block mt-4 bg-tea-green text-white px-6 py-2 rounded-lg hover:bg-tea-green-dark">
+                                펀딩 상품 등록하기
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = products.map(product => {
+                    const progress = Math.round((product.funding_current_amount / product.funding_goal) * 100);
+                    const daysLeft = Math.ceil((new Date(product.funding_end_date) - new Date()) / (1000 * 60 * 60 * 24));
+                    
+                    return `
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                            <div class="flex items-start space-x-4">
+                                <img src="${product.main_image || '/images/default-product.jpg'}" 
+                                     alt="${product.title}" 
+                                     class="w-24 h-24 object-cover rounded">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-lg mb-2">${product.title}</h3>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                                        <span><i class="fas fa-calendar"></i> ${daysLeft}일 남음</span>
+                                        <span><i class="fas fa-users"></i> ${product.funding_backers_count}명 후원</span>
+                                        <span class="font-bold text-tea-green">${progress}% 달성</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                                        <div class="bg-tea-green h-2.5 rounded-full" style="width: ${Math.min(progress, 100)}%"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-500">
+                                        목표: ${product.funding_goal.toLocaleString()}원 / 
+                                        현재: ${product.funding_current_amount.toLocaleString()}원
+                                    </p>
+                                </div>
+                                <a href="/products/${product.id}" 
+                                   class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                    상세보기
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('펀딩 상품 로드 실패:', error);
+                document.getElementById('fundingProducts').innerHTML = `
+                    <div class="text-center text-red-500 py-8">
+                        <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
+                        <p>펀딩 상품을 불러오는데 실패했습니다</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 주문 목록 로드
+        async function loadOrders() {
+            try {
+                const response = await axios.get('/api/seller/orders');
+                const orders = response.data.orders || [];
+                
+                const container = document.getElementById('recentOrders');
+                
+                if (orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-inbox text-4xl mb-4"></i>
+                            <p>주문 내역이 없습니다</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">주문일시</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">상품명</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">후원자</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">수량</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">금액</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">상태</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold">확인</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${orders.map(order => `
+                                    <tr class="${order.seller_viewed ? '' : 'bg-yellow-50'}">
+                                        <td class="px-4 py-3 text-sm">${new Date(order.created_at).toLocaleString('ko-KR')}</td>
+                                        <td class="px-4 py-3 text-sm font-medium">${order.product_title}</td>
+                                        <td class="px-4 py-3 text-sm">${order.backer_name}</td>
+                                        <td class="px-4 py-3 text-sm">${order.quantity}개</td>
+                                        <td class="px-4 py-3 text-sm font-bold">${order.amount.toLocaleString()}원</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <span class="px-2 py-1 rounded text-xs ${
+                                                order.payment_status === 'completed' ? 'bg-green-100 text-green-800' :
+                                                order.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                'bg-red-100 text-red-800'
+                                            }">
+                                                ${order.payment_status === 'completed' ? '결제완료' :
+                                                  order.payment_status === 'pending' ? '결제대기' : '실패'}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">
+                                            ${order.seller_viewed ? 
+                                                '<span class="text-gray-500">확인완료</span>' : 
+                                                `<button onclick="markAsViewed(${order.id})" class="text-blue-600 hover:text-blue-800">
+                                                    <i class="fas fa-eye"></i> 확인하기
+                                                </button>`
+                                            }
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                // 미확인 주문이 있으면 알림음 (선택사항)
+                const unviewedCount = orders.filter(o => !o.seller_viewed).length;
+                if (unviewedCount > 0) {
+                    document.title = `(${unviewedCount}) 새 주문 - 셀러 대시보드`;
+                }
+            } catch (error) {
+                console.error('주문 목록 로드 실패:', error);
+                document.getElementById('recentOrders').innerHTML = `
+                    <div class="text-center text-red-500 py-8">
+                        <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
+                        <p>주문 내역을 불러오는데 실패했습니다</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 주문 확인 처리
+        async function markAsViewed(orderId) {
+            try {
+                await axios.post(`/api/seller/orders/${orderId}/viewed`);
+                // 재로드
+                await loadStats();
+                await loadOrders();
+                
+                // 알림
+                alert('주문을 확인했습니다.');
+            } catch (error) {
+                console.error('주문 확인 실패:', error);
+                alert('주문 확인에 실패했습니다.');
+            }
+        }
+
+        // 자동 새로고침 설정
+        function setupAutoRefresh() {
+            // 30초마다 주문 목록 자동 새로고침
+            autoRefreshInterval = setInterval(() => {
+                loadStats();
+                loadOrders();
+            }, 30000);
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadStats();
+            await loadFundingProducts();
+            await loadOrders();
+            setupAutoRefresh();
+            
+            console.log('✅ 셀러 대시보드 로드 완료');
+            console.log('📊 주문이 30초마다 자동으로 갱신됩니다');
+        });
+
+        // 페이지 떠날 때 인터벌 정리
+        window.addEventListener('beforeunload', () => {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>
