@@ -1,42 +1,29 @@
 User-agent: *
 Allow: /
-
-# Sitemap location
-Sitemap: https://dagong-bi1.pages.dev/sitemap.xml
-
-# Crawl-delay for polite crawling
-Crawl-delay: 1
-
-# Block admin and API endpoints
-Disallow: /api/
-Disallow: /admin/
-Disallow: /_worker.js
-Disallow: /.well-known/
-
-# Allow all public pages
-Allow: /
 Allow: /products
-Allow: /regions
-Allow: /events
 Allow: /experiences
-Allow: /education
+Allow: /regions
 Allow: /producers
-Allow: /cart
-Allow: /login
-Allow: /register
+Allow: /gift-recommendation.html
 
-# SEO optimization
-User-agent: Googlebot
-Allow: /
+# 크롤링 금지 경로
+Disallow: /admin
+Disallow: /api/
+Disallow: /login
+Disallow: /logout
+Disallow: /seller/
 
+# 사이트맵
+Sitemap: https://dagong.co.kr/sitemap.xml
+
+# 네이버 봇
 User-agent: Yeti
 Allow: /
 
+# 구글 봇
+User-agent: Googlebot
+Allow: /
+
+# 빙 봇
 User-agent: Bingbot
-Allow: /
-
-User-agent: NaverBot
-Allow: /
-
-User-agent: Daumoa
 Allow: /
