@@ -18,37 +18,47 @@
     <loc>https://dagong.co.kr/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
+  <!-- 상품 카테고리 - 한국차 -->
   <url>
     <loc>https://dagong.co.kr/products?type=tea</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
+  <!-- 상품 카테고리 - 공예품 -->
   <url>
     <loc>https://dagong.co.kr/products?type=craft</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
+  <!-- 상품 카테고리 - 선물세트 -->
   <url>
     <loc>https://dagong.co.kr/products?type=gift_set</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
+  <!-- 상품 카테고리 - 지역특산품 -->
   <url>
     <loc>https://dagong.co.kr/products?type=local</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
-  <!-- 선물추천 -->
+  <!-- 선물추천 시스템 -->
   <url>
     <loc>https://dagong.co.kr/gift-recommendation.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
   <!-- 체험/교육 -->
@@ -56,6 +66,7 @@
     <loc>https://dagong.co.kr/experiences</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
   <!-- 지역 -->
@@ -63,6 +74,7 @@
     <loc>https://dagong.co.kr/regions</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
   <!-- 생산자 -->
@@ -70,13 +82,87 @@
     <loc>https://dagong.co.kr/producers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    <lastmod>2026-04-27</lastmod>
   </url>
   
-  <!-- 상품등록 -->
+  <!-- 펀딩 상품 목록 -->
+  <url>
+    <loc>https://dagong.co.kr/funding</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-04-27</lastmod>
+  </url>
+  
+  <!-- 셀러 대시보드 -->
+  <url>
+    <loc>https://dagong.co.kr/seller-dashboard.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2026-04-27</lastmod>
+  </url>
+  
+  <!-- 상품 등록 -->
   <url>
     <loc>https://dagong.co.kr/products/new</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <lastmod>2026-04-27</lastmod>
+  </url>
+  
+  <!-- 로그인 -->
+  <url>
+    <loc>https://dagong.co.kr/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  
+  <!-- 회원가입 -->
+  <url>
+    <loc>https://dagong.co.kr/signup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  
+  <!-- 이벤트별 선물 추천 - 어린이날 -->
+  <url>
+    <loc>https://dagong.co.kr/gift-recommendation.html?occasion=childrens-day</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 이벤트별 선물 추천 - 어버이날 -->
+  <url>
+    <loc>https://dagong.co.kr/gift-recommendation.html?occasion=parents-day</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 이벤트별 선물 추천 - 스승의날 -->
+  <url>
+    <loc>https://dagong.co.kr/gift-recommendation.html?occasion=teachers-day</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 이벤트별 선물 추천 - 생일 -->
+  <url>
+    <loc>https://dagong.co.kr/gift-recommendation.html?occasion=birthday</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 이벤트별 선물 추천 - 졸업 -->
+  <url>
+    <loc>https://dagong.co.kr/gift-recommendation.html?occasion=graduation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 이벤트별 선물 추천 - 집들이 -->
+  <url>
+    <loc>https://dagong.co.kr/gift-recommendation.html?occasion=housewarming</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   
 </urlset>
