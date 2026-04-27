@@ -1036,44 +1036,141 @@ app.get('/sitemap.xml', (c) => {
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${baseUrl}/regions</loc>
+    <loc>${baseUrl}/products?type=gift_set</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/products?type=local</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/producers</loc>
+    <loc>${baseUrl}/gift-recommendation.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/experiences</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/education/apply</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/education/curriculum</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/events</loc>
+    <loc>${baseUrl}/regions</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>${baseUrl}/producers</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/products/new</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>`
 
   return c.text(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8'
+  })
+})
+
+// RSS 피드 서빙
+app.get('/rss.xml', (c) => {
+  const protocol = c.req.header('x-forwarded-proto') || 'https'
+  const host = c.req.header('host') || 'dagong.co.kr'
+  const baseUrl = `${protocol}://${host}`
+  const today = new Date().toUTCString()
+  
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" 
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>다공 - 한국차와 공예품 플랫폼</title>
+    <link>${baseUrl}</link>
+    <description>전통 한국차와 수공예품을 만나는 특별한 공간, 다공입니다. 엄선된 한국차, 수공예품, 선물세트, 체험 프로그램을 제공합니다.</description>
+    <language>ko</language>
+    <lastBuildDate>${today}</lastBuildDate>
+    <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
+    
+    <item>
+      <title>다공 - 한국차 공예 플랫폼</title>
+      <link>${baseUrl}/</link>
+      <description>전통 한국차와 수공예품을 만나는 특별한 공간, 다공입니다.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/</guid>
+    </item>
+    
+    <item>
+      <title>한국차 - 다공</title>
+      <link>${baseUrl}/products?type=tea</link>
+      <description>엄선된 전통 한국차를 만나보세요. 녹차, 홍차, 발효차 등 다양한 한국차 제품을 판매합니다.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/products?type=tea</guid>
+    </item>
+    
+    <item>
+      <title>공예품 - 다공</title>
+      <link>${baseUrl}/products?type=craft</link>
+      <description>한국 전통 수공예품과 현대적 디자인이 결합된 특별한 공예품을 만나보세요.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/products?type=craft</guid>
+    </item>
+    
+    <item>
+      <title>선물세트 - 다공</title>
+      <link>${baseUrl}/products?type=gift_set</link>
+      <description>특별한 날을 위한 한국차와 공예품 선물세트를 준비했습니다.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/products?type=gift_set</guid>
+    </item>
+    
+    <item>
+      <title>선물추천 - 다공</title>
+      <link>${baseUrl}/gift-recommendation.html</link>
+      <description>어린이날, 어버이날, 스승의날 등 이벤트별 맞춤 선물을 추천해드립니다.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/gift-recommendation.html</guid>
+    </item>
+    
+    <item>
+      <title>체험/교육 - 다공</title>
+      <link>${baseUrl}/experiences</link>
+      <description>한국차 시음회, 다도 체험, 공예 워크숍 등 다양한 체험 프로그램을 제공합니다.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/experiences</guid>
+    </item>
+    
+    <item>
+      <title>지역별 상품 - 다공</title>
+      <link>${baseUrl}/regions</link>
+      <description>전국 각지의 특색있는 한국차와 공예품을 지역별로 만나보세요.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/regions</guid>
+    </item>
+    
+    <item>
+      <title>생산자 - 다공</title>
+      <link>${baseUrl}/producers</link>
+      <description>한국차와 공예품을 만드는 생산자들의 이야기를 만나보세요.</description>
+      <pubDate>${today}</pubDate>
+      <guid>${baseUrl}/producers</guid>
+    </item>
+  </channel>
+</rss>`
+
+  return c.text(rss, 200, {
     'Content-Type': 'application/xml; charset=utf-8'
   })
 })

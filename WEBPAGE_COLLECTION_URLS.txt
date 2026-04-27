@@ -1,0 +1,111 @@
+# 네이버 서치어드바이저 - 웹페이지 수집 요청 URL 목록
+
+## 브랜드명 검색어 (다공, 한국차공예플랫폼, dagong, dagong.co.kr)
+
+### 1. 다공 (메인 페이지)
+https://dagong.co.kr/
+
+### 2. 한국차공예플랫폼 (메인 페이지)
+https://dagong.co.kr/
+
+### 3. dagong (메인 페이지)
+https://dagong.co.kr/
+
+### 4. dagong.co.kr (메인 페이지)
+https://dagong.co.kr/
+
+---
+
+## 주요 페이지 URL
+
+### 5. 전체 상품 페이지
+https://dagong.co.kr/products
+
+### 6. 한국차 카테고리
+https://dagong.co.kr/products?type=tea
+
+### 7. 공예품 카테고리
+https://dagong.co.kr/products?type=craft
+
+### 8. 선물세트 카테고리
+https://dagong.co.kr/products?type=gift_set
+
+### 9. 지역특산물 카테고리
+https://dagong.co.kr/products?type=local
+
+### 10. 선물추천 페이지
+https://dagong.co.kr/gift-recommendation.html
+
+### 11. 체험/교육 페이지
+https://dagong.co.kr/experiences
+
+### 12. 지역별 페이지
+https://dagong.co.kr/regions
+
+### 13. 생산자 페이지
+https://dagong.co.kr/producers
+
+---
+
+## 네이버 서치어드바이저 제출 방법
+
+1. 네이버 서치어드바이저 접속: https://searchadvisor.naver.com/
+2. 좌측 메뉴: 요청 > 웹페이지 수집
+3. "URL 수집 요청" 탭 선택
+4. 위 URL을 한 줄씩 복사하여 입력 (한 번에 최대 10개)
+5. "확인" 버튼 클릭
+
+---
+
+## 복사용 URL (한 번에 복사)
+
+https://dagong.co.kr/
+https://dagong.co.kr/products
+https://dagong.co.kr/products?type=tea
+https://dagong.co.kr/products?type=craft
+https://dagong.co.kr/products?type=gift_set
+https://dagong.co.kr/products?type=local
+https://dagong.co.kr/gift-recommendation.html
+https://dagong.co.kr/experiences
+https://dagong.co.kr/regions
+https://dagong.co.kr/producers
+
+---
+
+## 검색어별 설명
+
+### 다공
+- 브랜드명
+- 한국차와 공예품을 판매하는 온라인 플랫폼
+
+### 한국차공예플랫폼
+- 서비스 설명
+- 전통 한국차와 수공예품을 만나는 플랫폼
+
+### dagong
+- 영문 브랜드명
+- 도메인명
+
+### dagong.co.kr
+- 도메인 주소
+- 직접 검색 시 사용
+
+---
+
+## 예상 검색 노출 키워드
+
+- 다공
+- 한국차 플랫폼
+- 한국차 공예품
+- 한국차 선물
+- 전통차 온라인
+- 수공예품 쇼핑몰
+- 한국차 체험
+- 녹차 구매
+- 홍차 판매
+- 다도 체험
+- 공예품 선물
+- 어린이날 선물
+- 어버이날 선물
+- 스승의날 선물
+
